@@ -1,5 +1,5 @@
-import requests
-import urllib.request, random
+import requests, urllib2 ,urllib, os
+import random
 from bs4 import BeautifulSoup
 
 def get_results():
@@ -11,7 +11,7 @@ def get_results():
         img = soup.find('img')
         imgurl = img.get('src')
         dnld_captcha(imgurl)
-        captcha = input('enter captcha:   ')
+        captcha = raw_input('enter captcha:   ')
         for rollno in range(1302710001, 1302710124):
 	        login_data = get_login_credentials(soup, rollno, captcha)
 	        response2 = s.post(url, data=login_data)
@@ -25,9 +25,11 @@ def get_results():
         #n = name.string
         #print(soup2)
 
-def dnld_captcha(imgurl):
-	name = str(random.randrange(1,1000)) + '.gif'
-	urllib.request.urlretrieve(imgurl, name)
+def dnld_captcha(imageurl):
+   x = random.randrange(1,1000)
+   name = str(x) + '.jpg'
+   urllib.urlretrieve(imageurl, os.path.join(os.getcwd(), name)) # download and save image
+
 
 
 def get_login_credentials(soup, rollno, captcha):
