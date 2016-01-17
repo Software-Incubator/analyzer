@@ -31,18 +31,54 @@ def get_results():
         branch_name = soup.find(id='ctl00_ContentPlaceHolder1_lblCourse').string.split('(')[0]
         branch_code = soup.find(id='ctl00_ContentPlaceHolder1_lblCourse').string.split('(')[1][:-1]
 
-        print colg_code
+        '''print colg_code
         print fathers_name
         print roll_no
         print status
         print branch_name
-        print branch_code
+        print branch_code '''
+        # for marks
+        mark = soup.find_all('table')[1].find_all('table')[0]
+        # for sem
+        sem = (mark.find('th').string).split()[0][0]
+        mark_table = mark.find_all('table')[0]
+        # this williterate in all rows of a particular semester
+        for tr in mark_table.find_all('tr')[1:]:
+            sub_code = tr.find_all('span')[0].string
+            sub_name = tr.find_all('span')[1].string
+            try:
+                external = int(tr.find_all('span')[2].string)
+            except ValueError:
+                external = 0
+            try:
+                internal = int(tr.find_all('span')[3].string)
+            except (ValueError, IndexError):
+                internal = 0
+
+            try:
+                carry_over = int(tr.find_all('span')[4].string)
+            except (ValueError, TypeError, IndexError):
+                carry_over = 0
+            try:
+                credit = int(tr.find_all('span')[5].string)
+            except (ValueError, IndexError):
+                credit = 0
+
+
+            print sub_code
+            print sub_name
+            print external
+            print internal
+            print carry_over
+            print credit
+            print '*******************'
+
 
 
 
 def dnld_captcha(imageurl):
-   x = random.randrange(1,1000)
-   name = str(x) + '.gif'
+   #x = random.randrange(1,1000)
+   name = 'raghav.gif'
    urllib.urlretrieve(imageurl, os.path.join(os.getcwd(), name)) # download and save image
 
 
