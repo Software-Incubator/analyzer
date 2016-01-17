@@ -12,22 +12,37 @@ def get_results():
         imgurl = img.get('src')
         dnld_captcha(imgurl)
         captcha = raw_input('enter captcha:   ')
-        for rollno in range(1302710001, 1302710124):
-	        login_data = get_login_credentials(soup, rollno, captcha)
-	        response2 = s.post(url, data=login_data)
-	        #print(response)
-	        soup2 = BeautifulSoup(response2.text, 'html5lib')
-	        try:
-	        	name = soup2.find(id='ctl00_ContentPlaceHolder1_lblName').string
-	        	print(name)
-	        except AttributeError:
-	        	print('rollno does not exist')
-        #n = name.string
-        #print(soup2)
+        # for time being using only one roll number
+        rollno = 1302710116
+        login_data = get_login_credentials(soup, rollno, captcha)
+        response2 = s.post(url, data=login_data)
+        #print(response)
+        soup = BeautifulSoup(response2.text, 'html5lib')
+        try:
+            name = soup.find(id='ctl00_ContentPlaceHolder1_lblName').string
+            print(name)
+        except AttributeError:
+            print('rollno does not exist')
+
+        colg_code = soup.find(id='ctl00_ContentPlaceHolder1_lblInstName').string.split('(')[1][:-1]
+        fathers_name = soup.find(id='ctl00_ContentPlaceHolder1_lblF_NAME').string
+        roll_no = soup.find(id='ctl00_ContentPlaceHolder1_lblROLLNO').string
+        status = soup.find(id='ctl00_ContentPlaceHolder1_lblStatus').string
+        branch_name = soup.find(id='ctl00_ContentPlaceHolder1_lblCourse').string.split('(')[0]
+        branch_code = soup.find(id='ctl00_ContentPlaceHolder1_lblCourse').string.split('(')[1][:-1]
+
+        print colg_code
+        print fathers_name
+        print roll_no
+        print status
+        print branch_name
+        print branch_code
+
+
 
 def dnld_captcha(imageurl):
    x = random.randrange(1,1000)
-   name = str(x) + '.jpg'
+   name = str(x) + '.gif'
    urllib.urlretrieve(imageurl, os.path.join(os.getcwd(), name)) # download and save image
 
 
