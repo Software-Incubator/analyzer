@@ -51,6 +51,7 @@ def get_results():
         marks = []
         mark_odd = {}  # dictionary for odd sem marks
         mark_even = {} # dictionary for even sem marks
+        # this dict also contains a key of sem whose value is the sem of his result
         # this loop iterates on both the tables
         flag = True
         for marks_table in marks_tables:
@@ -92,6 +93,10 @@ def get_results():
                     mark_odd[sub_code] = mark_list
                 else:
                     mark_even[sub_code] = mark_list
+            if flag:
+                mark_odd['sem'] = sem
+            else:
+                mark_even['sem'] = sem
             flag = False
 
         max_marks = int(soup.find(id ='ctl00_ContentPlaceHolder1_lblSTAT_8MRK').string)
