@@ -20,27 +20,20 @@ def get_results():
         #print(response)
         soup = BeautifulSoup(response2.text, 'html.parser')
         try:
-            name = soup.find(id='ctl00_ContentPlaceHolder1_lblName').string
+            name = soup.find(id='ctl00_ContentPlaceHolder1_lblName').string.strip()
             print(name)
         except AttributeError:
             print('rollno does not exist')
             exit(0)
 
         colg_code = soup.find(id='ctl00_ContentPlaceHolder1_lblInstName').string.split('(')[1][:-1]
-        fathers_name = soup.find(id='ctl00_ContentPlaceHolder1_lblF_NAME').string
+        fathers_name = soup.find(id='ctl00_ContentPlaceHolder1_lblF_NAME').string.strip()
         roll_no = soup.find(id='ctl00_ContentPlaceHolder1_lblROLLNO').string
-        status = soup.find(id='ctl00_ContentPlaceHolder1_lblStatus').string
+        status = soup.find(id='ctl00_ContentPlaceHolder1_lblStatus').string.strip()
         branch_info = soup.find(id='ctl00_ContentPlaceHolder1_lblCourse').string.split('.')[2].split('(')
         branch_name = branch_info[0].lstrip()
         branch_code = branch_info[1][:-1]
 
-
-        print "College Code: ", colg_code
-        print "Father's Name: ", fathers_name
-        print "Roll Number: ", roll_no
-        print "Status: ", status
-        print "Branch Name: ", branch_name
-        print "Branch Code: ", branch_code
 
         #models.connection.User.insert(student_json)
         # for marks
@@ -101,8 +94,6 @@ def get_results():
 
         max_marks = int(soup.find(id ='ctl00_ContentPlaceHolder1_lblSTAT_8MRK').string)
         marks = [mark_odd, mark_even,max_marks ]
-        print marks
-
         carry_papers = soup.find(
                 id='ctl00_ContentPlaceHolder1_lblCarryOver').text.split(',')
 
@@ -116,10 +107,10 @@ def get_results():
             'father_name': fathers_name,
             'branch': branch_name,
             'college': colg_code,
-            'year': 3,
-            'marks': dict(),
-           # 'max_marks': max_marks
+            'marks': marks,
+            'carry_papers': carry_papers,
             }
+        print student_data
 
 
 def dnld_captcha(imageurl):
