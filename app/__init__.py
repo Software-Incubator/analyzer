@@ -1,5 +1,5 @@
 from flask import Flask
-from mongokit import Connection, Document
+from mongokit import Connection
 
 
 # configuring mongodb
@@ -12,5 +12,6 @@ app.config.from_object(__name__)
 connection = Connection(app.config['MONGODB_HOST'],
 						app.config['MONGODB_PORT'])
 
+
 		
-from app import views
+from app import views, models

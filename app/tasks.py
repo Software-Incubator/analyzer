@@ -1,6 +1,7 @@
 import requests, urllib2 ,urllib, os
 from bs4 import BeautifulSoup
-#from .models import *
+from .models import Student
+from app import connection
 
 
 def get_results():
@@ -14,7 +15,7 @@ def get_results():
         dnld_captcha(imgurl)
         captcha = raw_input('enter captcha:   ')
         # for time being using only one roll number
-        rollno = 1302731024
+        rollno = 1302710149
         login_data = get_login_credentials(soup, rollno, captcha)
         response2 = s.post(url, data=login_data)
         #print(response)
@@ -111,6 +112,19 @@ def get_results():
             'carry_papers': carry_papers,
             }
         print student_data
+
+        collection  = connection['test'].students
+        data = collection.Student()
+        data['roll_no'] = roll_no
+        data['name'] = name
+        data['father_name'] = fathers_name
+        data['branch'] = branch_code
+        data['college'] = colg_code
+        data['marks'] = marks
+        data['carry_papers'] = carry_papers
+        data.save()
+
+
 
 
 def dnld_captcha(imageurl):
