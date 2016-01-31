@@ -9,16 +9,16 @@ class Student(Document):
         'father_name' : unicode,
         'branch' : unicode,
         'college' : unicode,
-        # marks is a list whose first element is odd sem marks, second element is even sem marks and third element is
+        # marks is a list whose first element is odd sem marks,
+        # second element is even sem marks and third element is
         # maximum marks
         'marks' : list,
         'carry_papers': [basestring],
-
     }
     use_dot_notaton = True
     use_autorefs = True
 
     def __repr__(self):
-        return Student.name
+        return self['name']
 
 connection.register([Student])

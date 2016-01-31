@@ -8,7 +8,7 @@ MONGODB_PORT = 27017
 
 app = Flask(__name__)
 app.config.from_object(__name__)
-
+app.config.from_object('config')
 connection = Connection(app.config['MONGODB_HOST'],
 						app.config['MONGODB_PORT'])
 

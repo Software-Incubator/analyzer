@@ -1,3 +1,4 @@
-#!/home/raghvendra/.virtualenvs/results/bin/python
+#!/home/animesh/.virtualenvs/analyzer/bin/python
+
 from app import app
 app.run(debug=True)

@@ -1,15 +1,12 @@
 #pycharm
- .idea/
+.idea/
 
- #virtualenv
- venv/
+#temp files
+*~
 
- #temp files
- *~
+#swap files
+*.swp
+*.swo
 
- #swap files
- *.swp
- *.swo
-
- #byte-compiled files
- *.pyc
+#byte-compiled files
+*.pyc
