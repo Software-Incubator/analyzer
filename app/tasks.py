@@ -108,7 +108,7 @@ def get_result(session, login_data, year=2):
         # marks is a list whose first element is odd sem marks,
         # second element is even sem marks and third element is even sem 
         # marks and third is sum of all marks
-        marks = []
+        marks = []  # for total result
         # this dict also contains a key of sem whose value is the sem of
         # his result
         # this loop iterates on both the tables
@@ -117,26 +117,29 @@ def get_result(session, login_data, year=2):
             sem = (in_tables[0].find_all('tr')[0].find(
                 'th'
             ).string).split()[0][0]
-            mark_dict = dict()
-            mark_dict['sem'] = sem
+            mark_list = list()  # for a semester
+            mark_list.append(sem)
             in_table = in_tables[1]
-            marks_rows = in_table.find_all('tr')[1:]
+            marks_rows = in_table.find_all('tr')[1: ]
             # this loop iterates on all subjects of a semester
             for marks_row in marks_rows:
-                row_cells = marks_row.find_all('span')  # details of subject marks
+                sub_dict = dict()  # one for each subject
+                row_cells = marks_row.find_all('span')  # details of subject
                 sub_code = row_cells[0].string.strip()
                 sub_name = row_cells[1].string
-                mark_list = []
+                sub_dict['sub_code'] = sub_code
+                sub_dict['sub_name'] = sub_name
+                sub_marks = []  # different kind of marks of a subject
                 try:
                     external = float(row_cells[2].string)
                 except ValueError:
                     external = 0
-                mark_list.append(external)
+                sub_marks.append(external)
                 try:
                     internal = float(row_cells[3].string)
                 except (ValueError, IndexError):
                     internal = 0
-                mark_list.append(internal)
+                sub_marks.append(internal)
                 try:
                     carry_over = float(row_cells[4].string)
                 except (ValueError, TypeError, IndexError):
@@ -147,13 +150,12 @@ def get_result(session, login_data, year=2):
                     credit = 0
                 except IndexError:
                     credit = 0
-                mark_list.append(credit)
+                sub_marks.append(credit)
 
-                mark_dict[sub_code] = dict()
-                mark_dict[sub_code]['name'] = sub_name
-                mark_dict[sub_code]['marks'] = mark_list
+                sub_dict['sub_marks'] = sub_marks
+                mark_list.append(sub_dict)  # add each subject marks to list
 
-            marks.append(mark_dict)
+            marks.append(mark_list)  # append semester marks to main list
 
         max_marks = float(soup.find(id ='ctl00_ContentPlaceHolder1_lblSTAT_8MRK'
                                   ).string)
