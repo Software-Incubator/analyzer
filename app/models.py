@@ -7,7 +7,8 @@ class Student(Document):
         'roll_no': unicode,
         'name' : unicode,
         'father_name' : unicode,
-        'branch' : unicode,
+        'branch_code' : unicode,
+        'branch_name' : unicode,
         'college' : unicode,
         # marks is a list whose first element is odd sem marks,
         # second element is even sem marks and third element is
