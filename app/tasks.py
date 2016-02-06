@@ -85,6 +85,9 @@ def get_result(session, login_data, year=2):
         colg_code = soup.find(
             id='ctl00_ContentPlaceHolder1_lblInstName'
         ).string.split('(')[1][:-1]
+        colg_name =  soup.find(
+            id='ctl00_ContentPlaceHolder1_lblInstName'
+        ).string.split('(')[0]
         fathers_name = soup.find(
             id='ctl00_ContentPlaceHolder1_lblF_NAME'
         ).string.strip()
@@ -173,7 +176,8 @@ def get_result(session, login_data, year=2):
             'father_name': fathers_name,
             'branch_code': branch_code,
             'branch_name': branch_name,
-            'college': colg_code,
+            'college_code': colg_code,
+            'college_name': colg_name,
             'marks': marks,
             'carry_papers': carry_papers,
         }

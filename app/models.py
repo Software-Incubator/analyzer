@@ -9,7 +9,8 @@ class Student(Document):
         'father_name' : unicode,
         'branch_code' : unicode,
         'branch_name' : unicode,
-        'college' : unicode,
+        'college_code' : unicode,
+        'college_name' : unicode,
         # marks is a list whose first element is odd sem marks,
         # second element is even sem marks and third element is
         # maximum marks
