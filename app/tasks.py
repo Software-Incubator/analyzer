@@ -171,7 +171,7 @@ def get_result(session, login_data, year=2):
             'roll_no': roll_no,
             'name': name,
             'father_name': fathers_name,
-            'branch': branch_name,
+            'branch': branch_code,
             'college': colg_code,
             'marks': marks,
             'carry_papers': carry_papers,
@@ -246,6 +246,5 @@ def get_login_credentials(soup, rollno, captcha):
     return login_credentials
 
 
-if __name__ == '__main__':
-    get_college_results(college_code='027', year=2)
+get_college_results(college_code='027', year=2)
 
