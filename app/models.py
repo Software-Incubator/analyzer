@@ -11,6 +11,7 @@ class Student(Document):
         'branch_name' : unicode,
         'college_code' : unicode,
         'college_name' : unicode,
+        'semester' : list,
         # marks is a list whose first element is odd sem marks,
         # second element is even sem marks and third element is
         # maximum marks
