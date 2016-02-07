@@ -115,13 +115,14 @@ def get_result(session, login_data, year=2):
         # this dict also contains a key of sem whose value is the sem of
         # his result
         # this loop iterates on both the tables
-        semester = []
+
         for marks_table in marks_tables:
             in_tables = marks_table.find_all('table')
-            sem = (in_tables[0].find_all('tr')[0].find(
-                'th'
-            ).string).split()[0][0]
-            semester.append(sem)
+            if flag:
+                sem = (in_tables[0].find_all('tr')[0].find(
+                    'th'
+                ).string).split()[0][0]
+
             mark_list = list()  # for a semester
             in_table = in_tables[1]
             marks_rows = in_table.find_all('tr')[1: ]
@@ -155,6 +156,7 @@ def get_result(session, login_data, year=2):
                 except IndexError:
                     credit = 0
                 sub_marks.append(credit)
+                flag = False
 
                 sub_dict['sub_marks'] = sub_marks
                 mark_list.append(sub_dict)  # add each subject marks to list
@@ -174,7 +176,7 @@ def get_result(session, login_data, year=2):
         student_data = {
             'roll_no': roll_no,
             'name': name,
-            'semester': semester,
+            'sem': sem,
             'father_name': fathers_name,
             'branch_code': branch_code,
             'branch_name': branch_name,
@@ -188,7 +190,7 @@ def get_result(session, login_data, year=2):
         data = collection.Student(student_data)
         data.save()
         print("result saved for roll number: ", data['roll_no'])
-        print "Semester" + str(semester)
+        print "Semester" + str(sem)
     # return True if result saved succussfully
     return True
 
