@@ -23,7 +23,7 @@ def make_excel(branch, sem, colg_code='027'):
         sem = str(int(sem) - 1)
         i = 1
 
-    head = collection.Student.find({'branch_code': branch, 'college_code': colg_code, 'sem': sem})
+    head = collection.Student.find_one({'branch_code': branch, 'college_code': colg_code, 'sem': sem})
     # print head['name']
     # print head['roll_no']
     # col_mark will find the number of subjects
@@ -45,7 +45,10 @@ def make_excel(branch, sem, colg_code='027'):
     j = 3
     # for sub code and internal, external and total
     for x in head['marks'][i]:
-        worksheet.merge_range(1,j,1,j+2, x['sub_code'], merge_format)
+        if x['sub_code'][1:4] == 'OE0':
+            worksheet.merge_range(1,j,1,j+2, "OE0", merge_format)
+        else:
+            worksheet.merge_range(1,j,1,j+2, x['sub_code'], merge_format)
         worksheet.write(2, j, 'External')
         worksheet.write(2, j+1, 'Internal')
         worksheet.write(2, j+2, 'Total')
@@ -70,4 +73,4 @@ def make_excel(branch, sem, colg_code='027'):
 
     workbook.close()
 
-make_excel('10','4', '027')
+make_excel('31','3', '027')
