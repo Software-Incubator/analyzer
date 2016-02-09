@@ -53,10 +53,13 @@ def make_excel(branch, sem, colg_code='027'):
         worksheet.write(2, j, 'External')
         worksheet.write(2, j+1, 'Internal')
         worksheet.write(2, j+2, 'Total')
+        worksheet.write(2, j+3, 'Carry Papers')
         j = j + 3
         col = col - 1
     # for sum  total of marks in a row
     worksheet.merge_range(1,j,1, j+2, 'Total', merge_format)
+    worksheet.set_column(j+3, j+3, 45) # for carry papers
+    worksheet.write(1,j+3, 'Carry Papers', merge_format ) # for carry papers
     worksheet.write(2, j, 'External')
     worksheet.write(2, j+1, 'Internal')
     worksheet.write(2, j+2, 'Total')
@@ -81,6 +84,12 @@ def make_excel(branch, sem, colg_code='027'):
         worksheet.write(row, a, ext)
         worksheet.write(row, a + 1, internal)
         worksheet.write(row, a + 2, ext + internal)
+        cp = ''   # cp is carry papers
+        for cps in st['carry_papers'][ : -1]:
+            cp = cp + str(cps) + ', '
+
+        worksheet.write(row, a + 3, cp )
+
 
         row = row + 1
 
