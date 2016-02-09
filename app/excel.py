@@ -19,6 +19,7 @@ def make_excel(branch, sem, colg_code='027'):
     format.set_text_wrap()
 
     i = 0    # i is the index of which list we have to iterate in marks
+
     if int(sem) % 2 == 0:
         sem = str(int(sem) - 1)
         i = 1
@@ -54,6 +55,11 @@ def make_excel(branch, sem, colg_code='027'):
         worksheet.write(2, j+2, 'Total')
         j = j + 3
         col = col - 1
+    # for sum  total of marks in a row
+    worksheet.merge_range(1,j,1, j+2, 'Total', merge_format)
+    worksheet.write(2, j, 'External')
+    worksheet.write(2, j+1, 'Internal')
+    worksheet.write(2, j+2, 'Total')
 
     # for marks now
     row = 3
@@ -63,11 +69,18 @@ def make_excel(branch, sem, colg_code='027'):
         worksheet.write(row, col + 1, st['name'], format)
         worksheet.write(row, col + 2, st['father_name'], format)
         a = 3
+        ext = 0 # for total external marks
+        internal = 0 # for total internal marks
         for mark in st['marks'][i]:
             worksheet.write(row, a, mark['sub_marks'][0])
             worksheet.write(row, a + 1, mark['sub_marks'][1])
             worksheet.write(row, a + 2, sum(mark['sub_marks'][ : -1 ]))
+            ext = ext + mark['sub_marks'][0]
+            internal = internal + mark['sub_marks'][1]
             a = a + 3
+        worksheet.write(row, a, ext)
+        worksheet.write(row, a + 1, internal)
+        worksheet.write(row, a + 2, ext + internal)
 
         row = row + 1
 
