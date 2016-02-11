@@ -12,6 +12,6 @@ app.config.from_object('config')
 connection = Connection(app.config['MONGODB_HOST'],
 						app.config['MONGODB_PORT'])
 
-
+app.secret_key= 'GuessItIfUCan'
 		
 from app import views, models

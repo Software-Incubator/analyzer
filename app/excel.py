@@ -5,6 +5,7 @@ from .models import Student
 
 
 def make_excel(branch, sem, colg_code='027'):
+    print 'excel', colg_code, branch, sem
     workbook = xlsxwriter.Workbook('excel.xlsx')
     worksheet = workbook.add_worksheet()
     collection = connection.test.students
@@ -37,7 +38,7 @@ def make_excel(branch, sem, colg_code='027'):
                           sem, merge_format)
 
     worksheet.set_column('A:A', 15)
-    worksheet.set_column('B:C', 25)
+    worksheet.set_column('B:C', 30)
     worksheet.write(1, 0, "Roll No.", merge_format)
     worksheet.write(1, 1, "Name", merge_format)
     worksheet.write(1, 2, "Father's Name", merge_format)
@@ -95,4 +96,3 @@ def make_excel(branch, sem, colg_code='027'):
 
     workbook.close()
 
-make_excel('31','3', '027')
