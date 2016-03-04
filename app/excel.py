@@ -3,7 +3,6 @@ from app import connection
 from .models import Student
 
 
-
 def make_excel(branch, sem, colg_code='027'):
     print 'excel', colg_code, branch, sem
     workbook = xlsxwriter.Workbook('excel.xlsx')
@@ -14,7 +13,6 @@ def make_excel(branch, sem, colg_code='027'):
         #'border': 1,
         'align': 'center',
         'valign': 'vcenter',
-
     })
     format = workbook.add_format()
     format.set_text_wrap()
@@ -55,8 +53,8 @@ def make_excel(branch, sem, colg_code='027'):
         worksheet.write(2, j+1, 'Internal')
         worksheet.write(2, j+2, 'Total')
         worksheet.write(2, j+3, 'Carry Papers')
-        j = j + 3
-        col = col - 1
+        j += 3
+        col -= 1
     # for sum  total of marks in a row
     worksheet.merge_range(1,j,1, j+2, 'Total', merge_format)
     worksheet.set_column(j+3, j+3, 45) # for carry papers
