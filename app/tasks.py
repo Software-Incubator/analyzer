@@ -43,7 +43,6 @@ def post_in_session(session, url, post_data):
     sys.exit(0)
 
 
-
 def roll_num_generator(college_code='027', year=2):
     """generates the first roll numbers of all the branches
     :param: college_code: code of the college of which the first
@@ -57,6 +56,11 @@ def roll_num_generator(college_code='027', year=2):
     year_code = str(curr_year - year - 1)
     roll_nums = [year_code + college_code + branch_code + '001' for
                  branch_code in branch_codes]
+    if year >= 2:
+        lat_year_code = str(curr_year - year)
+        lat_roll_nums = [lat_year_code + college_code + branch_code + '901' for
+                         branch_code in branch_codes]
+        roll_nums += lat_roll_nums
     return roll_nums
 
 
