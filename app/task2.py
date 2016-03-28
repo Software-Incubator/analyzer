@@ -1,5 +1,7 @@
 import requests, os, urllib
 from bs4 import BeautifulSoup
+from app import connection, app
+
 
 
 def get_college_results(college_code='027', year=1):
@@ -90,8 +92,28 @@ def get_college_results(college_code='027', year=1):
                 c = c[ : -1]
             carry_papers = c.split(',')
             print carry_papers
+            year = str(year)
+            year = unicode(year, 'utf-8')
+            student_data = {
+            'roll_no': roll_no,
+            'name': name,
+            'year': year,
+            'father_name': fathers_name,
+            'branch_code': branch_code,
+            'branch_name': branch_name,
+            'college_code': colg_code,
+            'college_name': colg_name,
+            'marks': marks,
+            'carry_papers': carry_papers,
+        }
 
-
+            collection  = connection['test'].students
+            data = collection.Student(student_data)
+            data.save()
+            print("result saved for roll number: ", data['roll_no'])
+            print "Year" + str(year)
+        # return True if result saved succussfully
+        return True
 
 
 
