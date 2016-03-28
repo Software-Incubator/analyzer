@@ -55,20 +55,36 @@ def get_college_results(college_code='027', year=1):
             branch_name = branch_info[0].lstrip()
             branch_code = branch_info[1][:-1]
 
-            print( 'roll_no==', roll_no,
-            'name',name,
-            'father_name', fathers_name,
-            'branch_code', branch_code,
-            'branch_name', branch_name,
-            'college_code', colg_code,
-            'college_name', colg_name,
-            )
+            # print( 'roll_no==', roll_no,
+            # 'name',name,
+            # 'father_name', fathers_name,
+            # 'branch_code', branch_code,
+            # 'branch_name', branch_name,
+            # 'college_code', colg_code,
+            # 'college_name', colg_name,
+            # )
 
             # for marks,, it will contain a list and in that list there will be dictionaries
             # for each and every subjects
             # key for dictionaries "sub_marks","sub_code", "sub_name",,
             #  and there values will be their values
-           
+            marks = []
+            marks_table = soup.find(id='ctl00_ContentPlaceHolder1_divRes').find_all('table')[1]
+            marks_rows = marks_table.find('tbody').find_all('tr')[1].find('td').find('table').find('tbody').find_all('tr')
+            for mark in marks_rows[1:]:  # this will iterate in each row
+                details = mark.find_all('span')
+                try:
+                    sub_code = details[0].string.strip()
+                except AttributeError:
+                    continue
+                sub_name = details[1].string.strip()
+                m = []
+                m.append(details[2].string.strip())
+                m.append(details[3].string.strip())
+                dict = {'sub_name': sub_name, 'sub_code': sub_code, 'marks': m}
+
+                marks.append(dict)
+            print marks
 
 
 
