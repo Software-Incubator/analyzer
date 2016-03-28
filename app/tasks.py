@@ -111,7 +111,7 @@ def get_result(session, login_data, year=2):
 
         # for marks
         marks_tables = soup.find_all('table')[1].find_all('td', width='50%')
-        flag = True
+        # flag = True
         # marks is a list whose first element is odd sem marks,
         # second element is even sem marks and third element is even sem 
         # marks and third is sum of all marks
@@ -122,11 +122,11 @@ def get_result(session, login_data, year=2):
 
         for marks_table in marks_tables:
             in_tables = marks_table.find_all('table')
-            if flag:
-                sem = (in_tables[0].find_all('tr')[0].find(
-                    'th'
-                ).string).split()[0][0]
-
+            # if flag:
+            sem = (in_tables[0].find_all('tr')[0].find(
+                'th'
+            ).string).split()[0][0]
+            year = unicode((int(sem) - .1) // 2 + 1)[0]
             mark_list = list()  # for a semester
             in_table = in_tables[1]
             marks_rows = in_table.find_all('tr')[1: ]
@@ -160,11 +160,11 @@ def get_result(session, login_data, year=2):
                 except IndexError:
                     credit = 0
                 sub_marks.append(credit)
-                flag = False
+                # flag = False
 
                 sub_dict['sub_marks'] = sub_marks
                 mark_list.append(sub_dict)  # add each subject marks to list
-
+            mark_list.append(sem)  # adding semester to marks list separately
             marks.append(mark_list)  # append semester marks to main list
 
         max_marks = float(soup.find(id ='ctl00_ContentPlaceHolder1_lblSTAT_8MRK'
@@ -180,7 +180,7 @@ def get_result(session, login_data, year=2):
         student_data = {
             'roll_no': roll_no,
             'name': name,
-            'sem': sem,
+            # 'sem': sem, removed semester from student model
             'father_name': fathers_name,
             'branch_code': branch_code,
             'branch_name': branch_name,
@@ -188,6 +188,7 @@ def get_result(session, login_data, year=2):
             'college_name': colg_name,
             'marks': marks,
             'carry_papers': carry_papers,
+            'year': year,  # adding year instead of semester
         }
 
         collection  = connection['test'].students
@@ -198,16 +199,17 @@ def get_result(session, login_data, year=2):
     # return True if result saved succussfully
     return True
 
+
 def get_college_results(college_code='027', year=2):
     """
     gets the result of all branches of the given college code
     of all years
-    :param: college_code: str, code of the college of which the result
+    :param college_code: str, code of the college of which the result
     to be fetched
-    :param: year: int, year of which the result is asked
+    :param year: int, year of which the result is asked
     :return: True if successfully fetched all the results, False otherwise
     """
-    roll_nums = roll_num_generator(college_code='027', year=2)
+    roll_nums = roll_num_generator(college_code=college_code, year=2)
     with requests.Session() as s:
         url = app.config['URLS'][year]  # getting url from config file
         response = get_in_session(s, url)
@@ -244,21 +246,20 @@ def dnld_captcha(imageurl):
 
 def get_login_credentials(soup, rollno, captcha):
     data1 = str(soup.find(id='__VIEWSTATE')['value'])
-    data2 = str(soup.find(id='__VIEWSTATEGENERATOR')['value'])
+    # data2 = str(soup.find(id='__VIEWSTATEGENERATOR')['value'])
     data3 = str(soup.find(id='__EVENTVALIDATION')['value'])
 
     login_credentials = {
         '__EVENTTARGET': '',
         '__EVENTARGUMENT': '',
         '__VIEWSTATE': data1,
-        '__VIEWSTATEGENERATOR': data2,
+        # '__VIEWSTATEGENERATOR': data2,
         '__EVENTVALIDATION': data3,
         'ctl00$ContentPlaceHolder1$txtRoll': str(rollno),
         'ctl00$ContentPlaceHolder1$txtcapture': captcha,
         'ctl00$ContentPlaceHolder1$btnSubmit': 'Submit'
     }
     return login_credentials
-
 
 get_college_results(college_code='027', year=2)
 

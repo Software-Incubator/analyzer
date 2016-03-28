@@ -1,11 +1,12 @@
 import xlsxwriter
+
 from app import connection
 from .models import Student
 
 
-def make_excel(branch, sem, colg_code='027'):
+def make_excel(branch, sem, colg_code='027', output=None):
     print 'excel', colg_code, branch, sem
-    workbook = xlsxwriter.Workbook('excel.xlsx')
+    workbook = xlsxwriter.Workbook(output)
     worksheet = workbook.add_worksheet()
     collection = connection.test.students
     merge_format = workbook.add_format({
@@ -20,14 +21,19 @@ def make_excel(branch, sem, colg_code='027'):
     i = 0    # i is the index of which list we have to iterate in marks
 
     if int(sem) % 2 == 0:
-        sem = str(int(sem) - 1)
+        # sem = str(int(sem) - 1)
         i = 1
 
-    head = collection.Student.find_one({'branch_code': branch, 'college_code': colg_code, 'sem': sem})
+
+    year = str((int(sem) - .1) // 2 + 1)[0]
+    head = collection.Student.find_one({'branch_code': branch,
+                                        'college_code': colg_code,
+                                        'year': year})
+                                        # 'sem': sem}) semester is removed now
+    print 'value of head', head
     # print head['name']
     # print head['roll_no']
     # col_mark will find the number of subjects
-
 
     worksheet.merge_range('A1:AO1', head['college_name'] +
                           " - "
@@ -40,11 +46,11 @@ def make_excel(branch, sem, colg_code='027'):
     worksheet.write(1, 0, "Roll No.", merge_format)
     worksheet.write(1, 1, "Name", merge_format)
     worksheet.write(1, 2, "Father's Name", merge_format)
-    col = len(head['marks'][i])
+    col = len(head['marks'][i]) - 1
     print col
     j = 3
     # for sub code and internal, external and total
-    for x in head['marks'][i]:
+    for x in head['marks'][i][:-1]:
         if x['sub_code'][1:4] == 'OE0':
             worksheet.merge_range(1,j,1,j+2, "OE0", merge_format)
         else:
@@ -66,14 +72,16 @@ def make_excel(branch, sem, colg_code='027'):
     # for marks now
     row = 3
     j = 3
-    for st in collection.Student.find({'branch_code': branch, 'college_code': colg_code, 'sem': sem}):
+    for st in collection.Student.find({'branch_code': branch,
+                                       'college_code': colg_code,
+                                       'year': year}):
         worksheet.write(row, col, st['roll_no'])
         worksheet.write(row, col + 1, st['name'], format)
         worksheet.write(row, col + 2, st['father_name'], format)
         a = 3
         ext = 0 # for total external marks
         internal = 0 # for total internal marks
-        for mark in st['marks'][i]:
+        for mark in st['marks'][i][:-1]:
             worksheet.write(row, a, mark['sub_marks'][0])
             worksheet.write(row, a + 1, mark['sub_marks'][1])
             worksheet.write(row, a + 2, sum(mark['sub_marks'][ : -1 ]))
@@ -89,8 +97,31 @@ def make_excel(branch, sem, colg_code='027'):
 
         worksheet.write(row, a + 3, cp )
 
-
-        row = row + 1
+        row += 1
 
     workbook.close()
+    return workbook
 
+
+def fail_excel(college_code='027', year=2, output=None):
+    """
+    generates excel for failed students
+    :param college_code: code of the college of which the excel is to be made
+    :param year: year of students of which excel to be made
+    :param output: for download of the excel
+    :return: none
+    """
+    collection = connection.test.students
+    branch_codes = collection.distinct("branch_codes")
+    for branch_code in branch_codes:
+        students = collection.find({"college_code": college_code,
+                                    "year": year,
+                                    "branch_code": branch_code})
+        student = collection.findOne({"college_code": college_code,
+                                      "year": year,
+                                      "branch_code": branch_code})
+        sub_codes = []
+        for sub_dict in student['marks'][0][: -1]:
+
+            pass
+        pass

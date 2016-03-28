@@ -1,7 +1,8 @@
+from io import BytesIO
 from app import app
 from .forms import InputForm
 from .excel import make_excel
-from flask import render_template
+from flask import render_template, Response
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -15,7 +16,13 @@ def index():
         colg = form.college.data[0]
         branch = form.branch.data[0]
         sem = form.sem.data[0]
-        print 'views' , colg, branch, sem
-        make_excel(colg_code=colg, branch=branch, sem=sem )
-    return render_template('index.html', form = form)
-
+        print 'In the views:', colg, branch, sem
+        output = BytesIO()
+        make_excel(branch=branch, sem=sem, colg_code=colg, output=output)
+        output.seek(0)
+        response = Response(output.read(),
+                            content_type="application/vnd.openxmlformats-"
+                                         "officedocument.spreadsheetml.sheet")
+        response.headers["Content-Disposition"] = "attachment; filename=result.xlsx"
+        return response
+    return render_template('index.html', form=form)
