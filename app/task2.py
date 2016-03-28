@@ -84,7 +84,14 @@ def get_college_results(college_code='027', year=1):
                 dict = {'sub_name': sub_name, 'sub_code': sub_code, 'marks': m}
 
                 marks.append(dict)
-            print marks
+            # for carry papers
+            c = soup.find(id='ctl00_ContentPlaceHolder1_lblCarryOver').string.strip()
+            if c[-1] == ',':
+                c = c[ : -1]
+            carry_papers = c.split(',')
+            print carry_papers
+
+
 
 
 
