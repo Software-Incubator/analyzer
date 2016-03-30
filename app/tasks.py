@@ -152,6 +152,7 @@ def get_result(session, login_data, year=2):
             m.append(m2)
             dict = {'sub_name': sub_name, 'sub_code': sub_code, 'marks': m}
             print "Marks dict: ", dict
+
             marks.append(dict)
         # for carry papers
         c = soup.find(
@@ -166,6 +167,8 @@ def get_result(session, login_data, year=2):
             carry_papers = list()
         year = str(year)
         year = unicode(year, 'utf-8')
+        max_marks = soup.find(id = 'ctl00_ContentPlaceHolder1_lblTotalMarks').string.strip()
+        print 'max_marks=', max_marks
         student_data = {
             'roll_no': roll_no,
             'name': name,
@@ -176,6 +179,7 @@ def get_result(session, login_data, year=2):
             'college_code': colg_code,
             'college_name': colg_name,
             'marks': marks,
+            'max_marks': max_marks,
             'carry_papers': carry_papers,
             'carry_status': status,
         }
@@ -253,7 +257,7 @@ def get_login_credentials(soup, rollno, captcha):
 
 def get_all_result():
     years = [1, 2, 3, 4]
-    for college_code in app.config["COLLEGE_CODES"][1:]:
+    for college_code in app.config["COLLEGE_CODES"][:]:
         for year in years:
             get_college_results(college_code=college_code, year=year)
 
