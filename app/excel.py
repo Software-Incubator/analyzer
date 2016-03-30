@@ -211,7 +211,21 @@ def college(college_code, year):
         worksheet.write(r, c+6, pass_count)
         worksheet.write(r, c+7, pass_percent)
         r +=1
-        
+        # for totals
+        t_total = total + t_total
+        t_pass_count = pass_count + t_pass_count
+        t_rd = rd + t_rd
+        t_pcp = pcp + t_pcp
+        t_rnd = rnd + t_rnd
+
+    t_pass_percent = float(t_pass_count) / t_total * 100
+    worksheet.write(r, 1, 'Total' )
+    worksheet.write(r, 2 , t_total )
+    worksheet.write(r, 3, t_rnd)
+    worksheet.write(r, 4, t_rd)
+    worksheet.write(r, 5, t_pcp)
+    worksheet.write(r, 6, t_pass_count)
+    worksheet.write(r, 7, t_pass_percent)
 
 
 college('027', '1')
