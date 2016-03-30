@@ -1,10 +1,9 @@
-import requests, urllib2 ,urllib, os
+import requests, urllib2, urllib, os
 import time
 import sys
-
+from multiprocessing import Pool
 
 from bs4 import BeautifulSoup
-from .models import Student
 from app import connection, app
 from datetime import datetime
 from requests.exceptions import ConnectionError
@@ -25,6 +24,7 @@ def get_in_session(session, url):
             i += 1
     print("Connection Error")
     sys.exit(0)
+
 
 def post_in_session(session, url, post_data):
     """posts data to the url with post_data to
@@ -53,11 +53,11 @@ def roll_num_generator(college_code='027', year=2):
     """
     branch_codes = app.config['BRANCH_CODES']
     curr_year = datetime.now().year % 100
-    year_code = str(curr_year - year - 1)
+    year_code = str(curr_year - year)
     roll_nums = [year_code + college_code + branch_code + '001' for
                  branch_code in branch_codes]
     if year >= 2:
-        lat_year_code = str(curr_year - year)
+        lat_year_code = str(curr_year - year + 1)
         lat_roll_nums = [lat_year_code + college_code + branch_code + '901' for
                          branch_code in branch_codes]
         roll_nums += lat_roll_nums
@@ -78,109 +78,98 @@ def get_result(session, login_data, year=2):
         response2 = post_in_session(s, url, post_data=login_data)
         soup = BeautifulSoup(response2.text, 'html.parser')
         try:
-            name = soup.find(
-                id='ctl00_ContentPlaceHolder1_lblName'
-            ).string.strip()
-            print("getting result of ",name)
+            name = soup.find(id='ctl00_ContentPlaceHolder1_lblName').string.strip()
+            print(name)
         except AttributeError:
             print('rollno does not exist')
-            return False
-
+            return None
         colg_code = soup.find(
-            id='ctl00_ContentPlaceHolder1_lblInstName'
+                id='ctl00_ContentPlaceHolder1_lblInstName'
         ).string.split('(')[1][:-1]
-        colg_name =  soup.find(
-            id='ctl00_ContentPlaceHolder1_lblInstName'
+        colg_name = soup.find(
+                id='ctl00_ContentPlaceHolder1_lblInstName'
         ).string.split('(')[0]
         fathers_name = soup.find(
-            id='ctl00_ContentPlaceHolder1_lblF_NAME'
+                id='ctl00_ContentPlaceHolder1_lblFname'
         ).string.strip()
         roll_no = soup.find(
-            id='ctl00_ContentPlaceHolder1_lblROLLNO'
+                id='ctl00_ContentPlaceHolder1_lblRollName'
         ).string
         print(" with roll number: ", roll_no)
-        status = soup.find(
-            id='ctl00_ContentPlaceHolder1_lblStatus'
-        ).string.strip()
+        status = soup.find(id='ctl00_ContentPlaceHolder1_lblCarryOverStatus').string
+        if status:
+            status = status.strip()
         branch_info = soup.find(
-            id='ctl00_ContentPlaceHolder1_lblCourse'
+                id='ctl00_ContentPlaceHolder1_lblCourse'
         ).string.split('.')[2].split('(')
-        branch_name = branch_info[0].lstrip()
+        branch_name = branch_info[0]
+        if branch_name:
+            branch_name = branch_name.lstrip()
         branch_code = branch_info[1][:-1]
 
+        # for marks, it will contain a list and in that list there
+        #  will be dictionaries for each and every subjects
+        # key for dictionaries "sub_marks","sub_code", "sub_name",,
+        # and there values will be their values
+        marks = list()
+        marks_table = soup.find(id='ctl00_ContentPlaceHolder1_divRes').find_all('table')[1]
+        marks_rows = marks_table.find('tbody').find_all('tr')[1].find('td').find('table').find('tbody').find_all('tr')
+        for mark in marks_rows[1:]:  # this will iterate in each row
+            details = mark.find_all('span')
 
-        # for marks
-        marks_tables = soup.find_all('table')[1].find_all('td', width='50%')
-        flag = True
-        # marks is a list whose first element is odd sem marks,
-        # second element is even sem marks and third element is even sem 
-        # marks and third is sum of all marks
-        marks = []  # for total result
-        # this dict also contains a key of sem whose value is the sem of
-        # his result
-        # this loop iterates on both the tables
-
-        for marks_table in marks_tables:
-            in_tables = marks_table.find_all('table')
-            if flag:
-                sem = (in_tables[0].find_all('tr')[0].find(
-                    'th'
-                ).string).split()[0][0]
-
-            mark_list = list()  # for a semester
-            in_table = in_tables[1]
-            marks_rows = in_table.find_all('tr')[1: ]
-            # this loop iterates on all subjects of a semester
-            for marks_row in marks_rows:
-                sub_dict = dict()  # one for each subject
-                row_cells = marks_row.find_all('span')  # details of subject
-                sub_code = row_cells[0].string.strip()
-                sub_name = row_cells[1].string
-                sub_dict['sub_code'] = sub_code
-                sub_dict['sub_name'] = sub_name
-                sub_marks = []  # different kind of marks of a subject
-                try:
-                    external = float(row_cells[2].string)
-                except ValueError:
-                    external = 0
-                sub_marks.append(external)
-                try:
-                    internal = float(row_cells[3].string)
-                except (ValueError, IndexError):
-                    internal = 0
-                sub_marks.append(internal)
-                try:
-                    carry_over = float(row_cells[4].string)
-                except (ValueError, TypeError, IndexError):
-                    carry_over = 0
-                try:
-                    credit = float(row_cells[5].string)
-                except (ValueError,TypeError):
-                    credit = 0
-                except IndexError:
-                    credit = 0
-                sub_marks.append(credit)
-                flag = False
-
-                sub_dict['sub_marks'] = sub_marks
-                mark_list.append(sub_dict)  # add each subject marks to list
-
-            marks.append(mark_list)  # append semester marks to main list
-
-        max_marks = float(soup.find(id ='ctl00_ContentPlaceHolder1_lblSTAT_8MRK'
-                                  ).string)
-        marks.append(max_marks)
-        carry_papers = soup.find(
-                id='ctl00_ContentPlaceHolder1_lblCarryOver').text.split(',')
-
-        carry_papers = [carry_code.rstrip() for carry_code in carry_papers]
-        # print carry_papers
-        # print max_marks
-
+            try:
+                sub_code = details[0].string
+                if sub_code:
+                    sub_code = sub_code.strip()
+                else:
+                    print 'skipping and continuing...first else'
+                    continue
+            except AttributeError:
+                continue
+            print sub_code
+            if not sub_code:
+                print 'skipping and continuing...second else'
+                continue
+            sub_name = details[1].string
+            if sub_name:
+                sub_name = sub_name.strip()
+            m = list()
+            m1 = details[2].string
+            if m1:
+                m1 = m1.strip()
+            try:
+                m1 = float(m1)
+            except (ValueError, TypeError):
+                m1 = 0.0
+            m2 = details[3].string
+            if m2:
+                m2 = m2.strip()
+            try:
+                m2 = float(m2)
+            except (ValueError, TypeError):
+                m2 = 0.0
+            m.append(m1)
+            m.append(m2)
+            dict = {'sub_name': sub_name, 'sub_code': sub_code, 'marks': m}
+            print "Marks dict: ", dict
+            marks.append(dict)
+        # for carry papers
+        c = soup.find(
+            id='ctl00_ContentPlaceHolder1_lblCarryOver').string
+        if c:
+            c = c.strip()
+        if len(c) > 0:
+            if c[-1] == ',':
+                c = c[:-1]
+            carry_papers = c.split(',')
+        else:
+            carry_papers = list()
+        year = str(year)
+        year = unicode(year, 'utf-8')
         student_data = {
             'roll_no': roll_no,
             'name': name,
-            'sem': sem,
+            'year': year,
             'father_name': fathers_name,
             'branch_code': branch_code,
             'branch_name': branch_name,
@@ -188,26 +177,28 @@ def get_result(session, login_data, year=2):
             'college_name': colg_name,
             'marks': marks,
             'carry_papers': carry_papers,
+            'carry_status': status,
         }
 
         collection  = connection['test'].students
         data = collection.Student(student_data)
         data.save()
         print("result saved for roll number: ", data['roll_no'])
-        print "Semester" + str(sem)
+        print "Year: " + str(year)
     # return True if result saved succussfully
     return True
 
-def get_college_results(college_code='027', year=2):
+
+def get_college_results(college_code="027", year=2):
     """
     gets the result of all branches of the given college code
     of all years
-    :param: college_code: str, code of the college of which the result
+    :param college_code: str, code of the college of which the result
     to be fetched
-    :param: year: int, year of which the result is asked
+    :param year: int, year of which the result is asked
     :return: True if successfully fetched all the results, False otherwise
     """
-    roll_nums = roll_num_generator(college_code='027', year=2)
+    roll_nums = roll_num_generator(college_code=college_code, year=year)
     with requests.Session() as s:
         url = app.config['URLS'][year]  # getting url from config file
         response = get_in_session(s, url)
@@ -244,14 +235,14 @@ def dnld_captcha(imageurl):
 
 def get_login_credentials(soup, rollno, captcha):
     data1 = str(soup.find(id='__VIEWSTATE')['value'])
-    data2 = str(soup.find(id='__VIEWSTATEGENERATOR')['value'])
+    # data2 = str(soup.find(id='__VIEWSTATEGENERATOR')['value'])
     data3 = str(soup.find(id='__EVENTVALIDATION')['value'])
 
     login_credentials = {
         '__EVENTTARGET': '',
         '__EVENTARGUMENT': '',
         '__VIEWSTATE': data1,
-        '__VIEWSTATEGENERATOR': data2,
+        # '__VIEWSTATEGENERATOR': data2,
         '__EVENTVALIDATION': data3,
         'ctl00$ContentPlaceHolder1$txtRoll': str(rollno),
         'ctl00$ContentPlaceHolder1$txtcapture': captcha,
@@ -260,5 +251,10 @@ def get_login_credentials(soup, rollno, captcha):
     return login_credentials
 
 
-get_college_results(college_code='027', year=2)
+def get_all_result():
+    years = [1, 2, 3, 4]
+    for college_code in app.config["COLLEGE_CODES"][1:]:
+        for year in years:
+            get_college_results(college_code=college_code, year=year)
 
+get_all_result()
