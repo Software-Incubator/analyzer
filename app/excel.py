@@ -1,7 +1,6 @@
 import xlsxwriter
-
-from app import connection
-from .models import Student
+from xlrd import open_workbook
+from app import connection, app
 
 
 def make_excel(branch, sem, colg_code='027', output=None):
@@ -158,3 +157,61 @@ def faculty_excel(year):
         pass
 
 # fail_excel()
+
+def college(college_code, year):
+    wb = open_workbook('first.xlsx')
+    sheets = wb.sheets()
+    branch_dict = dict()
+    for sheet in sheets:
+        total = sheet.nrows - 4
+        branch_dict[sheet.name] = total
+
+    workbook = xlsxwriter.Workbook('college_wise_excel.xlsx')
+    worksheet = workbook.add_worksheet()
+    collection = connection.test.students
+    branch_codes = collection.distinct("branch_code")
+    code_names = app.config['BRANCH_CODENAMES']
+    r, c = 0,0
+    # for headding
+    heading = str(app.config['COLLEGE_CODENAMES'][college_code]) + '  YEAR: ' + year + '  2015-16'
+    worksheet.write(r, c,heading )
+    r += 1
+    worksheet.write(r, c, 'S. No')
+    worksheet.write(r, c+1, 'Branch')
+    worksheet.write(r, c+2, 'Total')
+    worksheet.write(r, c+3, 'RND')
+    worksheet.write(r, c+4, 'RD')
+    worksheet.write(r, c+5, 'PCP')
+    worksheet.write(r, c+6, 'Pass')
+    worksheet.write(r, c+7, 'Pass%')
+    r += 1
+    t_total = 0
+    t_rnd = 0
+    t_rd = 0
+    t_pcp = 0
+    t_pass_count = 0
+
+    for branch_code in branch_codes:
+        a_stud = collection.find({'college_code':college_code, 'branch_code': branch_code, 'year': year})
+        total = branch_dict[code_names[branch_code]]
+        rd = a_stud.count()
+        rnd = total - rd
+        pcp = collection.find({'college_code':college_code, 'branch_code': branch_code, 'year': year,
+                               "carry_status": {"$ne": "CP(0)" }}).count()
+        pass_count = rd - pcp
+        pass_percent = (float(pass_count) / total) * 100
+
+        worksheet.write(r, c, r-1)
+        print branch_code
+        worksheet.write(r, c+1, app.config['BRANCH_CODENAMES'][branch_code])
+        worksheet.write(r, c+2, total)
+        worksheet.write(r, c+3, rnd)
+        worksheet.write(r, c+4, rd)
+        worksheet.write(r, c+5, pcp)
+        worksheet.write(r, c+6, pass_count)
+        worksheet.write(r, c+7, pass_percent)
+        r +=1
+        
+
+
+college('027', '1')
