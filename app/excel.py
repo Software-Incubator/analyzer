@@ -31,7 +31,11 @@ def make_excel(branch, sem, colg_code='027', output=None):
                                         'year': year})
                                         # 'sem': sem}) semester is removed now
     print 'value of head', head
-    # print head['name']
+    if not head:
+        worksheet.merge_range('A1:AO1', 'Result not declared')
+        workbook.close()
+        return workbook
+    # print head
     # print head['roll_no']
     # col_mark will find the number of subjects
 
@@ -46,11 +50,11 @@ def make_excel(branch, sem, colg_code='027', output=None):
     worksheet.write(1, 0, "Roll No.", merge_format)
     worksheet.write(1, 1, "Name", merge_format)
     worksheet.write(1, 2, "Father's Name", merge_format)
-    col = len(head['marks'][i]) - 1
+    col = len(head['marks']) - 1
     print col
     j = 3
     # for sub code and internal, external and total
-    for x in head['marks'][i][:-1]:
+    for x in head['marks'][:-1]:
         if x['sub_code'][1:4] == 'OE0':
             worksheet.merge_range(1,j,1,j+2, "OE0", merge_format)
         else:
@@ -81,21 +85,21 @@ def make_excel(branch, sem, colg_code='027', output=None):
         a = 3
         ext = 0 # for total external marks
         internal = 0 # for total internal marks
-        for mark in st['marks'][i][:-1]:
-            worksheet.write(row, a, mark['sub_marks'][0])
-            worksheet.write(row, a + 1, mark['sub_marks'][1])
-            worksheet.write(row, a + 2, sum(mark['sub_marks'][ : -1 ]))
-            ext = ext + mark['sub_marks'][0]
-            internal = internal + mark['sub_marks'][1]
-            a = a + 3
+        for mark in st['marks'][:-1]:
+            worksheet.write(row, a, mark['marks'][0])
+            worksheet.write(row, a + 1, mark['marks'][1])
+            worksheet.write(row, a + 2, sum(map(int, mark['marks'][:])))
+            ext += int(mark['marks'][0])
+            internal += int(mark['marks'][1])
+            a += 3
         worksheet.write(row, a, ext)
         worksheet.write(row, a + 1, internal)
         worksheet.write(row, a + 2, ext + internal)
-        cp = ''   # cp is carry papers
-        for cps in st['carry_papers'][ : -1]:
-            cp = cp + str(cps) + ', '
-
-        worksheet.write(row, a + 3, cp )
+        # cp = ''   # cp is carry papers
+        # for cps in st['carry_papers'][:]:
+        #     cp = cp + str(cps) + ', '
+        cp = ', '.join(st['carry_papers'])
+        worksheet.write(row, a + 3, cp)
 
         row += 1
 
@@ -103,7 +107,7 @@ def make_excel(branch, sem, colg_code='027', output=None):
     return workbook
 
 
-def fail_excel(college_code='027', year=2, output=None):
+def fail_excel(college_code='027', year=1, output=None):
     """
     generates excel for failed students
     :param college_code: code of the college of which the excel is to be made
@@ -111,17 +115,46 @@ def fail_excel(college_code='027', year=2, output=None):
     :param output: for download of the excel
     :return: none
     """
+    if output:
+        workbook = xlsxwriter.Workbook(output)
+    else:
+        workbook = xlsxwriter.Workbook("failed_students.xlsx")
     collection = connection.test.students
-    branch_codes = collection.distinct("branch_codes")
+    branch_codes = collection.distinct("branch_code")
+    heading_format = workbook.add_format({"bold": True,
+                                          "align": "center",
+                                          "valign": "center"})
+    print branch_codes
     for branch_code in branch_codes:
-        students = collection.find({"college_code": college_code,
-                                    "year": year,
-                                    "branch_code": branch_code})
-        student = collection.findOne({"college_code": college_code,
+        worksheet = workbook.add_worksheet(branch_code)
+        student = collection.find_one({"college_code": college_code,
                                       "year": year,
                                       "branch_code": branch_code})
+        print "student: ", student
+        worksheet.merge_range("A1:O1", student['branch_name'], heading_format)
+        worksheet.write("A2", "S. No.", heading_format)
         sub_codes = []
-        for sub_dict in student['marks'][0][: -1]:
+        for sub_dict in student['marks'][: -1]:
+            sub_code = sub_dict['sub_code']
+            if sub_code[1:4] == 'OE0':
+                sub_code = 'OE0'
+            sub_codes.append(sub_code)
+        cp_students = collection.find({"college_code": college_code,
+                                       "year": year,
+                                       "branch_code": branch_code,
+                                       "carry_status": {"$ne": "CP(0)"}
+                                       })
 
-            pass
         pass
+    workbook.close()
+    return True
+
+
+def faculty_excel(year):
+    collection = connection.test.students
+    students = collection.find({'year': year})
+    subject_codes = []
+    for marks_dict in collection.findOne({"year": year}):
+        pass
+
+# fail_excel()

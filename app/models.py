@@ -18,6 +18,7 @@ class Student(Document):
         'marks' : list,
         'carry_papers': [basestring],
         'year': unicode,
+        'carry_status': unicode
     }
     use_dot_notaton = True
     use_autorefs = True
