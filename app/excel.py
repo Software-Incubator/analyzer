@@ -1,7 +1,8 @@
 import xlsxwriter
+import string
 
-from app import connection
-from .models import Student
+
+from app import connection, app
 
 
 def make_excel(branch, sem, colg_code='027', output=None):
@@ -68,7 +69,7 @@ def make_excel(branch, sem, colg_code='027', output=None):
     # for sum  total of marks in a row
     worksheet.merge_range(1,j,1, j+2, 'Total', merge_format)
     worksheet.set_column(j+3, j+3, 45) # for carry papers
-    worksheet.write(1,j+3, 'Carry Papers', merge_format ) # for carry papers
+    worksheet.write(1,j+3, 'Carry Papers', merge_format )  # for carry papers
     worksheet.write(2, j, 'External')
     worksheet.write(2, j+1, 'Internal')
     worksheet.write(2, j+2, 'Total')
@@ -107,7 +108,7 @@ def make_excel(branch, sem, colg_code='027', output=None):
     return workbook
 
 
-def fail_excel(college_code='027', year=1, output=None):
+def fail_excel(college_code='027', year="1", output=None):
     """
     generates excel for failed students
     :param college_code: code of the college of which the excel is to be made
@@ -115,6 +116,7 @@ def fail_excel(college_code='027', year=1, output=None):
     :param output: for download of the excel
     :return: none
     """
+    year = str(year)
     if output:
         workbook = xlsxwriter.Workbook(output)
     else:
@@ -126,26 +128,48 @@ def fail_excel(college_code='027', year=1, output=None):
                                           "valign": "center"})
     print branch_codes
     for branch_code in branch_codes:
-        worksheet = workbook.add_worksheet(branch_code)
+        worksheet = workbook.add_worksheet(
+            app.config["BRANCH_CODENAMES"][branch_code])
         student = collection.find_one({"college_code": college_code,
-                                      "year": year,
-                                      "branch_code": branch_code})
+                                       "year": str(year),
+                                       "branch_code": branch_code})
+        if not student:
+            continue
         print "student: ", student
         worksheet.merge_range("A1:O1", student['branch_name'], heading_format)
         worksheet.write("A2", "S. No.", heading_format)
-        sub_codes = []
-        for sub_dict in student['marks'][: -1]:
+        worksheet.write("B2", "Name", heading_format)
+        worksheet.write("C2", "Roll. No.", heading_format)
+        cell_list = string.ascii_uppercase[3:]
+        i = 0
+        for sub_dict in student['marks']:
             sub_code = sub_dict['sub_code']
             if sub_code[1:4] == 'OE0':
                 sub_code = 'OE0'
-            sub_codes.append(sub_code)
+            worksheet.write(cell_list[i] + "2", sub_code, heading_format)
+            i += 1
+        worksheet.write(cell_list[i] + "2", "No. of Backs", heading_format)
         cp_students = collection.find({"college_code": college_code,
                                        "year": year,
                                        "branch_code": branch_code,
                                        "carry_status": {"$ne": "CP(0)"}
                                        })
-
-        pass
+        j = 2
+        for fail_student in cp_students:
+            k = 0
+            worksheet.write(j, k, str(j-1))
+            worksheet.write(j, k+1, fail_student['name'])
+            worksheet.write(j, k+2, fail_student['roll_no'])
+            k += 3
+            carry_papers = fail_student['carry_papers']
+            for mark_dict in fail_student['marks']:
+                if mark_dict['sub_code'] in carry_papers:
+                    worksheet.write(j, k, "F")
+                else:
+                    worksheet.write(j, k, "-")
+                k += 1
+            worksheet.write(j, k, str(len(carry_papers)))
+            j += 1
     workbook.close()
     return True
 
