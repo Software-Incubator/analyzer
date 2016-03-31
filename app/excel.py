@@ -53,7 +53,7 @@ def make_excel(branch, sem, colg_code='027', output=None):
     print col
     j = 3
     # for sub code and internal, external and total
-    for x in head['marks'][:-1]:
+    for x in head['marks']:
         if x['sub_code'][1:4] == 'OE0':
             worksheet.merge_range(1,j,1,j+2, "OE0", merge_format)
         else:
@@ -84,7 +84,7 @@ def make_excel(branch, sem, colg_code='027', output=None):
         a = 3
         ext = 0 # for total external marks
         internal = 0 # for total internal marks
-        for mark in st['marks'][:-1]:
+        for mark in st['marks']:
             worksheet.write(row, a, mark['marks'][0])
             worksheet.write(row, a + 1, mark['marks'][1])
             worksheet.write(row, a + 2, sum(map(int, mark['marks'][:])))
@@ -120,9 +120,10 @@ def fail_excel(college_code='027', year=1, output=None):
         workbook = xlsxwriter.Workbook("failed_students.xlsx")
     collection = connection.test.students
     branch_codes = collection.distinct("branch_code")
-    heading_format = workbook.add_format({"bold": True,
-                                          "align": "center",
-                                          "valign": "center"})
+    heading_format = workbook.add_format({'bold': True,
+                                            #'border': 1,
+                                            'align': 'center',
+                                            'valign': 'vcenter',)}
     print branch_codes
     for branch_code in branch_codes:
         worksheet = workbook.add_worksheet(branch_code)
@@ -158,7 +159,7 @@ def faculty_excel(year):
 
 # fail_excel()
 
-def college(college_code, year):
+def college_wise_excel(college_code, year):
     wb = open_workbook('first.xlsx')
     sheets = wb.sheets()
     branch_dict = dict()
@@ -227,5 +228,3 @@ def college(college_code, year):
     worksheet.write(r, 6, t_pass_count)
     worksheet.write(r, 7, t_pass_percent)
 
-
-college('027', '1')
