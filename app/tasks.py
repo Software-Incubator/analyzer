@@ -1,7 +1,6 @@
 import requests, urllib2, urllib, os
 import time
 import sys
-from multiprocessing import Pool
 
 from bs4 import BeautifulSoup
 from app import connection, app
