@@ -1,6 +1,5 @@
 # branch codes of the branches that exist in college
 BRANCH_CODES = ['00', '10', '13', '21', '31', '32', '40']
-
 COLLEGE_CODENAMES = {
     '027': 'AKGEC',
     '029': 'KIET',
@@ -8,7 +7,15 @@ COLLEGE_CODENAMES = {
     '091': 'JSS'
 }
 
-BRANCH_NAMES = {"00": "Civil Engineering", }
+BRANCH_NAMES = {
+    "00": "Civil Engineering",
+    "10": "Computer Science and Engineering",
+    "13": "Information Technology",
+    "21": "Electrical & Electronics Engineering",
+    "31": "Electronics and Communication Engineering",
+    "32": "Electronics and Instrumentation Engineering",
+    "40": "Mechanical Engineering"
+}
 
 BRANCH_CODENAMES = {
     "00": "CE",
