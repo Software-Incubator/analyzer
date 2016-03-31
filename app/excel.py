@@ -185,15 +185,7 @@ def faculty_excel(year):
 # fail_excel()
 
 def college_wise_excel(college_code, year):
-    wb = open_workbook('first.xlsx')
-
-    sheets = wb.sheets()
-    branch_dict = dict()
-    for sheet in sheets:
-        total = sheet.nrows - 4
-        branch_dict[sheet.name] = total
-
-    workbook = xlsxwriter.Workbook('college_wise_excel.xlsx')
+    workbook = xlsxwriter.Workbook('college_wise_excel_' + str(year) + '_year.xlsx')
     worksheet = workbook.add_worksheet()
     merge_format = workbook.add_format({
         'bold': True,
@@ -235,7 +227,10 @@ def college_wise_excel(college_code, year):
         pcp = collection.find({'college_code':college_code, 'branch_code': branch_code, 'year': year,
                                "carry_status": {"$ne": "CP(0)" }}).count()
         pass_count = rd - pcp
-        pass_percent = (float(pass_count) / total) * 100
+        if rd != 0:
+            pass_percent = (float(pass_count) / rd) * 100
+        else:
+            pass_percent = 0
 
         worksheet.write(r, c, r-1, format)
         print branch_code
@@ -253,8 +248,10 @@ def college_wise_excel(college_code, year):
         t_rd = rd + t_rd
         t_pcp = pcp + t_pcp
         t_rnd = rnd + t_rnd
-
-    t_pass_percent = float(t_pass_count) / t_total * 100
+    if t_rd != 0:
+        t_pass_percent = float(t_pass_count) / t_rd * 100
+    else:
+        t_pass_percent = 0
     worksheet.write(r, 1, 'Total', merge_format )
     worksheet.write(r, 2 , t_total , format)
     worksheet.write(r, 3, t_rnd, format)
@@ -321,21 +318,4 @@ def other_college_summary(college_code, year):
     worksheet.write(r, c+4, t_pass_count, format)
     worksheet.write(r, c+5, t_pass_percent, format)
     workbook.close()
-
-
-def ext_avg(year):
-    year = str(year)
-    collection = connection.test.students
-    college_codes = app.config['COLLEGE_CODES']
-    for colg_code in college_codes:
-        students = collection.find({'year': str(year), 'college_code': colg_code})
-        t_ext = 0
-        for student in students:
-            ext = 0
-            for mark in student['marks']:
-                ext = ext + mark['marks'][0]
-            t_ext = t_ext + ext
-            print t_ext
-
-
 
