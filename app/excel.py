@@ -141,6 +141,8 @@ def fail_excel(college_code='027', year="1", output=None):
         worksheet.write("A2", "S. No.", heading_format)
         worksheet.write("B2", "Name", heading_format)
         worksheet.write("C2", "Roll. No.", heading_format)
+        worksheet.set_column('B:B', 30)
+        worksheet.set_column('C:C', 15)
         cell_list = string.ascii_uppercase[3:]
         i = 0
         for sub_dict in student['marks']:
@@ -318,4 +320,5 @@ def other_college_summary(college_code, year):
     worksheet.write(r, c+4, t_pass_count, format)
     worksheet.write(r, c+5, t_pass_percent, format)
     workbook.close()
+
 
