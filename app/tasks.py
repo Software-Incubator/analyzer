@@ -166,7 +166,8 @@ def get_result(session, login_data, year=2):
             carry_papers = list()
         year = str(year)
         year = unicode(year, 'utf-8')
-        max_marks = soup.find(id = 'ctl00_ContentPlaceHolder1_lblTotalMarks').string.strip()
+        max_marks = soup.find(
+            id='ctl00_ContentPlaceHolder1_lblTotalMarks').string.strip()
         print 'max_marks=', max_marks
         student_data = {
             'roll_no': roll_no,
