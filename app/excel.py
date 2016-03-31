@@ -229,7 +229,7 @@ def college_wise_excel(college_code, year):
 
     for branch_code in branch_codes:
         a_stud = collection.find({'college_code':college_code, 'branch_code': branch_code, 'year': year})
-        total = branch_dict[code_names[branch_code]]
+        total = app.config["BRANCH_STUDENTS"][branch_code]
         rd = a_stud.count()
         rnd = total - rd
         pcp = collection.find({'college_code':college_code, 'branch_code': branch_code, 'year': year,
@@ -265,7 +265,77 @@ def college_wise_excel(college_code, year):
     workbook.close()
 
 
+def other_college_summary(college_code, year):
+    workbook = xlsxwriter.Workbook("result_summary_" + str(year) + "_year.xlsx")
+    worksheet = workbook.add_worksheet()
+    merge_format = workbook.add_format({
+        'bold': True,
+        #'border': 1,
+        'align': 'center',
+        'valign': 'vcenter',
+    })
+    collection = connection.test.students
+    r, c = 0,0
+    # for headding
+    heading = str(app.config['COLLEGE_CODENAMES'][college_code]) + '  YEAR: ' + year + '  2015-16'
+    worksheet.merge_range("A1:H1",heading ,merge_format)
+    r += 1
+    worksheet.write(r, c, 'S. No', merge_format)
+    worksheet.write(r, c+1, 'Branch', merge_format)
+    worksheet.write(r, c+2, 'RD', merge_format)
+    worksheet.write(r, c+3, 'PCP', merge_format)
+    worksheet.write(r, c+4, 'Pass', merge_format)
+    worksheet.write(r, c+5, 'Pass%', merge_format)
+    r += 1
+    t_rd = 0
+    t_pcp = 0
+    t_pass_count = 0
+
+    branch_codes = collection.distinct('branch_code')
+    for branch_code in branch_codes:
+        rd = collection.find({"college_code": college_code, "year": year, "branch_code": branch_code}).count()
+        pcp = collection.find({"college_code": college_code,
+                               "year": year,
+                               "branch_code": branch_code,
+                               "carry_status": {"$ne": "CP(0)"}
+                               }).count()
+        pass_count = rd - pcp
+        pass_percent = (float(pass_count) / rd) * 100
+
+        worksheet.write(r, c, r-1, format)
+        print branch_code
+        worksheet.write(r, c+1, app.config['BRANCH_CODENAMES'][branch_code], format)
+        worksheet.write(r, c+2, rd, format)
+        worksheet.write(r, c+3, pcp, format)
+        worksheet.write(r, c+4, pass_count, format)
+        worksheet.write(r, c+5, pass_percent, format)
+        r +=1
+        # for totals
+        t_pass_count = pass_count + t_pass_count
+        t_rd = rd + t_rd
+        t_pcp = pcp + t_pcp
+    t_pass_percent = (float(t_pass_count) / t_rd) * 100
+    worksheet.write(r, c+1, 'Total', merge_format )
+    worksheet.write(r, c+2, t_rd, format)
+    worksheet.write(r, c+3, t_pcp, format)
+    worksheet.write(r, c+4, t_pass_count, format)
+    worksheet.write(r, c+5, t_pass_percent, format)
+    workbook.close()
 
 
-college_wise_excel('027', '2')
+def ext_avg(year):
+    year = str(year)
+    collection = connection.test.students
+    college_codes = app.config['COLLEGE_CODES']
+    for colg_code in college_codes:
+        students = collection.find({'year': str(year), 'college_code': colg_code})
+        t_ext = 0
+        for student in students:
+            ext = 0
+            for mark in student['marks']:
+                ext = ext + mark['marks'][0]
+            t_ext = t_ext + ext
+            print t_ext
+
+
 
