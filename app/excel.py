@@ -123,7 +123,7 @@ def fail_excel(college_code='027', year=1, output=None):
     heading_format = workbook.add_format({'bold': True,
                                             #'border': 1,
                                             'align': 'center',
-                                            'valign': 'vcenter',)}
+                                            'valign': 'vcenter',})
     print branch_codes
     for branch_code in branch_codes:
         worksheet = workbook.add_worksheet(branch_code)
