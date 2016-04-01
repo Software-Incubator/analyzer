@@ -269,7 +269,6 @@ def other_college_summary(college_code, year):
     worksheet = workbook.add_worksheet()
     merge_format = workbook.add_format({
         'bold': True,
-        #'border': 1,
         'align': 'center',
         'valign': 'vcenter',
     })
@@ -322,3 +321,89 @@ def other_college_summary(college_code, year):
     workbook.close()
 
 
+def ext_avg(year):
+    year = str(year)
+    collection = connection.test.students
+    college_codes = app.config['COLLEGE_CODES']
+    for colg_code in college_codes:
+        students = collection.find({'year': str(year), 'college_code': colg_code})
+        t_ext = 0
+        for student in students:
+            ext = 0
+            for mark in student['marks']:
+                ext = ext + mark['marks'][0]
+            t_ext = t_ext + ext
+            print t_ext
+
+
+def teachers_excel(year):
+    year = str(year)
+    workbook = xlsxwriter.Workbook('faculty_performance_year_' + year + '.xlsx')
+    worksheet = workbook.add_worksheet('YEAR - ' + year)
+    worksheet.set_column('A:A', 18)
+    worksheet.set_column('B:B', 30)
+    worksheet.set_column('C:C', 17)
+    college_code = '027'
+    collection = connection.test.students
+    branch_codes = collection.find({'year': year, 'college_code': college_code}).distinct('branch_code')
+    heading_format = workbook.add_format({
+        'bold': True,
+        'align': 'center',
+        'valign': 'vcenter'
+    })
+    cell_format = workbook.add_format({
+        'align': 'center',
+        'valign': 'vcenter'
+    })
+    r, c = 0, 0
+    worksheet.write(r, c, 'Subject Name', heading_format)
+    worksheet.write(r, c+1, 'Name Of Faculty', heading_format)
+    worksheet.write(r, c+2, 'External Avg', heading_format)
+    worksheet.write(r, c+3, 'Avg', heading_format)
+    worksheet.write(r, c+4, 'Pass %', heading_format)
+    worksheet.write(r, c+5, 'Section', heading_format)
+    r += 1
+    for branch_code in branch_codes:
+        worksheet.merge_range(r, c, r, c+5, app.config["BRANCH_NAMES"][branch_code], heading_format)
+        r += 1
+        sub_details = dict()
+        branch_students = collection.find({'year': year, 'college_code': college_code, 'branch_code':branch_code})
+        for student in branch_students:
+            carry_papers = student['carry_papers']
+            for mark_dict in student['marks']:
+                sub_code = mark_dict['sub_code']
+                if sub_code[1:3] == 'GP':
+                    continue
+                if not sub_details.get(sub_code):
+                    print 'adding sub code', sub_code
+                    sub_details[sub_code] = dict()
+                    sub_details[sub_code][student['section']] = [0] * 4
+                else:
+                    if not sub_details[sub_code].get(student['section']):
+                        sub_details[sub_code][student['section']] = [0] * 4
+                sub_details[sub_code][student['section']][0] += int(mark_dict['marks'][0])
+                sub_details[sub_code][student['section']][1] += int(mark_dict['marks'][1])
+                sub_details[sub_code][student['section']][2] += 1
+                if sub_code in carry_papers:
+                    sub_details[sub_code][student['section']][3] += 1
+
+        for sub_code in sub_details:
+            sub_dict = sub_details[sub_code]
+            worksheet.merge_range(r, c, r + len(sub_dict) - 1, c, sub_code, cell_format)
+            for section in sub_dict:
+                external_avg = round(float(sub_dict[section][0]) / sub_dict[section][2], 2)
+                total_avg = round(float(
+                        sub_dict[section][0] + sub_dict[section][1]) / sub_dict[section][2], 2)
+                pass_percent = round(float(
+                        sub_dict[section][2] - sub_dict[section][3]) / sub_dict[section][2] * 100, 2)
+                worksheet.write(r, c+1, 'Name Of Faculty')
+                worksheet.write(r, c+2, external_avg, cell_format)
+                worksheet.write(r, c+3, total_avg, cell_format)
+                worksheet.write(r, c+4, pass_percent, cell_format)
+                worksheet.write(r, c+5, section, cell_format)
+                r += 1
+
+    workbook.close()
+
+
+teachers_excel(1)
