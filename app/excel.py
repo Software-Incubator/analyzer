@@ -179,6 +179,7 @@ def faculty_excel(year):
     students = collection.find({'year': year})
     subject_codes = []
     for marks_dict in collection.findOne({"year": year}):
+
         pass
 
 # fail_excel()
