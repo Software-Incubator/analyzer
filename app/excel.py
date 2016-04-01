@@ -1,10 +1,10 @@
 import xlsxwriter
-
+import math
 from xlrd import open_workbook
 import string
 from app import connection, app
 
-
+'''
 def make_excel(branch, sem, colg_code='027', output=None):
     print 'excel', colg_code, branch, sem
     workbook = xlsxwriter.Workbook(output)
@@ -325,19 +325,74 @@ def ext_avg(year):
     year = str(year)
     collection = connection.test.students
     college_codes = app.config['COLLEGE_CODES']
+    avg_list = []
     for colg_code in college_codes:
-        students = collection.find({'year': str(year), 'college_code': colg_code})
+        students = collection.find({'year': year, 'college_code': colg_code})
         t_ext = 0
         for student in students:
             ext = 0
             for mark in student['marks']:
                 ext = ext + mark['marks'][0]
             t_ext = t_ext + ext
-            print t_ext
 
+        len_students = collection.find({'year': year, 'college_code': colg_code}).count()
+        #print 'len_students..' + str(len_students)
+        colg_avg = float(t_ext) / len_students
+        colg_avg = math.floor(colg_avg)
+        #print 'colg_avg' + str(colg_avg) + 'is for..' +str(colg_code)
+        max_mark = app.config['MAX_MARKS_YEARWISE'][year]
+        percent = colg_avg / max_mark * 100
+        percent = math.floor(percent)
+        avg_dict = {colg_code: [colg_avg, percent]}
+        avg_list.append(avg_dict)
 
+    # now making excel
+    workbook = xlsxwriter.Workbook('ext_avg of year=' + year + '.xlsx')
+    worksheet = workbook.add_worksheet()
+    merge_format = workbook.add_format({
+        'bold': True,
+        #'border': 1,
+        'align': 'center',
+        'valign': 'vcenter',
+    })
+
+    cell_format = workbook.add_format({
+        'bold': False,
+        #'border': 1,
+        'align': 'center',
+        'valign': 'vcenter',
+    })
+
+    worksheet.merge_range('A1:F1', 'External Exam Average Marks' ,merge_format)
+    worksheet.merge_range('A2:F2', 'Maximum External Marks: ' + str(max_mark ), merge_format)
+    worksheet.write(2, 0, 'College', merge_format)
+    worksheet.write(3, 0, 'Average Marks', merge_format)
+    worksheet.write(4, 0, 'Percentage %', merge_format)
+    worksheet.set_column('A:A', 15)
+    worksheet.set_column('B:B', 15)
+    worksheet.set_column('C:C', 15)
+    worksheet.set_column('D:D', 15)
+    worksheet.set_column('E:E', 15)
+
+    r = 2
+    c = 1
+    for colg_dict in avg_list:
+        colg_code = colg_dict.keys()[0]
+        worksheet.write(r, c, app.config['COLLEGE_CODENAMES'][colg_dict.keys()[0]], merge_format)
+        worksheet.write(r + 1, c, colg_dict[colg_code][0], cell_format)
+        worksheet.write(r+ 2, c, colg_dict[colg_code][1], cell_format)
+        c = c+1
+
+    print avg_list
+
+    workbook.close()
+
+    '''
+
+'''
 def teachers_excel(year):
-    year = str(year)
+    year = str(year)d({'year': year, 'college_code': college_code}).distinct('branch_code')
+    heading_format = workbook.add_f
     workbook = xlsxwriter.Workbook('faculty_performance_year_' + year + '.xlsx')
     worksheet = workbook.add_worksheet('YEAR - ' + year)
     worksheet.set_column('A:A', 18)
@@ -345,8 +400,7 @@ def teachers_excel(year):
     worksheet.set_column('C:C', 17)
     college_code = '027'
     collection = connection.test.students
-    branch_codes = collection.find({'year': year, 'college_code': college_code}).distinct('branch_code')
-    heading_format = workbook.add_format({
+    branch_codes = collection.finormat({
         'bold': True,
         'align': 'center',
         'valign': 'vcenter'
@@ -406,4 +460,4 @@ def teachers_excel(year):
     workbook.close()
 
 
-teachers_excel(1)
+'''
