@@ -23,6 +23,6 @@ sem_choices = tuple([
     ])
 
 class InputForm(Form):
-    college = SelectMultipleField('College', choices= colg_choices)
-    branch = SelectMultipleField('Branch', choices= branch_choices)
-    sem = SelectMultipleField("Semester", choices= sem_choices)
+    college = SelectMultipleField('College', choices= colg_choices, validators=[DataRequired()])
+    branch = SelectMultipleField('Branch', choices= branch_choices, validators=[DataRequired()])
+    sem = SelectMultipleField("Semester", choices= sem_choices, validators=[DataRequired()])
