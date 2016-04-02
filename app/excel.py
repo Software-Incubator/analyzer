@@ -1,5 +1,5 @@
 import xlsxwriter
-
+import math
 from xlrd import open_workbook
 import string
 from app import connection, app
@@ -173,14 +173,6 @@ def fail_excel(college_code='027', year="1", output=None):
     return True
 
 
-def faculty_excel(year):
-    collection = connection.test.students
-    students = collection.find({'year': year})
-    subject_codes = []
-    for marks_dict in collection.findOne({"year": year}):
-
-        pass
-
 # fail_excel()
 
 
@@ -341,19 +333,186 @@ def ext_avg(year):
     year = str(year)
     collection = connection.test.students
     college_codes = app.config['COLLEGE_CODES']
+    avg_list = []
     for colg_code in college_codes:
-        students = collection.find({'year': str(year), 'college_code': colg_code})
+        students = collection.find({'year': year, 'college_code': colg_code})
         t_ext = 0
         for student in students:
             ext = 0
             for mark in student['marks']:
                 ext = ext + mark['marks'][0]
             t_ext = t_ext + ext
-            print t_ext
+
+        len_students = collection.find({'year': year, 'college_code': colg_code}).count()
+        #print 'len_students..' + str(len_students)
+        colg_avg = float(t_ext) / len_students
+        colg_avg = math.floor(colg_avg)
+        #print 'colg_avg' + str(colg_avg) + 'is for..' +str(colg_code)
+        max_mark = app.config['MAX_MARKS_YEARWISE'][year]
+        percent = colg_avg / max_mark * 100
+        percent = math.floor(percent)
+        avg_dict = {colg_code: [colg_avg, percent]}
+        avg_list.append(avg_dict)
+
+    # now making excel
+    workbook = xlsxwriter.Workbook('ext_avg of year=' + year + '.xlsx')
+    worksheet = workbook.add_worksheet()
+    merge_format = workbook.add_format({
+        'bold': True,
+        #'border': 1,
+        'align': 'center',
+        'valign': 'vcenter',
+    })
+
+    cell_format = workbook.add_format({
+        'bold': False,
+        #'border': 1,
+        'align': 'center',
+        'valign': 'vcenter',
+    })
+
+    worksheet.merge_range('A1:F1', 'External Exam Average Marks' ,merge_format)
+    worksheet.merge_range('A2:F2', 'Maximum External Marks: ' + str(max_mark ), merge_format)
+    worksheet.write(2, 0, 'College', merge_format)
+    worksheet.write(3, 0, 'Average Marks', merge_format)
+    worksheet.write(4, 0, 'Percentage %', merge_format)
+    worksheet.set_column('A:A', 15)
+    worksheet.set_column('B:B', 15)
+    worksheet.set_column('C:C', 15)
+    worksheet.set_column('D:D', 15)
+    worksheet.set_column('E:E', 15)
+
+    r = 2
+    c = 1
+    for colg_dict in avg_list:
+        colg_code = colg_dict.keys()[0]
+        worksheet.write(r, c, app.config['COLLEGE_CODENAMES'][colg_dict.keys()[0]], merge_format)
+        worksheet.write(r + 1, c, colg_dict[colg_code][0], cell_format)
+        worksheet.write(r+ 2, c, colg_dict[colg_code][1], cell_format)
+        c = c+1
+
+    print avg_list
+
+    workbook.close()
+
+
+def sec_wise_ext(year):
+    college_code = "027"
+    year = str(year)
+    collection = connection.test.students
+    branch_codes = collection.find({"year": year,
+                                    "college_code": college_code}).distinct('branch_code')
+    # print "distinct branch codes: ", branch_codes
+    workbook = xlsxwriter.Workbook('section_wise_year_' + year + '.xlsx')
+    merge_format = workbook.add_format({
+        "bold": True,
+        "align": "center",
+        "valign": "vcenter"
+    })
+    cell_format = workbook.add_format({
+        "align": "center",
+        "valign": "vcenter",
+    }
+    )
+    branch_codenames = app.config["BRANCH_CODENAMES"]
+    branch_names = app.config["BRANCH_NAMES"]
+    for branch_code in branch_codes:
+        branch_codename = branch_codenames[branch_code]
+        branch_name = branch_names[branch_code]
+        worksheet = workbook.add_worksheet(branch_codename)
+        r, c = 0, 0
+        worksheet.merge_range(r, c, r, c+6, branch_name, merge_format)
+        worksheet.write(r+1, c, "Subject", merge_format)
+        worksheet.set_column("A:A", 50)
+        worksheet.write(r+1, c+1, "Code", merge_format)
+        worksheet.set_column("B:B", 10)
+        worksheet.write(r+1, c+2, "Total Students", merge_format)
+        worksheet.set_column("C:C", 15)
+        worksheet.write(r+1, c+3, "External Avg", merge_format)
+        worksheet.set_column("D:D", 15)
+        worksheet.write(r+1, c+4, "Pass %", merge_format)
+        worksheet.write(r+1, c+5, "Fail %", merge_format)
+        worksheet.write(r+1, c+6, "Incomplete %", merge_format)
+        worksheet.set_column("G:G", 15)
+        r += 3
+
+        sections = collection.find({'year': year,
+                                    'college_code': college_code,
+                                    'branch_code': branch_code}).distinct('section')
+        for section in sections:
+            worksheet.merge_range(r, c, r, c+6, "Section: " + section, merge_format)
+            r += 1
+
+            sec_data = {}
+            print section
+            subjects = []
+            students = collection.find({'year': year,
+                                        'college_code': college_code,
+                                        'branch_code': branch_code,
+                                        'section':section})
+
+            print collection.find({'year': year,
+                                        'college_code': college_code,
+                                        'branch_code': branch_code,
+                                        'section':section}).count()
+
+            for student in students:
+                for mark_dict in student['marks']:
+                    sub = {mark_dict['sub_code']: mark_dict['sub_name']}
+                    if sub not in subjects:
+                        subjects.append(sub)
+            print subjects
+            print len(subjects)
+            for subject in subjects:
+                ext_total = 0
+                pass_count = 0
+                fail_count = 0
+                incomp_count = 0
+                sub_code = subject.keys()[0]
+                sub_name = subject.values()[0]
+                students = collection.find({'year': year,
+                                            'college_code': college_code,
+                                            'branch_code': branch_code,
+                                            'section': section,
+                                            'carry_status': {'$ne': 'INCOMP'}})
+                incomp_count = collection.find({'year': year,
+                                                'college_code': college_code,
+                                                'branch_code': branch_code,
+                                                'section': section,
+                                                'carry_status': 'INCOMP'}).count()
+                number_of_students = 0
+                for student in students:
+                    marks = student['marks']
+                    for m in marks:
+                        if m['sub_code'] == sub_code:
+                            ext_total = ext_total + m['marks'][0]
+                            number_of_students += 1
+                            if sub_code in student['carry_papers']:
+                                fail_count += 1
+                            else:
+                                pass_count += 1
+                sec_data['sub_name'] = sub_name
+                sec_data['sub_code'] = sub_code
+                sec_data['total'] = number_of_students
+                sec_data['ext_avg'] = round(float(ext_total) / number_of_students, 2)
+                sec_data['pass'] = round(float(pass_count) / number_of_students * 100, 2)
+                sec_data['fail'] = round(float(fail_count) / number_of_students * 100, 2)
+                sec_data['incomp'] = round(float(incomp_count) / number_of_students * 100, 2)
+                worksheet.write(r, c, sec_data['sub_name'], cell_format)
+                worksheet.write(r, c+1, sec_data['sub_code'], cell_format)
+                worksheet.write(r, c+2, sec_data['total'], cell_format)
+                worksheet.write(r, c+3, sec_data['ext_avg'], cell_format)
+                worksheet.write(r, c+4, sec_data['pass'], cell_format)
+                worksheet.write(r, c+5, sec_data['fail'], cell_format)
+                worksheet.write(r, c+6, sec_data['incomp'], cell_format)
+                r += 1
+
+# sec_wise_ext(3)
 
 
 def teachers_excel(year):
     year = str(year)
+
     workbook = xlsxwriter.Workbook('faculty_performance_year_' + year + '.xlsx')
     worksheet = workbook.add_worksheet('YEAR - ' + year)
     worksheet.set_column('A:A', 18)
@@ -362,6 +521,7 @@ def teachers_excel(year):
     college_code = '027'
     collection = connection.test.students
     branch_codes = collection.find({'year': year, 'college_code': college_code}).distinct('branch_code')
+
     heading_format = workbook.add_format({
         'bold': True,
         'align': 'center',
@@ -384,7 +544,7 @@ def teachers_excel(year):
         worksheet.merge_range(r, c, r, c+5, app.config["BRANCH_NAMES"][branch_code], heading_format)
         r += 1
         sub_details = dict()
-        branch_students = collection.find({'year': year, 'college_code': college_code, 'branch_code':branch_code})
+        branch_students = collection.find({'year': year, 'college_code': college_code, 'branch_code': branch_code})
         for student in branch_students:
             carry_papers = student['carry_papers']
             for mark_dict in student['marks']:
@@ -406,8 +566,6 @@ def teachers_excel(year):
 
         for sub_code in sub_details:
             sub_dict = sub_details[sub_code]
-            if branch_code == '00' or branch_code == '10':
-                print "subject code: ", sub_code, ' type: ', type(sub_code)
             if len(sub_dict) > 1:
                 worksheet.merge_range(r, c, r + len(sub_dict) - 1, c, sub_code, cell_format)
             else:
@@ -425,12 +583,6 @@ def teachers_excel(year):
                 worksheet.write(r, c+5, section, cell_format)
                 r += 1
     workbook.close()
-
-# for year in [1, 3, 4]:
-#     teachers_excel(year=year)
-
-# college_wise_excel('027', '1')
-
 
 
 def subject_wise(year='1'):
@@ -519,3 +671,5 @@ def subject_wise(year='1'):
             c += 3
         r += 1
     return True
+
+# teachers_excel(3)
