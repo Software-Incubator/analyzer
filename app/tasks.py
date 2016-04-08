@@ -182,6 +182,7 @@ def get_result(session, login_data, year=2):
             'max_marks': max_marks,
             'carry_papers': carry_papers,
             'carry_status': status,
+            'section': u''
         }
 
         collection  = connection['test'].students

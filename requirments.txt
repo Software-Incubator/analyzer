@@ -17,4 +17,4 @@ mongokit==0.9.1.1
 pymongo==2.8
 sqlalchemy-migrate==0.10.0
 sqlparse==0.1.18
-
+xlrd==0.9.4
