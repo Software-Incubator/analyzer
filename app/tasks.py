@@ -42,15 +42,19 @@ def post_in_session(session, url, post_data):
     sys.exit(0)
 
 
-def roll_num_generator(college_code='027', year=2):
+def roll_num_generator(college_code='027', year=2, mca=False):
     """generates the first roll numbers of all the branches
-    :param: college_code: code of the college of which the first
+    :param college_code: code of the college of which the first
     roll numbers are generated
-    :param: year: year of which the results are to be generated
+    :param year: year of which the results are to be generated
+    :param mca: boolean, whether the roll numbers to be generated for mca
     :return: list of first roll numbers of each branch specified
     in config file
     """
-    branch_codes = app.config['BRANCH_CODES']
+    if mca:
+        branch_codes = app.config['MCA_BRANCH_CODES']
+    else:
+        branch_codes = app.config['BRANCH_CODES']
     curr_year = datetime.now().year % 100
     year_code = str(curr_year - year)
     roll_nums = [year_code + college_code + branch_code + '001' for
@@ -63,16 +67,20 @@ def roll_num_generator(college_code='027', year=2):
     return roll_nums
 
 
-def get_result(session, login_data, year=2):
+def get_result(session, login_data, year=2, mca=False):
     """
     gets and saves the result data of given roll number
-    :param: roll_num: int, roll number of which the result
+    :param session: session object, sesison with breaked captcha
     is to be saved
-    :param: year: int, year of which the result is to be fetched
+    :param year: int, year of which the result is to be fetched
+    :param mca: bool, True if the result to be fetched for mca
     :return: True if result saved successfully, False otherwise
     """
     with session as s:
-        url = app.config['URLS'][year]  # getting url from config file
+        if mca:
+            url = app.config['MCA_URLS'][year]  # getting url from config file
+        else:
+            url = app.config['URLS'][year]
         # login to student's account
         response2 = post_in_session(s, url, post_data=login_data)
         soup = BeautifulSoup(response2.text, 'html.parser')
@@ -98,9 +106,14 @@ def get_result(session, login_data, year=2):
         status = soup.find(id='ctl00_ContentPlaceHolder1_lblCarryOverStatus').string
         if status:
             status = status.strip()
-        branch_info = soup.find(
+        if mca:
+            branch_info = soup.find(
                 id='ctl00_ContentPlaceHolder1_lblCourse'
-        ).string.split('.')[2].split('(')
+            ).string.split('(')
+        else:
+            branch_info = soup.find(
+                id='ctl00_ContentPlaceHolder1_lblCourse'
+            ).string.split('.')[2].split('(')
         branch_name = branch_info[0]
         if branch_name:
             branch_name = branch_name.lstrip()
@@ -194,18 +207,26 @@ def get_result(session, login_data, year=2):
     return True
 
 
-def get_college_results(college_code="027", year=2):
+def get_college_results(college_code="027", year=2, mca=False):
     """
     gets the result of all branches of the given college code
     of all years
     :param college_code: str, code of the college of which the result
     to be fetched
     :param year: int, year of which the result is asked
+    :param mca: boolean tells whether to get mca result or B.Tech
     :return: True if successfully fetched all the results, False otherwise
     """
-    roll_nums = roll_num_generator(college_code=college_code, year=year)
+    roll_nums = roll_num_generator(college_code=college_code,
+                                   year=year, mca=mca)
+    if mca:
+        urls = app.config['MCA_URLS']
+        print 'mca urls: ', urls
+    else:
+        urls = app.config['URLS']
     with requests.Session() as s:
-        url = app.config['URLS'][year]  # getting url from config file
+        url = urls[year]  # getting url corresponding to year
+        print 'url for current year: ', url
         response = get_in_session(s, url)
         plain_text = response.text
         soup = BeautifulSoup(plain_text, 'html.parser')
@@ -220,7 +241,8 @@ def get_college_results(college_code="027", year=2):
             while count <= 5:
                 print "Roll number: ", r_num + i
                 login_data = get_login_credentials(soup, r_num + i, captcha)
-                result = get_result(session=s, login_data=login_data, year=year)
+                result = get_result(session=s, login_data=login_data,
+                                    year=year, mca=mca)
                 if result:
                     count = 0
                 else:
@@ -257,9 +279,8 @@ def get_login_credentials(soup, rollno, captcha):
 
 
 def get_all_result():
-    years = [1, 2, 3, 4]
-    for college_code in app.config["COLLEGE_CODES"][:]:
-        for year in years:
-            get_college_results(college_code=college_code, year=year)
+    years = [1, 2, 3]
+    for year in years:
+        get_college_results(college_code='027', year=year, mca=True)
 
 get_all_result()

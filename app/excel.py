@@ -197,11 +197,12 @@ def college_wise_excel(college_code='027', year='1'):
     worksheet.write(r, 1, 'Branch', merge_format)
     worksheet.write(r, 2, 'Total', merge_format)
     worksheet.write(r, 3, 'RND', merge_format)
-    worksheet.write(r, 4, 'INCOMP', merge_format)
-    worksheet.write(r, 5, 'RD', merge_format)
-    worksheet.write(r, 6, 'CP', merge_format)
-    worksheet.write(r, 7, 'Pass', merge_format)
-    worksheet.write(r, 8, 'Pass%', merge_format)
+    worksheet.write(r, 4, 'RND %', merge_format)
+    worksheet.write(r, 5, 'INCOMP', merge_format)
+    worksheet.write(r, 6, 'RD', merge_format)
+    worksheet.write(r, 7, 'CP', merge_format)
+    worksheet.write(r, 8, 'Pass', merge_format)
+    worksheet.write(r, 9, 'Pass%', merge_format)
     r += 1
     t_total = 0
     t_rnd = 0
@@ -210,6 +211,8 @@ def college_wise_excel(college_code='027', year='1'):
     t_cp = 0
     t_pass_count = 0
 
+    # getting dictionary from config file for the maximum marks
+    year_max_dict = app.config['MAX_STUDENTS'].get(year)
     for branch_code in branch_codes:
         all_stud = collection.find({'college_code': college_code,
                                     'branch_code': branch_code,
@@ -218,7 +221,7 @@ def college_wise_excel(college_code='027', year='1'):
                                        'branch_code': branch_code,
                                        'year': year,
                                        'carry_status': 'INCOMP'})
-        total = app.config["BRANCH_STUDENTS"].get(branch_code)
+        total = year_max_dict.get(branch_code)
         if not total:
             continue
         incomp_count = incomp_stud.count()
@@ -236,17 +239,22 @@ def college_wise_excel(college_code='027', year='1'):
         else:
             pass_percent = '-'
 
+        # computing not declared percent
+        rnd_percent = float(rnd) / total * 100
+        rnd_percent = round(rnd_percent, 2)
+
         worksheet.write(r, 0, r-1, format)
         print branch_code
         worksheet.write(r, 1, app.config['BRANCH_CODENAMES'][branch_code],
                         format)
         worksheet.write(r, 2, total, format)
         worksheet.write(r, 3, rnd, format)
-        worksheet.write(r, 4, incomp_count, format)
-        worksheet.write(r, 5, rd, format)
-        worksheet.write(r, 6, cp, format)
-        worksheet.write(r, 7, pass_count, format)
-        worksheet.write(r, 8, pass_percent, format)
+        worksheet.write(r, 4, rnd_percent, format)
+        worksheet.write(r, 5, incomp_count, format)
+        worksheet.write(r, 6, rd, format)
+        worksheet.write(r, 7, cp, format)
+        worksheet.write(r, 8, pass_count, format)
+        worksheet.write(r, 9, pass_percent, format)
         r += 1
         # for totals
         t_total += total
@@ -255,6 +263,9 @@ def college_wise_excel(college_code='027', year='1'):
         t_rd = rd + t_rd
         t_cp = cp + t_cp
         t_pass_count += pass_count
+    # computing not declared percentage
+    t_rnd_percent = float(t_rnd) / t_total * 100
+    t_rnd_percent = round(t_rnd_percent, 2)
     if t_rd != 0:
         t_pass_percent = float(t_pass_count) / t_rd * 100
         t_pass_percent = round(t_pass_percent, 2)
@@ -263,11 +274,12 @@ def college_wise_excel(college_code='027', year='1'):
     worksheet.write(r, 1, 'Total', merge_format)
     worksheet.write(r, 2, t_total , format)
     worksheet.write(r, 3, t_rnd, format)
-    worksheet.write(r, 4, t_incomp, format)
-    worksheet.write(r, 5, t_rd, format)
-    worksheet.write(r, 6, t_cp, format)
-    worksheet.write(r, 7, t_pass_count, format)
-    worksheet.write(r, 8, t_pass_percent, format)
+    worksheet.write(r, 4, t_rnd_percent, format)
+    worksheet.write(r, 5, t_incomp, format)
+    worksheet.write(r, 6, t_rd, format)
+    worksheet.write(r, 7, t_cp, format)
+    worksheet.write(r, 8, t_pass_count, format)
+    worksheet.write(r, 9, t_pass_percent, format)
     workbook.close()
 
 
