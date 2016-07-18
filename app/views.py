@@ -16,13 +16,16 @@ def index():
         colg = form.college.data[0]
         branch = form.branch.data[0]
         sem = form.sem.data[0]
+        sem = int(sem)
+        year = int((sem - .1) // 2 + 1)
         print 'In the views:', colg, branch, sem
         output = BytesIO()
-        make_excel(branch=branch, sem=sem, colg_code=colg, output=output)
+        make_excel(branch_code=branch, year=year, college_code=colg, output=output)
         output.seek(0)
+        filename = 'main_year_' + str(year) + '_branch_' + branch + '.xlsx'
         response = Response(output.read(),
                             content_type="application/vnd.openxmlformats-"
                                          "officedocument.spreadsheetml.sheet")
-        response.headers["Content-Disposition"] = "attachment; filename=result.xlsx"
+        response.headers["Content-Disposition"] = "attachment; filename=" + filename
         return response
     return render_template('index.html', form=form)

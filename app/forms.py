@@ -1,6 +1,6 @@
 from flask.ext.wtf import Form
 
-from wtforms import SelectMultipleField
+from wtforms import SelectMultipleField, StringField, PasswordField
 from wtforms.validators import DataRequired
 
 colg_choices = tuple([('027', 'Ajay Kumar Garg Engineering College'),
@@ -23,6 +23,13 @@ sem_choices = tuple([
     ])
 
 class InputForm(Form):
-    college = SelectMultipleField('College', choices= colg_choices, validators=[DataRequired()])
-    branch = SelectMultipleField('Branch', choices= branch_choices, validators=[DataRequired()])
-    sem = SelectMultipleField("Semester", choices= sem_choices, validators=[DataRequired()])
+    college = SelectMultipleField('College', choices= colg_choices,
+                                  validators=[DataRequired()])
+    branch = SelectMultipleField('Branch', choices= branch_choices,
+                                 validators=[DataRequired()])
+    sem = SelectMultipleField("Semester", choices= sem_choices,
+                              validators=[DataRequired()])
+
+class LoginForm(Form):
+    username = StringField('username')
+    password = PasswordField('password')
