@@ -7,7 +7,7 @@ from app import connection, app
 from xlrd import open_workbook
 
 
-def make_excel(college_code='027', year='2', branch_code='40', output=None):
+def make_excel(college_code='027', year='4', branch_code='40', output=None):
     year = str(year)
     if output:
         workbook = xlsxwriter.Workbook(output)
@@ -46,7 +46,7 @@ def make_excel(college_code='027', year='2', branch_code='40', output=None):
                           heading_format)
     c += 3
     r += 2
-    # taking subject codes in a set
+    # taking subject codes in a list
     subject_codes = list()
     students = collection.find({'college_code': college_code,
                                 'year': year,

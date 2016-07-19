@@ -127,20 +127,23 @@ def get_result(session, login_data, year=2, mca=False):
         # key for dictionaries "sub_marks","sub_code", "sub_name",,
         # and there values will be their values
 
-        marks_tables = soup.find(id='ctl00_ContentPlaceHolder1_divRes'
-                                 ).find_all('table')[1].find('tbody'
-                                                             ).find(
-            'tr').find_all('td')
-        print marks_tables
+        marks_tables = soup.find(id='ctl00_ContentPlaceHolder1_divRes').find_all('table')
+        # print 'No of sems: ', marks_tables[1].find('tr').find_all('td', attrs={'width': '50%'})
+        marks_tables = marks_tables[1].find('tr').find_all('td', attrs={'width': '50%'})
         # marks_rows = marks_table.find('tbody').find_all('tr')[1].find('td').find('table').find('tbody').find_all('tr')
 
 
-        odd_marks_rows = marks_tables[0].find_all('tr')[1].find_all('tr')  # [1].find_all('tr')
-        even_marks_rows = marks_tables[1].find_all('tr')[1].find_all('tr')  # [1]
+        odd_marks_rows = marks_tables[0].find_all('tr')[1].find_all('tr')
+        even_marks_rows = marks_tables[1].find_all('tr')[1].find_all('tr')
         all_marks_rows = [odd_marks_rows, even_marks_rows]
+        print 'subject-wise marks: '
+        for odd_sem_marks in odd_marks_rows:
+            print odd_sem_marks
+        for even_sem_marks in even_marks_rows:
+            print even_sem_marks
         all_marks_dict = {}
 
-        count = 0
+        count = 1
         for marks_rows in all_marks_rows:
             std_total_ext = 0
             std_total_int = 0
@@ -171,17 +174,23 @@ def get_result(session, login_data, year=2, mca=False):
                     m1 = float(m1)
                 except (ValueError, TypeError):
                     m1 = 0.0
-                m2 = details[3].string
+                try:
+                    m2 = details[3].string
+                except IndexError:
+                    m2 = '0'
                 if m2:
                     m2 = m2.strip()
                 try:
                     m2 = float(m2)
                 except (ValueError, TypeError):
                     m2 = 0.0
+                if sub_code[0:2] == 'GP' or sub_code[1:3] == 'GP':
+                    m2 = m1
+                    m1 = 0.0
                 m = [m1, m2]
                 std_total_int += m2
                 std_total_ext += m1
-                print std_total_ext
+                print 'External total: ', std_total_ext
                 sub_dict = {'sub_name': sub_name, 'sub_code': sub_code,
                             'marks': m}
 
@@ -190,8 +199,8 @@ def get_result(session, login_data, year=2, mca=False):
                           'marks': [std_total_int, std_total_ext],
                           'sub_code': "TOT"}
             marks.append(total_dict)
-            all_marks_dict[count] = marks
-            count += 1
+            all_marks_dict[str(year * 2 - count)] = marks
+            count -= 1
 
         # for carry papers
         c = soup.find(
@@ -204,10 +213,20 @@ def get_result(session, login_data, year=2, mca=False):
             carry_papers = c.split(',')
         else:
             carry_papers = list()
+        if year == 4:
+            max_marks = soup.find(
+                id='ctl00_ContentPlaceHolder1_lblSTAT_8MRK'
+            ).string.strip()
+            aggregate_marks = soup.find(
+                id='ctl00_ContentPlaceHolder1_lblAGG_MRK'
+            ).string.strip()
+        else:
+            max_marks = soup.find(
+                id='ctl00_ContentPlaceHolder1_lblTotalMarks'
+            ).string.strip()
+            aggregate_marks = u''
         year = str(year)
         year = unicode(year, 'utf-8')
-        max_marks = soup.find(
-            id='ctl00_ContentPlaceHolder1_lblTotalMarks').string.strip()
         student_data = {
             'roll_no': roll_no,
             'name': name,
@@ -219,6 +238,7 @@ def get_result(session, login_data, year=2, mca=False):
             'college_name': colg_name,
             'marks': all_marks_dict,
             'max_marks': max_marks,
+            'aggregate_marks': aggregate_marks,
             'carry_papers': carry_papers,
             'carry_status': status,
             'section': u''
@@ -233,7 +253,7 @@ def get_result(session, login_data, year=2, mca=False):
     return True
 
 
-def get_college_results(college_codes=("027", ), year=2, mca=False):
+def get_college_results(college_codes=("027", ), year=4, mca=False):
     """
     gets the result of all branches of the given college code
     of all years
@@ -310,7 +330,8 @@ def get_all_result():
         get_college_results(college_codes=college_codes, year=year)
 
 
-# get_all_result()
+get_all_result()
+
 def get_all_mca_result():
     college_codes = app.config["COLLEGE_CODES"]
     years = range(1, 4)
