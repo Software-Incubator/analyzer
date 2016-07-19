@@ -96,16 +96,16 @@ def get_result(session, login_data, year=2, mca=False):
             return None
         colg_code = soup.find(
             id='ctl00_ContentPlaceHolder1_lblInstName'
-        ).string.split('(')[1][:-1]
+        ).string.split('(')[1][:-1].strip()
         colg_name = soup.find(
             id='ctl00_ContentPlaceHolder1_lblInstName'
-        ).string.split('(')[0]
+        ).string.split('(')[0].strip()
         fathers_name = soup.find(
             id='ctl00_ContentPlaceHolder1_lblF_NAME'
         ).string.strip()
         roll_no = soup.find(
             id='ctl00_ContentPlaceHolder1_lblROLLNO'
-        ).string
+        ).string.strip()
         status = soup.find(id='ctl00_ContentPlaceHolder1_lblCarryOver').string
         if status:
             status = status.strip()
@@ -119,8 +119,8 @@ def get_result(session, login_data, year=2, mca=False):
             ).string.split('.')[2].split('(')
         branch_name = branch_info[0]
         if branch_name:
-            branch_name = branch_name.lstrip()
-        branch_code = branch_info[1][:-1]
+            branch_name = branch_name.strip()
+        branch_code = branch_info[1][:-1].strip()
 
         # for marks, it will contain a list and in that list there
         #  will be dictionaries for each and every subjects
@@ -204,7 +204,7 @@ def get_result(session, login_data, year=2, mca=False):
 
         # for carry papers
         c = soup.find(
-            id='ctl00_ContentPlaceHolder1_lblCarryOver').string
+            id='ctl00_ContentPlaceHolder1_lblCarryOver').string.strip()
         if c:
             c = c.strip()
         if len(c) > 0:
@@ -228,7 +228,7 @@ def get_result(session, login_data, year=2, mca=False):
         year = str(year)
         year = unicode(year, 'utf-8')
         student_data = {
-            'roll_no': roll_no,
+            'roll_no': roll_no.strip(),
             'name': name,
             'year': year,
             'father_name': fathers_name,
