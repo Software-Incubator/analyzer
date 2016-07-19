@@ -118,7 +118,7 @@ def make_excel(college_code='027', year='4', branch_code='40', output=None):
     return workbook
 
 
-def fail_excel(college_code='027', year="1", output=None):
+def fail_excel(college_code='027', year="4", output=None):
     """
     generates excel for failed students
     :param college_code: code of the college of which the excel is to be made
@@ -215,7 +215,7 @@ def fail_excel(college_code='027', year="1", output=None):
     return True
 
 
-def akgec_summary(college_code='027', year='1'):
+def akgec_summary(college_code='027', year='4'):
     year = str(year)
     workbook = xlsxwriter.Workbook(
         'college_summary_excel_year_' + str(year) + '.xlsx')
@@ -268,7 +268,9 @@ def akgec_summary(college_code='027', year='1'):
         if not total:
             continue
         incomp_count = incomp_stud.count()
+        print 'No of incomplete students: ', incomp_count
         rd = all_stud.count() - incomp_count
+        print 'Result declared: ', rd
         rnd = total - rd
         cp = collection.find({'college_code': college_code,
                               'branch_code': branch_code,
