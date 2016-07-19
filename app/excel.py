@@ -7,7 +7,7 @@ from app import connection, app
 from xlrd import open_workbook
 
 
-def make_excel(college_code='027', year='4', branch_code='40', output=None):
+def make_excel(college_code='027', year='4', branch_code='40', output=None ):
     year = str(year)
     if output:
         workbook = xlsxwriter.Workbook(output)
@@ -52,16 +52,17 @@ def make_excel(college_code='027', year='4', branch_code='40', output=None):
                                 'year': year,
                                 'branch_code': branch_code})
     totals = list()  # to keep record of total marks of all the students
+
     for student in students:
         worksheet.write(r, c - 3, student['roll_no'], cell_format)
         worksheet.write(r, c - 2, student['name'], cell_format)
         worksheet.write(r, c - 1, student['father_name'], cell_format)
-        std_marks = student['marks']  # list of all subject marks
+        std_marks = student['marks'][str(int(year)*2)]  # list of all subject marks
         std_ext_total = 0  # external total of student
         std_int_total = 0  # internal total of student
         for sub_dict in std_marks:
             sub_code = sub_dict['sub_code']
-            sub_marks = map(int, sub_dict['marks'][:])
+            sub_marks = map(int, sub_dict['marks'])
             external_marks = sub_marks[0]
             internal_marks = sub_marks[1]
             std_ext_total += external_marks

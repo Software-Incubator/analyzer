@@ -325,7 +325,7 @@ def get_login_credentials(soup, rollno, captcha):
 
 def get_all_result():
     college_codes = app.config["COLLEGE_CODES"]
-    years = range(1, 5)
+    years = range(4, 5)
     for year in years:
         get_college_results(college_codes=college_codes, year=year)
 

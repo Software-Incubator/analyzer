@@ -60,6 +60,7 @@ MCA_URLS = {
         'Semester2016/frmMCA5Semome.aspx'),
 }
 
+
 COLLEGE_CODES = ["027", "029", "032", "091", "143", "033", "161", "030",
                  "222", ]
 
