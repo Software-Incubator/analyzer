@@ -120,6 +120,7 @@ def make_excel(college_code='027', year='4', branch_code='40', output=None ):
     return workbook
 
 
+# error
 def fail_excel(college_code='027', year="4", output=None):
     """
     generates excel for failed students
@@ -162,12 +163,12 @@ def fail_excel(college_code='027', year="4", output=None):
         worksheet.set_column('P:P', 12)
         cell_list = string.ascii_uppercase[3:]
         i = 0
-        stud_marks = len(student['marks'])
-        stud_marks1 = len(student1['marks'])
+        stud_marks = len(student['marks'][str(int(year) * 2)]) - 1
+        stud_marks1 = len(student1['marks'][str(int(year) * 2)]) - 1
         if stud_marks < stud_marks1:
             student = student1
-        num_subjects = len(student['marks'])
-        for sub_dict in student['marks']:
+        num_subjects = len(student['marks'][str(int(year) * 2)]) - 1
+        for sub_dict in student['marks'][str(int(year) * 2)][:-1]:
             sub_code = sub_dict['sub_code']
             if sub_code[1:4] == 'OE0':
                 sub_code = 'OE0'
@@ -178,7 +179,7 @@ def fail_excel(college_code='027', year="4", output=None):
                                        "year": year,
                                        "branch_code": branch_code,
                                        "carry_status": {
-                                           "$nin": ["CP(0)", "INCOMP"]
+                                           "$nin": ["PASS", "PWG", "INC", ]
                                        }
                                        })
         j = 2
@@ -189,23 +190,17 @@ def fail_excel(college_code='027', year="4", output=None):
             worksheet.write(j, k + 2, fail_student['roll_no'])
             k += 3
             carry_papers = fail_student['carry_papers']
-            num_carry = fail_student['carry_status'][-2]
+            num_carry = len(fail_student['carry_papers'])
 
-            if num_carry != 'N' and len(carry_papers) != int(num_carry):
+            if num_carry == 0:
                 worksheet.merge_range(j, k,
                                       j, k + num_subjects - 1,
                                       'Carry subjects not provided',
                                       cell_format)
                 k += len(fail_student['marks'])
-            elif num_carry == 'N':
-                worksheet.merge_range(j, k,
-                                      j, k + num_subjects - 1,
-                                      'Absent',
-                                      cell_format)
-                k += len(fail_student['marks'])
-                num_carry = len(carry_papers)
+
             else:
-                for mark_dict in fail_student['marks']:
+                for mark_dict in fail_student['marks'][str(int(year)*2)][:-1]:
                     if mark_dict['sub_code'] in carry_papers:
                         worksheet.write(j, k, "F")
                     else:
@@ -265,7 +260,7 @@ def akgec_summary(college_code='027', year='4'):
         incomp_stud = collection.find({'college_code': college_code,
                                        'branch_code': branch_code,
                                        'year': year,
-                                       'carry_status': 'INCOMP'})
+                                       'carry_status': 'INC'})
         total = year_max_dict.get(branch_code)
         if not total:
             continue
@@ -277,8 +272,10 @@ def akgec_summary(college_code='027', year='4'):
         cp = collection.find({'college_code': college_code,
                               'branch_code': branch_code,
                               'year': year,
-                              'carry_status': {'$nin': ['CP(0)', 'INCOMP']}
+                              'carry_status': {'$nin': ["PASS", "PWG", "INC", ]}
                               }).count()
+        print "'No of CPs':", cp
+
         pass_count = rd - cp
         if rd != 0:
             pass_percent = (float(pass_count) / rd) * 100
@@ -369,7 +366,7 @@ def other_college_summary(college_code, year):
         pcp = collection.find({"college_code": college_code,
                                "year": year,
                                "branch_code": branch_code,
-                               "carry_status": {"$nin": ["CP(0)", "INCOMP"]}
+                               "carry_status": {"$nin": ["PASS", "PWG", "INC"]}
                                }).count()
         if rd == 0:
             continue
@@ -410,13 +407,19 @@ def ext_avg(year):
         students = collection.find({'year': year, 'college_code': colg_code,
                                     'carry_status': {'$ne': 'INCOMP'}})
         t_ext = 0
+
+        print students.count()
+
         for student in students:
-            ext = 0
-            for mark in student['marks']:
-                ext = ext + mark['marks'][0]
-            t_ext += ext
+            t_ext += student["marks"][str(int(year) * 2)][-1]["marks"][0]
+
+            # ext = 0
+            # for mark in student['marks'][str(int(year)*2)]:
+            #     ext = ext + mark['marks'][0]
+            # t_ext += ext
 
         len_students = students.count()
+
         colg_avg = float(t_ext) / len_students
         colg_avg = round(colg_avg, 2)
         percent = colg_avg / max_mark * 100
@@ -524,10 +527,10 @@ def sec_wise_ext(year):
                                         'college_code': college_code,
                                         'branch_code': branch_code,
                                         'section': section,
-                                        'carry_status': {'$ne': 'INCOMP'}})
+                                        'carry_status': {'$ne': 'INC'}})
 
             for student in students:
-                for mark_dict in student['marks']:
+                for mark_dict in student['marks'][str(int(year) * 2)][:-1]:
                     sub_tup = (mark_dict['sub_code'], mark_dict['sub_name'])
                     if sub_tup not in subjects:
                         subjects.append(sub_tup)
@@ -541,10 +544,10 @@ def sec_wise_ext(year):
                                             'college_code': college_code,
                                             'branch_code': branch_code,
                                             'section': section,
-                                            'carry_status': {'$ne': 'INCOMP'}})
+                                            'carry_status': {'$ne': 'INC'}})
                 number_of_students = 0
                 for student in students:
-                    marks = student['marks']
+                    marks = student['marks'][str(int(year) * 2)]
                     for m in marks:
                         if m['sub_code'] == sub_code:
                             ext_total = ext_total + m['marks'][0]
@@ -712,7 +715,7 @@ def faculty_performance(year):
                             else:
                                 sub_details[(sub_code, sub_name)][
                                     student['section']]['ext_tot'] += \
-                                mark_dict['marks'][0]
+                                    mark_dict['marks'][0]
                                 sub_details[(sub_code, sub_name)][
                                     student['section']]['num_tot'] += 1
                                 sub_details[(sub_code, sub_name)][
@@ -727,7 +730,7 @@ def faculty_performance(year):
                                 student['section']):
                             sub_details[(sub_code, sub_name)][
                                 student['section']]['ext_tot'] += \
-                            mark_dict['marks'][0]
+                                mark_dict['marks'][0]
                             sub_details[(sub_code, sub_name)][
                                 student['section']]['num_tot'] += 1
                             sub_details[(sub_code, sub_name)][
@@ -822,13 +825,13 @@ def subject_wise(year='1'):
         c += 3
     r += 2
     students = collection.find({"year": year,
-                                "carry_status": {"$ne": "INCOMP"}})
+                                "carry_status": {"$ne": "INC"}})
     year_dict = dict()
     sub_names = dict()
     for student in students:
         college_code = student['college_code']
         carry_papers = student['carry_papers']
-        for mark_dict in student['marks']:
+        for mark_dict in student['marks'][str(int(year)*2)][:-1]:
             sub_code = mark_dict['sub_code']
             if not sub_names.get(sub_code):
                 sub_names[sub_code] = mark_dict['sub_name']
@@ -883,6 +886,7 @@ def subject_wise(year='1'):
     return True
 
 
+# year 1-3 left
 def pass_percentage():
     workbook = xlsxwriter.Workbook('pass_percentage_comparison' + '.xlsx')
     heading_format = workbook.add_format({
@@ -910,7 +914,7 @@ def pass_percentage():
         c += 1
     r += 1
     c = 0
-    for year in range(1, 5):
+    for year in range(4, 5):
         year = str(year)
         worksheet.write(r, c, year, cell_format)
         c += 1
@@ -918,13 +922,13 @@ def pass_percentage():
             total_students = col.find({
                 'college_code': college_code,
                 'year': year,
-                'carry_status': {'$ne': 'INCOMP'}
+                'carry_status': {'$ne': 'INC'}
             }).count()
             fail_count = col.find({
                 'college_code': college_code,
                 'year': year,
                 'carry_status': {
-                    '$nin': ['INCOMP', 'CP(0)']
+                    '$nin': ["PASS", "PWG", "INC"]
                 }
             }).count()
             pass_perc = round(float(total_students - fail_count) /
@@ -991,13 +995,13 @@ def branch_wise_pass_percent(year='2'):
                 'year': year,
                 'branch_code': branch_code,
                 'college_code': college_code,
-                'carry_status': {'$ne': 'INCOMP'}
+                'carry_status': {'$ne': 'INC'}
             }).count()
             fail_count = collection.find({
                 'year': year,
                 'branch_code': branch_code,
                 'college_code': college_code,
-                'carry_status': {'$nin': ['INCOMP', 'CP(0)']}
+                'carry_status': {'$nin': ["PASS", "PWG", "INC"]}
             }).count()
             if college_total_info.get(college_code):
                 college_total_info[college_code][
@@ -1095,13 +1099,13 @@ def branch_wise_ext_avg(year='2'):
                 'year': year,
                 'branch_code': branch_code,
                 'college_code': college_code,
-                'carry_status': {'$ne': 'INCOMP'}
+                'carry_status': {'$ne': 'INC'}
             })
             student_count = students.count()
             ext_total = 0
             for student in students:
                 student_total = 0
-                for marks_dict in student['marks']:
+                for marks_dict in student['marks'][str(int(year) * 2)][:-1]:
                     marks = marks_dict['marks']
                     student_total += marks[0]
                 ext_total += student_total
@@ -1141,11 +1145,12 @@ def branch_wise_ext_avg(year='2'):
     return True
 
 
+# Helper function
 def get_section_faculty_info():
     """
-    reads information from excel and returns dictionary of section faculty info
-    :return: dict containing subject, section and faculty information
-    """
+        reads information from excel and returns dictionary of section faculty info
+        :return: dict containing subject, section and faculty information
+        """
     wb = open_workbook("/home/animesh/Devel/analyzer/Section-Faculty Informa"
                        "tion/subject_section_faculty.xlsx")
     sheet = wb.sheet_by_index(0)
@@ -1174,6 +1179,7 @@ def get_section_faculty_info():
     return section_faculty_info
 
 
+# Helper function
 def get_alpha_column(col_num):
     letters = string.ascii_uppercase
     if col_num < 26:
@@ -1182,4 +1188,3 @@ def get_alpha_column(col_num):
         n = col_num // 26
         i = col_num % 26
         return letters[n - 1] + letters[i]
-

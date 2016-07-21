@@ -106,7 +106,7 @@ def get_result(session, login_data, year=2, mca=False):
         roll_no = soup.find(
             id='ctl00_ContentPlaceHolder1_lblROLLNO'
         ).string.strip()
-        status = soup.find(id='ctl00_ContentPlaceHolder1_lblCarryOver').string
+        status = soup.find(id='ctl00_ContentPlaceHolder1_lblSTAT_'+str(year*2)).string
         if status:
             status = status.strip()
         if mca:
@@ -196,7 +196,7 @@ def get_result(session, login_data, year=2, mca=False):
 
                 marks.append(sub_dict)
             total_dict = {'sub_name': "total",
-                          'marks': [std_total_int, std_total_ext],
+                          'marks': [std_total_ext, std_total_int],
                           'sub_code': "TOT"}
             marks.append(total_dict)
             all_marks_dict[str(year * 2 - count)] = marks
@@ -210,7 +210,7 @@ def get_result(session, login_data, year=2, mca=False):
         if len(c) > 0:
             if c[-1] == ',':
                 c = c[:-1]
-            carry_papers = c.split(',')
+            carry_papers = c.split(' ')
         else:
             carry_papers = list()
         if year == 4:
