@@ -51,13 +51,14 @@ def make_excel(college_code='027', year='4', branch_code='40', output=None ):
     students = collection.find({'college_code': college_code,
                                 'year': year,
                                 'branch_code': branch_code})
+    # print students.count()
     totals = list()  # to keep record of total marks of all the students
 
     for student in students:
         worksheet.write(r, c - 3, student['roll_no'], cell_format)
         worksheet.write(r, c - 2, student['name'], cell_format)
         worksheet.write(r, c - 1, student['father_name'], cell_format)
-        std_marks = student['marks'][str(int(year)*2)]  # list of all subject marks
+        std_marks = student['marks'][str(int(year)*2)][:-1]  # list of all subject marks
         std_ext_total = 0  # external total of student
         std_int_total = 0  # internal total of student
         for sub_dict in std_marks:
@@ -98,7 +99,7 @@ def make_excel(college_code='027', year='4', branch_code='40', output=None ):
                           heading_format)
     worksheet.merge_range(r, c + 4, r + 1, c + 4, 'Carry Status',
                           heading_format)
-    worksheet.write(r + 1, c, 'Eternal', cell_format)
+    worksheet.write(r + 1, c, 'External', cell_format)
     worksheet.write(r + 1, c + 1, 'Internal', cell_format)
     worksheet.write(r + 1, c + 2, 'Total', cell_format)
     r += 2
@@ -967,7 +968,7 @@ def branch_wise_pass_percent(year='2'):
     worksheet.set_row(r, 30)
     worksheet.write(r, c, 'Deptt. \\ College', heading_format)
     c += 1
-    for college_code in college_codes:
+    for college_code in college_coes:
         worksheet.write(r, c, college_codenames[college_code], heading_format)
         c += 1
     r += 1
