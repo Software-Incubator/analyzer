@@ -32,9 +32,7 @@ def make_excel(college_code='027', year='4', branch_code='40', output=None ):
         worksheet.merge_range('A1:AO1', 'Result not declared')
         workbook.close()
         return False
-    # print head
-    # print head['roll_no']
-    # col_mark will find the number of subjects
+
     r, c = 0, 0
     worksheet.set_row(r, 30)
     r += 1  # skipping one row for heading
@@ -58,16 +56,15 @@ def make_excel(college_code='027', year='4', branch_code='40', output=None ):
         worksheet.write(r, c - 3, student['roll_no'], cell_format)
         worksheet.write(r, c - 2, student['name'], cell_format)
         worksheet.write(r, c - 1, student['father_name'], cell_format)
-        std_marks = student['marks'][str(int(year)*2)][:-1]  # list of all subject marks
-        std_ext_total = 0  # external total of student
-        std_int_total = 0  # internal total of student
+        std_marks = student['marks'][str(int(year)*2)]  # list of all subject marks
+        std_ext_total = std_marks[-1][0]  # external total of student
+        std_int_total = std_marks[-1][1]  # internal total of student
+        std_marks = std_marks[:-1]
         for sub_dict in std_marks:
             sub_code = sub_dict['sub_code']
             sub_marks = map(int, sub_dict['marks'])
             external_marks = sub_marks[0]
             internal_marks = sub_marks[1]
-            std_ext_total += external_marks
-            std_int_total += internal_marks
             total_marks = sum(sub_marks)
             if not sub_code in subject_codes:
                 subject_codes.append(sub_code)
@@ -620,14 +617,15 @@ def faculty_performance(year):
     r += 1
     sub_details = dict()
     students = collection.find({'year': year, 'college_code': college_code,
-                                'carry_status': {'$ne': 'INCOMP'},
-                                'branch_code': {'$ne': '14'}
+                                'carry_status': {'$ne': 'INC'},
+                                'branch_code': {'$in': ['00', '10', '13', '21',
+                                                        '31', '32', '40']}
                                 })
     section_faculty_info = get_section_faculty_info()
 
     for student in students:
         carry_papers = student['carry_papers']
-        for mark_dict in student['marks']:
+        for mark_dict in student['marks'][str(int(year)*2)][:-1]:
             sub_code = mark_dict['sub_code']
             sub_name = mark_dict['sub_name']
             sub_sec_fac = section_faculty_info.get(sub_code, {})
@@ -914,7 +912,7 @@ def pass_percentage():
         c += 1
     r += 1
     c = 0
-    for year in range(4, 5):
+    for year in range(3, 5):
         year = str(year)
         worksheet.write(r, c, year, cell_format)
         c += 1
@@ -1152,7 +1150,7 @@ def get_section_faculty_info():
         :return: dict containing subject, section and faculty information
         """
     wb = open_workbook("/home/animesh/Devel/analyzer/Section-Faculty Informa"
-                       "tion/subject_section_faculty.xlsx")
+                       "tion/subject_section_faculty_even_sem_2016.xlsx")
     sheet = wb.sheet_by_index(0)
     section_faculty_info = dict()
     row, col = 0, 0
@@ -1164,6 +1162,7 @@ def get_section_faculty_info():
             sub_code, sec, faculty_name = (sub_code.strip(),
                                            sec.strip(),
                                            faculty_name.strip().upper())
+            print 'Subject code: ', sub_code
             if sub_code[3] == '-' or sub_code[3] == ' ':
                 sub_code = sub_code[:3] + sub_code[4:]
             if not sub_code in section_faculty_info:
