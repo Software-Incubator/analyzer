@@ -972,7 +972,7 @@ def branch_wise_pass_percent(year='2'):
     worksheet.set_row(r, 30)
     worksheet.write(r, c, 'Deptt. \\ College', heading_format)
     c += 1
-    for college_code in college_coes:
+    for college_code in college_codes:
         worksheet.write(r, c, college_codenames[college_code], heading_format)
         c += 1
     r += 1
