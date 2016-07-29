@@ -402,7 +402,7 @@ def ext_avg(year):
     avg_list = []
     for colg_code in college_codes:
         students = collection.find({'year': year, 'college_code': colg_code,
-                                    'carry_status': {'$ne': 'INCOMP'}})
+                                    'carry_status': {'$ne': 'INC'}})
         t_ext = 0
 
         print students.count()
@@ -638,7 +638,7 @@ def faculty_performance(year):
                 num_carry = 0
             if not sub_details.get((sub_code, sub_name)):
                 if sub_code[1:3] == "OE":
-                    for faculty, sections in sub_sec_fac.iteritems():
+                    for faculty, sections in sub_sec_fac.items():
                         section_str = ','.join(sections)
                         if student['section'] in sections:
                             sub_details[(sub_code, sub_name)] = {
@@ -651,7 +651,7 @@ def faculty_performance(year):
                                 }
                             }
                 else:
-                    for faculty, sections in sub_sec_fac.iteritems():
+                    for faculty, sections in sub_sec_fac.items():
                         if student['section'] in sections:
                             sub_details[(sub_code, sub_name)] = {
                                 student['section']: {
@@ -1149,7 +1149,7 @@ def get_section_faculty_info():
         reads information from excel and returns dictionary of section faculty info
         :return: dict containing subject, section and faculty information
         """
-    wb = open_workbook("/home/animesh/Devel/analyzer/Section-Faculty Informa"
+    wb = open_workbook(os.getcwd() + "/Section-Faculty Informa"
                        "tion/subject_section_faculty_even_sem_2016.xlsx")
     sheet = wb.sheet_by_index(0)
     section_faculty_info = dict()
@@ -1162,10 +1162,11 @@ def get_section_faculty_info():
             sub_code, sec, faculty_name = (sub_code.strip(),
                                            sec.strip(),
                                            faculty_name.strip().upper())
-            print 'Subject code: ', sub_code
+            print('Subject code: ', sub_code)
             if sub_code[3] == '-' or sub_code[3] == ' ':
                 sub_code = sub_code[:3] + sub_code[4:]
-            if not sub_code in section_faculty_info:
+            print('Subject code: ', sub_code)
+            if sub_code not in section_faculty_info:
                 section_faculty_info[sub_code] = dict()
                 section_faculty_info[sub_code][faculty_name] = [sec, ]
             else:
