@@ -25,7 +25,7 @@ def make_excel(college_code='027', year='4', branch_code='40', output=None ):
     cell_format = workbook.add_format()
     cell_format.set_text_wrap()
 
-    student = collection.find_one({'branch_code': branch_code,
+    student = collection.find({'branch_code': branch_code,
                                    'college_code': college_code,
                                    'year': year})
     if not student:
@@ -53,12 +53,14 @@ def make_excel(college_code='027', year='4', branch_code='40', output=None ):
     totals = list()  # to keep record of total marks of all the students
 
     for student in students:
+        # print student
         worksheet.write(r, c - 3, student['roll_no'], cell_format)
         worksheet.write(r, c - 2, student['name'], cell_format)
         worksheet.write(r, c - 1, student['father_name'], cell_format)
         std_marks = student['marks'][str(int(year)*2)]  # list of all subject marks
-        std_ext_total = std_marks[-1][0]  # external total of student
-        std_int_total = std_marks[-1][1]  # internal total of student
+        # print std_marks
+        std_ext_total = std_marks[-1]['marks'][0]  # external total of student
+        std_int_total = std_marks[-1]['marks'][1]  # internal total of student
         std_marks = std_marks[:-1]
         for sub_dict in std_marks:
             sub_code = sub_dict['sub_code']
