@@ -10,3 +10,6 @@
 
 #byte-compiled files
 *.pyc
+
+all the excel files
+*.xlsx
