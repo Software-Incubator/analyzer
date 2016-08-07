@@ -14,7 +14,7 @@ class Student(Document):
         'college_name': unicode,
         'marks': dict,
         'max_marks': unicode,
-        'aggregate': unicode,
+        'aggregate_marks': unicode,
         'carry_papers': [basestring],
         'year': unicode,
         'carry_status': unicode,

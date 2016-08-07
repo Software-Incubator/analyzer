@@ -106,7 +106,7 @@ def get_result(session, login_data, year=2, mca=False):
         roll_no = soup.find(
             id='ctl00_ContentPlaceHolder1_lblROLLNO'
         ).string.strip()
-        status = soup.find(id='ctl00_ContentPlaceHolder1_lblSTAT_'+str(year*2)).string
+        status = soup.find(id='ctl00_ContentPlaceHolder1_lblSTAT_8').string
         if status:
             status = status.strip()
         if mca:
@@ -222,7 +222,7 @@ def get_result(session, login_data, year=2, mca=False):
             ).string.strip()
         else:
             max_marks = soup.find(
-                id='ctl00_ContentPlaceHolder1_lblTotalMarks'
+                id='ctl00_ContentPlaceHolder1_lblSTAT_8MRK'
             ).string.strip()
             aggregate_marks = u''
         year = str(year)
@@ -323,14 +323,16 @@ def get_login_credentials(soup, rollno, captcha):
     return login_credentials
 
 
-def get_all_result():
-    college_codes = app.config["COLLEGE_CODES"]
-    years = range(4, 5)
+def get_all_result(year_range=(1, 5)):
+    college_codes = app.config["COLLEGE_CODES"][1:]
+    years = year_range
     for year in years:
         get_college_results(college_codes=college_codes, year=year)
 
 
-get_all_result()
+if __name__ == '__main__':
+    get_all_result()
+
 
 def get_all_mca_result():
     college_codes = app.config["COLLEGE_CODES"]
