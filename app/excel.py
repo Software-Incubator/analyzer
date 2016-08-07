@@ -26,7 +26,7 @@ def make_excel(college_code='027', year='4', branch_code='40', output=None ):
     cell_format = workbook.add_format()
     cell_format.set_text_wrap()
 
-    student = collection.find_one({'branch_code': branch_code,
+    student = collection.find({'branch_code': branch_code,
                                    'college_code': college_code,
                                    'year': year})
     if not student:
@@ -54,11 +54,12 @@ def make_excel(college_code='027', year='4', branch_code='40', output=None ):
     totals = list()  # to keep record of total marks of all the students
 
     for student in students:
+        # print student
         worksheet.write(r, c - 3, student['roll_no'], cell_format)
         worksheet.write(r, c - 2, student['name'], cell_format)
         worksheet.write(r, c - 1, student['father_name'], cell_format)
         std_marks = student['marks'][str(int(year)*2)]  # list of all subject marks
-        print 'Student Sem Marks: ', std_marks
+
         std_ext_total = std_marks[-1]['marks'][0]  # external total of student
         std_int_total = std_marks[-1]['marks'][1]  # internal total of student
         std_marks = std_marks[:-1]
@@ -644,7 +645,7 @@ def faculty_performance(year):
                 num_carry = 0
             if not sub_details.get((sub_code, sub_name)):
                 if sub_code[1:3] == "OE":
-                    for faculty, sections in sub_sec_fac.iteritems():
+                    for faculty, sections in sub_sec_fac.items():
                         section_str = ','.join(sections)
                         if student['section'] in sections:
                             sub_details[(sub_code, sub_name)] = {
@@ -657,7 +658,7 @@ def faculty_performance(year):
                                 }
                             }
                 else:
-                    for faculty, sections in sub_sec_fac.iteritems():
+                    for faculty, sections in sub_sec_fac.items():
                         if student['section'] in sections:
                             sub_details[(sub_code, sub_name)] = {
                                 student['section']: {
@@ -978,7 +979,7 @@ def branch_wise_pass_percent(year='2'):
     worksheet.set_row(r, 30)
     worksheet.write(r, c, 'Deptt. \\ College', heading_format)
     c += 1
-    for college_code in college_coes:
+    for college_code in college_codes:
         worksheet.write(r, c, college_codenames[college_code], heading_format)
         c += 1
     r += 1
@@ -1158,9 +1159,8 @@ def get_section_faculty_info():
         reads information from excel and returns dictionary of section faculty info
         :return: dict containing subject, section and faculty information
         """
-    wb = open_workbook(os.path.expanduser('~') +
-                       '/Assets/Result Analyzer/Section-Faculty Information/'
-                       'subject_section_faculty_even_sem_2016.xlsx')
+    wb = open_workbook(os.getcwd() + "/Section-Faculty Informa"
+                       "tion/subject_section_faculty_even_sem_2016.xlsx")
     sheet = wb.sheet_by_index(0)
     section_faculty_info = dict()
     row, col = 0, 0
@@ -1172,16 +1172,18 @@ def get_section_faculty_info():
             sub_code, sec, faculty_name = (sub_code.strip(),
                                            sec.strip(),
                                            faculty_name.strip().upper())
-            print 'Subject code: ', sub_code
+            print('Subject code: ', sub_code)
             if sub_code[3] == '-' or sub_code[3] == ' ':
                 sub_code = sub_code[:3] + sub_code[4:]
+
             if len(sec) > 2:
                 print 'Section: ', sec
                 if sec[2] == ' ':
                     sec = sec[:2] + sec[3:]
                 if len(sec) >= 4 and sec[3] == ' ':
                     sec = sec[:3] + sec[4:]
-            if not sub_code in section_faculty_info:
+
+            if sub_code not in section_faculty_info:
                 section_faculty_info[sub_code] = dict()
                 section_faculty_info[sub_code][faculty_name] = [sec, ]
             else:

@@ -20,6 +20,13 @@ class Student(Document):
         'carry_status': unicode,
         'section': unicode,
     }
+
+    indexes = [
+        {
+            'fields': 'roll_no',
+            'unique': True,
+        }
+    ]
     use_dot_notaton = True
     use_autorefs = True
 

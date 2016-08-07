@@ -1,4 +1,3 @@
-# branch codes of the branches that exist in college
 BRANCH_CODES = ['00', '10', '13', '20', '21', '31', '32', '40',]
 
 MCA_BRANCH_CODES = ['14', ]

@@ -6,6 +6,12 @@ from bs4 import BeautifulSoup
 from app import connection, app
 from datetime import datetime
 from requests.exceptions import ConnectionError
+from pymongo import MongoClient
+from models import Student
+
+client = MongoClient()
+db = client.test
+col = db.students
 
 
 def get_in_session(session, url):
@@ -103,9 +109,14 @@ def get_result(session, login_data, year=2, mca=False):
         fathers_name = soup.find(
             id='ctl00_ContentPlaceHolder1_lblF_NAME'
         ).string.strip()
+
         roll_no = soup.find(
             id='ctl00_ContentPlaceHolder1_lblROLLNO'
         ).string.strip()
+
+        if col.find({'roll_no': str(roll_no)}).count():
+            col.remove({'roll_no': str(roll_no)})
+
         status = soup.find(id='ctl00_ContentPlaceHolder1_lblSTAT_8').string
         if status:
             status = status.strip()
@@ -253,7 +264,7 @@ def get_result(session, login_data, year=2, mca=False):
     return True
 
 
-def get_college_results(college_codes=("027", ), year=4, mca=False):
+def get_college_results(college_codes=("027",), year=2, mca=False):
     """
     gets the result of all branches of the given college code
     of all years
@@ -324,7 +335,7 @@ def get_login_credentials(soup, rollno, captcha):
 
 
 def get_all_result(year_range=(1, 5)):
-    college_codes = app.config["COLLEGE_CODES"][1:]
+    college_codes = app.config["COLLEGE_CODES"]
     years = year_range
     for year in years:
         get_college_results(college_codes=college_codes, year=year)
@@ -332,6 +343,7 @@ def get_all_result(year_range=(1, 5)):
 
 if __name__ == '__main__':
     get_all_result()
+
 
 
 def get_all_mca_result():
