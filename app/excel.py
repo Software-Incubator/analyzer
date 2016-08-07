@@ -7,7 +7,13 @@ from app import connection, app
 from xlrd import open_workbook
 
 
-def make_excel(college_code='027', year='4', branch_code='40', output=None ):
+def make_excel(semester, college_code='027', branch_code='40', output=None):
+    if semester % 2:
+        year = semester / 2
+    else:
+        year = (semester + 1) / 2
+
+    semester = str(semester)
     year = str(year)
     if output:
         workbook = xlsxwriter.Workbook(output)
@@ -26,8 +32,8 @@ def make_excel(college_code='027', year='4', branch_code='40', output=None ):
     cell_format.set_text_wrap()
 
     student = collection.find({'branch_code': branch_code,
-                                   'college_code': college_code,
-                                   'year': year})
+                               'college_code': college_code,
+                               'year': year})
     if not student:
         worksheet.merge_range('A1:AO1', 'Result not declared')
         workbook.close()
@@ -57,7 +63,7 @@ def make_excel(college_code='027', year='4', branch_code='40', output=None ):
         worksheet.write(r, c - 3, student['roll_no'], cell_format)
         worksheet.write(r, c - 2, student['name'], cell_format)
         worksheet.write(r, c - 1, student['father_name'], cell_format)
-        std_marks = student['marks'][str(int(year)*2)]  # list of all subject marks
+        std_marks = student['marks'][semester]  # list of all subject marks
         # print std_marks
         std_ext_total = std_marks[-1]['marks'][0]  # external total of student
         std_int_total = std_marks[-1]['marks'][1]  # internal total of student
@@ -120,7 +126,7 @@ def make_excel(college_code='027', year='4', branch_code='40', output=None ):
 
 
 # error
-def fail_excel(college_code='027', year="4", output=None):
+def fail_excel(semester, college_code='027', output=None):
     """
     generates excel for failed students
     :param college_code: code of the college of which the excel is to be made
@@ -128,6 +134,11 @@ def fail_excel(college_code='027', year="4", output=None):
     :param output: for download of the excel
     :return: none
     """
+    if semester % 2:
+        year = semester/2
+    else:
+        year = (semester+1)/2
+    semester = str(semester)
     year = str(year)
     if output:
         workbook = xlsxwriter.Workbook(output)
@@ -199,7 +210,7 @@ def fail_excel(college_code='027', year="4", output=None):
                 k += len(fail_student['marks'])
 
             else:
-                for mark_dict in fail_student['marks'][str(int(year)*2)][:-1]:
+                for mark_dict in fail_student['marks'][str(int(year) * 2)][:-1]:
                     if mark_dict['sub_code'] in carry_papers:
                         worksheet.write(j, k, "F")
                     else:
@@ -627,7 +638,7 @@ def faculty_performance(year):
 
     for student in students:
         carry_papers = student['carry_papers']
-        for mark_dict in student['marks'][str(int(year)*2)][:-1]:
+        for mark_dict in student['marks'][str(int(year) * 2)][:-1]:
             sub_code = mark_dict['sub_code']
             sub_name = mark_dict['sub_name']
             sub_sec_fac = section_faculty_info.get(sub_code, {})
@@ -653,7 +664,7 @@ def faculty_performance(year):
                                 }
                             }
                 else:
-                    for faculty, sections in sub_sec_fac.items():
+                    for faculty, sections in sub_sec_fac.iteritems():
                         if student['section'] in sections:
                             sub_details[(sub_code, sub_name)] = {
                                 student['section']: {
@@ -725,28 +736,28 @@ def faculty_performance(year):
                                     student['section']][
                                     'num_carry'] += num_carry
                             break
-                    else:
-                        if sub_details[(sub_code, sub_name)].get(
-                                student['section']):
-                            sub_details[(sub_code, sub_name)][
-                                student['section']]['ext_tot'] += \
-                                mark_dict['marks'][0]
-                            sub_details[(sub_code, sub_name)][
-                                student['section']]['num_tot'] += 1
-                            sub_details[(sub_code, sub_name)][
-                                student['section']]['marks_tot'] += sum(
-                                mark_dict['marks'])
-                            sub_details[(sub_code, sub_name)][
-                                student['section']]['num_carry'] += num_carry
                         else:
-                            sub_details[(sub_code, sub_name)][
-                                student['section']] = {
-                                'ext_tot': mark_dict['marks'][0],
-                                'num_tot': 1,
-                                'marks_tot': sum(mark_dict['marks']),
-                                'num_carry': num_carry,
-                                'faculty': 'not available'
-                            }
+                            if sub_details[(sub_code, sub_name)].get(
+                                    student['section']):
+                                sub_details[(sub_code, sub_name)][
+                                    student['section']]['ext_tot'] += \
+                                    mark_dict['marks'][0]
+                                sub_details[(sub_code, sub_name)][
+                                    student['section']]['num_tot'] += 1
+                                sub_details[(sub_code, sub_name)][
+                                    student['section']]['marks_tot'] += sum(
+                                    mark_dict['marks'])
+                                sub_details[(sub_code, sub_name)][
+                                    student['section']]['num_carry'] += num_carry
+                            else:
+                                sub_details[(sub_code, sub_name)][
+                                    student['section']] = {
+                                    'ext_tot': mark_dict['marks'][0],
+                                    'num_tot': 1,
+                                    'marks_tot': sum(mark_dict['marks']),
+                                    'num_carry': num_carry,
+                                    'faculty': 'not available'
+                                }
 
     for sub_tup in sub_details:
         sub_dict = sub_details[sub_tup]
@@ -761,8 +772,7 @@ def faculty_performance(year):
                             sub_tup[0] + (('(' + sub_tup[1] + ')')
                                           if sub_tup[1] else ''),
                             cell_format)
-        sub_od = collections.OrderedDict(sorted(sub_dict.items(),
-                                                key=lambda x: x[1]['faculty']))
+        sub_od = collections.OrderedDict(sorted(sub_dict.items(), key=lambda x: x[1]['faculty']))
         for section in sub_od:
             section_dict = sub_od[section]
             faculty = section_dict['faculty']
@@ -831,7 +841,7 @@ def subject_wise(year='1'):
     for student in students:
         college_code = student['college_code']
         carry_papers = student['carry_papers']
-        for mark_dict in student['marks'][str(int(year)*2)][:-1]:
+        for mark_dict in student['marks'][str(int(year) * 2)][:-1]:
             sub_code = mark_dict['sub_code']
             if not sub_names.get(sub_code):
                 sub_names[sub_code] = mark_dict['sub_name']
@@ -914,7 +924,7 @@ def pass_percentage():
         c += 1
     r += 1
     c = 0
-    for year in range(3, 5):
+    for year in range(2, 3):
         year = str(year)
         worksheet.write(r, c, year, cell_format)
         c += 1
@@ -1152,7 +1162,7 @@ def get_section_faculty_info():
         :return: dict containing subject, section and faculty information
         """
     wb = open_workbook(os.getcwd() + "/Section-Faculty Informa"
-                       "tion/subject_section_faculty_even_sem_2016.xlsx")
+                                     "tion/subject_section_faculty_even_sem_2016.xlsx")
     sheet = wb.sheet_by_index(0)
     section_faculty_info = dict()
     row, col = 0, 0
@@ -1164,10 +1174,10 @@ def get_section_faculty_info():
             sub_code, sec, faculty_name = (sub_code.strip(),
                                            sec.strip(),
                                            faculty_name.strip().upper())
-            print('Subject code: ', sub_code)
+            # print('Subject code: ', sub_code)
             if sub_code[3] == '-' or sub_code[3] == ' ':
                 sub_code = sub_code[:3] + sub_code[4:]
-            print('Subject code: ', sub_code)
+            # print('Subject code: ', sub_code)
             if sub_code not in section_faculty_info:
                 section_faculty_info[sub_code] = dict()
                 section_faculty_info[sub_code][faculty_name] = [sec, ]
@@ -1178,6 +1188,7 @@ def get_section_faculty_info():
                 else:
                     section_faculty_info[sub_code][faculty_name] = [sec, ]
 
+    print section_faculty_info
     return section_faculty_info
 
 

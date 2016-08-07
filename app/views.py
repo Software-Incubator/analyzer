@@ -1,8 +1,12 @@
 from io import BytesIO
 from app import app
+from app import ALLOWED_EXTENSIONS, UPLOAD_FOLDER
 from .forms import InputForm
 from .excel import make_excel
 from flask import render_template, Response
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.',1)[1] in ALLOWED_EXTENSIONS
 
 
 @app.route('/', methods=['GET', 'POST'])

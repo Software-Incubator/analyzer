@@ -10,3 +10,15 @@
 
 #byte-compiled files
 *.pyc
+
+#Ignoring all excel and related files
+*.xlsx
+*.xlsx#
+*.xls
+
+#json files and bson files
+*.json
+*.bson
+
+#gif
+*.gif

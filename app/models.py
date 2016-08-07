@@ -34,4 +34,5 @@ class Student(Document):
         return self['name']
 
 
+
 connection.register([Student])

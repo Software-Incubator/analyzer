@@ -1,3 +1,5 @@
+import os
+
 BRANCH_CODES = ['00', '10', '13', '20', '21', '31', '32', '40',]
 
 MCA_BRANCH_CODES = ['14', ]
@@ -121,3 +123,7 @@ MAX_MARKS_YEARWISE = {
     '3': 590,
     '4': 650,
 }
+
+# UPLOAD_FOLDER = os.getcwd()+'/UPLOAD'
+# ALLOWED_EXTENSIONS = set(['xlsx',])
+# app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
