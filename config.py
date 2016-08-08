@@ -43,9 +43,10 @@ BRANCH_CODENAMES = {
 URLS = {
     1: ("http://aktu.ac.in/results/gbturesult_11_12/Odd"
         "Semester2016/frmBtech1Sem.aspx"),
-    2: ("http://aktu.ac.in/akturesult/Even2016Result/frmbtech4semtrererb_2016nrqiop.aspx"),
-    3: ("http://aktu.ac.in/results/gbturesult_11_12/Odd"
-        "Semester2016/frmBtech5Semome.aspx"),
+    2: ("http://aktu.ac.in/akturesult/Even2016Result/fr"
+        "mbtech4semtrererb_2016nrqiop.aspx"),
+    3: ("http://aktu.ac.in/akturesult/Even2016Result/fr"
+        "mbtech6semhjjh_2016fbnhvg.aspx"),
     4: ("http://aktu.ac.in/akturesult/Even2016Result/fr"
         "mBtech78even2016.aspx"),
 
@@ -123,6 +124,7 @@ MAX_MARKS_YEARWISE = {
     '3': 590,
     '4': 650,
 }
+
 
 # UPLOAD_FOLDER = os.getcwd()+'/UPLOAD'
 # ALLOWED_EXTENSIONS = set(['xlsx',])

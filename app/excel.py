@@ -7,6 +7,7 @@ from app import connection, app
 from xlrd import open_workbook
 
 
+
 def make_excel(semester, college_code='027', branch_code='40', output=None):
     if semester % 2:
         year = semester / 2
@@ -14,6 +15,9 @@ def make_excel(semester, college_code='027', branch_code='40', output=None):
         year = (semester + 1) / 2
 
     semester = str(semester)
+
+# DONE
+
     year = str(year)
     if output:
         workbook = xlsxwriter.Workbook(output)
@@ -63,8 +67,13 @@ def make_excel(semester, college_code='027', branch_code='40', output=None):
         worksheet.write(r, c - 3, student['roll_no'], cell_format)
         worksheet.write(r, c - 2, student['name'], cell_format)
         worksheet.write(r, c - 1, student['father_name'], cell_format)
+
         std_marks = student['marks'][semester]  # list of all subject marks
         # print std_marks
+
+        # std_marks = student['marks'][str(int(year)*2)]  # list of all subject marks
+
+
         std_ext_total = std_marks[-1]['marks'][0]  # external total of student
         std_int_total = std_marks[-1]['marks'][1]  # internal total of student
         std_marks = std_marks[:-1]
@@ -125,7 +134,8 @@ def make_excel(semester, college_code='027', branch_code='40', output=None):
     return workbook
 
 
-# error
+
+# DONE
 def fail_excel(semester, college_code='027', output=None):
     """
     generates excel for failed students
@@ -222,6 +232,7 @@ def fail_excel(semester, college_code='027', output=None):
     return True
 
 
+# DONE
 def akgec_summary(college_code='027', year='4'):
     year = str(year)
     workbook = xlsxwriter.Workbook(
@@ -337,6 +348,7 @@ def akgec_summary(college_code='027', year='4'):
     workbook.close()
 
 
+# NOT TO DO
 def other_college_summary(college_code, year):
     year = str(year)
     workbook = xlsxwriter.Workbook("college_summary_year_" + str(year) +
@@ -407,6 +419,7 @@ def other_college_summary(college_code, year):
     return True
 
 
+# TODO
 def ext_avg(year):
     year = str(year)
     collection = connection.test.students
@@ -480,6 +493,7 @@ def ext_avg(year):
     return
 
 
+# DONE
 def sec_wise_ext(year):
     college_code = "027"
     year = str(year)
@@ -591,7 +605,7 @@ def sec_wise_ext(year):
     workbook.close()
     return True
 
-
+# DONE
 def faculty_performance(year):
     year = str(year)
 
@@ -631,7 +645,7 @@ def faculty_performance(year):
     sub_details = dict()
     students = collection.find({'year': year, 'college_code': college_code,
                                 'carry_status': {'$ne': 'INC'},
-                                'branch_code': {'$in': ['00', '10', '13', '21',
+                        'branch_code': {'$in': ['00', '10', '13', '21',
                                                         '31', '32', '40']}
                                 })
     section_faculty_info = get_section_faculty_info()
@@ -795,7 +809,8 @@ def faculty_performance(year):
     workbook.close()
 
 
-def subject_wise(year='1'):
+# TODO
+def subject_wise(year='2'):
     """
     subject wise comparison of marks of all 4 colleges
     :param year: year for which the analysis is done
@@ -896,7 +911,7 @@ def subject_wise(year='1'):
     return True
 
 
-# year 1-3 left
+# TODO
 def pass_percentage():
     workbook = xlsxwriter.Workbook('pass_percentage_comparison' + '.xlsx')
     heading_format = workbook.add_format({
@@ -951,6 +966,7 @@ def pass_percentage():
     return True
 
 
+# TODO
 def branch_wise_pass_percent(year='2'):
     """
     creates report with pass percetage of each college for each branch for
@@ -1052,6 +1068,7 @@ def branch_wise_pass_percent(year='2'):
     return True
 
 
+# TODO
 def branch_wise_ext_avg(year='2'):
     """
     generates report for branchwise comparison of external percentage of
@@ -1177,7 +1194,14 @@ def get_section_faculty_info():
             # print('Subject code: ', sub_code)
             if sub_code[3] == '-' or sub_code[3] == ' ':
                 sub_code = sub_code[:3] + sub_code[4:]
-            # print('Subject code: ', sub_code)
+
+            if len(sec) > 2:
+                print 'Section: ', sec
+                if sec[2] == ' ':
+                    sec = sec[:2] + sec[3:]
+                if len(sec) >= 4 and sec[3] == ' ':
+                    sec = sec[:3] + sec[4:]
+
             if sub_code not in section_faculty_info:
                 section_faculty_info[sub_code] = dict()
                 section_faculty_info[sub_code][faculty_name] = [sec, ]

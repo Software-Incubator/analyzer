@@ -334,7 +334,9 @@ def get_login_credentials(soup, rollno, captcha):
     return login_credentials
 
 
-def get_all_result(year_range = (1, 5)):
+
+def get_all_result(year_range=(1, 5)):
+
     college_codes = app.config["COLLEGE_CODES"]
     years = year_range
     for year in years:
@@ -342,7 +344,6 @@ def get_all_result(year_range = (1, 5)):
 
 if __name__ == '__main__':
     get_all_result()
-
 
 
 def get_all_mca_result():

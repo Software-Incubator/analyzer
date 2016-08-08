@@ -1,6 +1,7 @@
 import os
 import xlsxwriter
-from .models import connection
+
+from app.models import connection
 from xlrd import open_workbook
 
 
@@ -79,5 +80,6 @@ def generate_list():
         r += 1
     workbook.close()
     return True
+
 
 open_excel()
