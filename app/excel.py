@@ -7,15 +7,9 @@ from app import connection, app
 from xlrd import open_workbook
 
 
-def make_excel(semester, college_code='027', branch_code='40', output=None):
-    if not(semester % 2):
-        year = semester / 2
-    else:
-        year = (semester + 1) / 2
 
-    semester = str(semester)
-
-    # DONE
+# TODO 1, 2, 3, 4
+def make_excel(college_code='027', year='4', branch_code='40', output=None):
 
     year = str(year)
     if output:
@@ -34,9 +28,11 @@ def make_excel(semester, college_code='027', branch_code='40', output=None):
     cell_format = workbook.add_format()
     cell_format.set_text_wrap()
 
+
     student = collection.find({'branch_code': branch_code,
                                'college_code': college_code,
                                'year': year})
+
     if not student:
         worksheet.merge_range('A1:AO1', 'Result not declared')
         workbook.close()
@@ -67,11 +63,7 @@ def make_excel(semester, college_code='027', branch_code='40', output=None):
         worksheet.write(r, c - 2, student['name'], cell_format)
         worksheet.write(r, c - 1, student['father_name'], cell_format)
 
-        std_marks = student['marks'][semester]  # list of all subject marks
-        # print std_marks
-
-        # std_marks = student['marks'][str(int(year)*2)]  # list of all subject marks
-
+        std_marks = student['marks'][str(int(year)*2)]  # list of all sub marks
 
         std_ext_total = std_marks[-1]['marks'][0]  # external total of student
         std_int_total = std_marks[-1]['marks'][1]  # internal total of student
@@ -82,7 +74,7 @@ def make_excel(semester, college_code='027', branch_code='40', output=None):
             external_marks = sub_marks[0]
             internal_marks = sub_marks[1]
             total_marks = sum(sub_marks)
-            if not sub_code in subject_codes:
+            if sub_code not in subject_codes:
                 subject_codes.append(sub_code)
             i = subject_codes.index(sub_code)
             col = c + i * 3  # column to which write the marks of the subject
@@ -133,8 +125,9 @@ def make_excel(semester, college_code='027', branch_code='40', output=None):
     return workbook
 
 
-# DONE
-def fail_excel(semester, college_code='027', output=None):
+
+# TODO 1, 2, 3, 4
+def fail_excel(college_code='027', year="4", output=None):
     """
     generates excel for failed students
     :param college_code: code of the college of which the excel is to be made
@@ -142,11 +135,7 @@ def fail_excel(semester, college_code='027', output=None):
     :param output: for download of the excel
     :return: none
     """
-    if semester % 2 ==0:
-        year = semester / 2
-    else:
-        year = (semester + 1) / 2
-    semester = str(semester)
+
     year = str(year)
     if output:
         workbook = xlsxwriter.Workbook(output)
@@ -156,7 +145,7 @@ def fail_excel(semester, college_code='027', output=None):
     branch_codes = collection.distinct("branch_code")
     heading_format = workbook.add_format({'bold': True,
                                           'align': 'center',
-                                          'valign': 'vcenter',})
+                                          'valign': 'vcenter'})
     cell_format = workbook.add_format({'align': 'center',
                                        'valign': 'vcenter'})
     for branch_code in branch_codes:
@@ -166,6 +155,8 @@ def fail_excel(semester, college_code='027', output=None):
         if students.count():
             student = students.next()
             student1 = students.next()
+        else:
+            continue
         if not student:
             continue
         worksheet = workbook.add_worksheet(
@@ -230,8 +221,9 @@ def fail_excel(semester, college_code='027', output=None):
     return True
 
 
-# DONE
-def akgec_summary(college_code='027', year='4'):
+# TODO 1, 2, 3, 4
+def akgec_summary(year='3'):
+    college_code = '027'
     year = str(year)
     workbook = xlsxwriter.Workbook(
         'college_summary_excel_year_' + str(year) + '.xlsx')
@@ -241,8 +233,8 @@ def akgec_summary(college_code='027', year='4'):
         'align': 'center',
         'valign': 'vcenter',
     })
-    format = workbook.add_format()
-    format.set_text_wrap()
+    excel_format = workbook.add_format()
+    excel_format.set_text_wrap()
     collection = connection.test.students
     branch_codes = collection.distinct("branch_code")
     r = 0
@@ -306,18 +298,18 @@ def akgec_summary(college_code='027', year='4'):
         rnd_percent = float(rnd) / total * 100
         rnd_percent = round(rnd_percent, 2)
 
-        worksheet.write(r, 0, r - 1, format)
+        worksheet.write(r, 0, r - 1, excel_format)
         print branch_code
         worksheet.write(r, 1, app.config['BRANCH_CODENAMES'][branch_code],
-                        format)
-        worksheet.write(r, 2, total, format)
-        worksheet.write(r, 3, rnd, format)
-        worksheet.write(r, 4, rnd_percent, format)
-        worksheet.write(r, 5, incomp_count, format)
-        worksheet.write(r, 6, rd, format)
-        worksheet.write(r, 7, cp, format)
-        worksheet.write(r, 8, pass_count, format)
-        worksheet.write(r, 9, pass_percent, format)
+                        excel_format)
+        worksheet.write(r, 2, total, excel_format)
+        worksheet.write(r, 3, rnd, excel_format)
+        worksheet.write(r, 4, rnd_percent, excel_format)
+        worksheet.write(r, 5, incomp_count, excel_format)
+        worksheet.write(r, 6, rd, excel_format)
+        worksheet.write(r, 7, cp, excel_format)
+        worksheet.write(r, 8, pass_count, excel_format)
+        worksheet.write(r, 9, pass_percent, excel_format)
         r += 1
         # for totals
         t_total += total
@@ -335,14 +327,14 @@ def akgec_summary(college_code='027', year='4'):
     else:
         t_pass_percent = '-'
     worksheet.write(r, 1, 'Total', merge_format)
-    worksheet.write(r, 2, t_total, format)
-    worksheet.write(r, 3, t_rnd, format)
-    worksheet.write(r, 4, t_rnd_percent, format)
-    worksheet.write(r, 5, t_incomp, format)
-    worksheet.write(r, 6, t_rd, format)
-    worksheet.write(r, 7, t_cp, format)
-    worksheet.write(r, 8, t_pass_count, format)
-    worksheet.write(r, 9, t_pass_percent, format)
+    worksheet.write(r, 2, t_total, excel_format)
+    worksheet.write(r, 3, t_rnd, excel_format)
+    worksheet.write(r, 4, t_rnd_percent, excel_format)
+    worksheet.write(r, 5, t_incomp, excel_format)
+    worksheet.write(r, 6, t_rd, excel_format)
+    worksheet.write(r, 7, t_cp, excel_format)
+    worksheet.write(r, 8, t_pass_count, excel_format)
+    worksheet.write(r, 9, t_pass_percent, excel_format)
     workbook.close()
 
 
@@ -357,7 +349,7 @@ def other_college_summary(college_code, year):
         'align': 'center',
         'valign': 'vcenter',
     })
-    format = workbook.add_format()
+    excel_format = workbook.add_format()
     worksheet.set_row(0, 30)
     collection = connection.test.students
     r, c = 0, 0
@@ -393,13 +385,13 @@ def other_college_summary(college_code, year):
         pass_count = rd - pcp
         pass_percent = (float(pass_count) / rd) * 100
 
-        worksheet.write(r, c, r - 1, format)
+        worksheet.write(r, c, r - 1, excel_format)
         worksheet.write(r, c + 1, app.config['BRANCH_CODENAMES'][branch_code],
-                        format)
-        worksheet.write(r, c + 2, rd, format)
-        worksheet.write(r, c + 3, pcp, format)
-        worksheet.write(r, c + 4, pass_count, format)
-        worksheet.write(r, c + 5, pass_percent, format)
+                        excel_format)
+        worksheet.write(r, c + 2, rd, excel_format)
+        worksheet.write(r, c + 3, pcp, excel_format)
+        worksheet.write(r, c + 4, pass_count, excel_format)
+        worksheet.write(r, c + 5, pass_percent, excel_format)
         r += 1
         # for totals
         t_pass_count += pass_count
@@ -409,21 +401,18 @@ def other_college_summary(college_code, year):
         return False
     t_pass_percent = (float(t_pass_count) / t_rd) * 100
     worksheet.write(r, c + 1, 'Total', merge_format)
-    worksheet.write(r, c + 2, t_rd, format)
-    worksheet.write(r, c + 3, t_pcp, format)
-    worksheet.write(r, c + 4, t_pass_count, format)
-    worksheet.write(r, c + 5, t_pass_percent, format)
+    worksheet.write(r, c + 2, t_rd, excel_format)
+    worksheet.write(r, c + 3, t_pcp, excel_format)
+    worksheet.write(r, c + 4, t_pass_count, excel_format)
+    worksheet.write(r, c + 5, t_pass_percent, excel_format)
     workbook.close()
     return True
 
 
-# TODO
-def ext_avg(semester):
-    if semester % 2:
-        year = (semester + 1) / 2
-    else:
-        year = semester / 2
-    semester = str(semester)
+
+# TODO 1, 2, 3, 4
+def ext_avg(year):
+
     year = str(year)
     collection = connection.test.students
     college_codes = app.config['COLLEGE_CODES']
@@ -496,7 +485,7 @@ def ext_avg(semester):
     return
 
 
-# DONE
+# TODO 1, 2, 3, 4
 def sec_wise_ext(year):
     college_code = "027"
     year = str(year)
@@ -609,7 +598,8 @@ def sec_wise_ext(year):
     return True
 
 
-# DONE
+
+# TODO 1, 2, 3, 4
 def faculty_performance(year):
     year = str(year)
 
@@ -649,8 +639,10 @@ def faculty_performance(year):
     sub_details = dict()
     students = collection.find({'year': year, 'college_code': college_code,
                                 'carry_status': {'$ne': 'INC'},
-                                'branch_code': {'$in': ['00', '10', '13', '21',
-                                                        '31', '32', '40']}
+
+                                'branch_code': {
+                                    '$in': ['00', '10', '13', '21',
+                                            '31', '32', '40']}
                                 })
     section_faculty_info = get_section_faculty_info()
 
@@ -661,7 +653,7 @@ def faculty_performance(year):
             sub_name = mark_dict['sub_name']
             sub_sec_fac = section_faculty_info.get(sub_code, {})
             if (sub_code[:2] == "GP" or sub_code[1:3] == "GP" or
-                        sub_code[-2] == "5"):
+                    sub_code[-2] == "5"):
                 continue
             if sub_code in carry_papers:
                 num_carry = 1
@@ -813,7 +805,7 @@ def faculty_performance(year):
     workbook.close()
 
 
-# TODO
+# TODO 1, 2, 3, 4
 def subject_wise(year='2'):
     """
     subject wise comparison of marks of all 4 colleges
@@ -915,8 +907,8 @@ def subject_wise(year='2'):
     return True
 
 
-# TODO
-def pass_percentage():
+# TODO common for all years
+def pass_percentage(year_range=range(1, 5)):
     workbook = xlsxwriter.Workbook('pass_percentage_comparison' + '.xlsx')
     heading_format = workbook.add_format({
         "bold": True,
@@ -943,7 +935,8 @@ def pass_percentage():
         c += 1
     r += 1
     c = 0
-    for year in range(3, 4):
+
+    for year in year_range:
         year = str(year)
         worksheet.write(r, c, year, cell_format)
         c += 1
@@ -970,7 +963,7 @@ def pass_percentage():
     return True
 
 
-# TODO
+# TODO 1, 2, 3, 4
 def branch_wise_pass_percent(year='2'):
     """
     creates report with pass percetage of each college for each branch for
@@ -980,8 +973,8 @@ def branch_wise_pass_percent(year='2'):
     """
     year = str(year)
     collection = connection.test.students
-    workbook = xlsxwriter.Workbook('inter_college_branch_wise_comparison_year-'
-                                   + year + '.xlsx')
+    workbook = xlsxwriter.Workbook('inter_college_branch_wise_comparison'
+                                   '_year-' + year + '.xlsx')
     heading_format = workbook.add_format({
         "bold": True,
         "align": "center",
@@ -1072,7 +1065,7 @@ def branch_wise_pass_percent(year='2'):
     return True
 
 
-# TODO
+# TODO 1, 2, 3, 4
 def branch_wise_ext_avg(year='2'):
     """
     generates report for branchwise comparison of external percentage of
@@ -1179,7 +1172,8 @@ def branch_wise_ext_avg(year='2'):
 # Helper function
 def get_section_faculty_info():
     """
-        reads information from excel and returns dictionary of section faculty info
+        reads information from excel and returns dictionary of section faculty
+         information.
         :return: dict containing subject, section and faculty information
         """
     wb = open_workbook(os.getcwd() + "/Section-Faculty Informa"
@@ -1192,10 +1186,16 @@ def get_section_faculty_info():
                                        sheet.cell_value(row, col + 1),
                                        sheet.cell_value(row, col + 2))
         if sub_code:
+
             sub_code, sec, faculty_name = (sub_code.strip(),
                                            sec.strip(),
                                            faculty_name.strip().upper())
-            # print('Subject code: ', sub_code)
+
+            if faculty_name[-3:] == 'S/I':
+                faculty_name = ' '.join(faculty_name.split('  ')[:-1]).strip()
+                print 'Faculty name: ', faculty_name
+            print('Subject code: ', sub_code)
+
             if sub_code[3] == '-' or sub_code[3] == ' ':
                 sub_code = sub_code[:3] + sub_code[4:]
 
@@ -1204,6 +1204,7 @@ def get_section_faculty_info():
                     sec = sec[:2] + sec[3:]
                 if len(sec) >= 4 and sec[3] == ' ':
                     sec = sec[:3] + sec[4:]
+
 
             if sub_code not in section_faculty_info:
                 section_faculty_info[sub_code] = dict()

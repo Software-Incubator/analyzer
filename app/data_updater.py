@@ -58,7 +58,7 @@ def update_section(student_data):
             else:
                 print(False)
         else:
-            print "Updated result of {} students".format(len(student_data))
+            print "Updated section of {} students".format(len(student_data))
 
 
 def generate_list():
@@ -82,4 +82,3 @@ def generate_list():
     return True
 
 
-open_excel()
