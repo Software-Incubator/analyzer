@@ -2,6 +2,7 @@ from mongokit import Document
 from app import connection
 
 
+@connection.register
 class Student(Document):
     __collection__ = 'student'
     structure = {
@@ -27,11 +28,5 @@ class Student(Document):
             'unique': True,
         }
     ]
-    use_dot_notaton = True
+    use_dot_notation = True
     use_autorefs = True
-
-    def __repr__(self):
-        return self['name']
-
-
-connection.register([Student])

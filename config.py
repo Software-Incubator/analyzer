@@ -39,14 +39,14 @@ BRANCH_CODENAMES = {
 }
 
 URLS = {
-    1: ("http://aktu.ac.in/results/gbturesult_11_12/Odd"
-        "Semester2016/frmBtech1Sem.aspx"),
-    2: ("http://aktu.ac.in/akturesult/Even2016Result/fr"
-        "mbtech4semtrererb_2016nrqiop.aspx"),
-    3: ("http://aktu.ac.in/akturesult/Even2016Result/fr"
-        "mbtech6semhjjh_2016fbnhvg.aspx"),
-    4: ("http://aktu.ac.in/akturesult/Even2016Result/fr"
-        "mBtech78even2016.aspx"),
+    1: ("http://164.100.181.80/akturesult/Even2016Resul"
+        "t/frmbtech2semester_2016safrgh.aspx"),
+    2: ("http://164.100.181.80/akturesult/Even2016Resul"
+        "t/frmbtech4semtrererb_2016nrqiop.aspx"),
+    3: ("http://164.100.181.80/akturesult/Even2016Resul"
+        "t/frmbtech6semhjjh_2016fbnhvg.aspx"),
+    4: ("http://164.100.181.80/akturesult/Even2016Resul"
+        "t/frmBtech78even2016.aspx"),
 
 }
 
@@ -85,7 +85,7 @@ MAX_STUDENTS = {
         "13": 123,
         "21": 121,
         "31": 194,
-        "32": 35,
+        "32": 36,
         "40": 190,
         "14": 113,  # assumed data
     },

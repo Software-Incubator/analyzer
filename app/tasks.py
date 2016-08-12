@@ -1,4 +1,4 @@
-import requests, urllib2, urllib, os
+import requests, urllib, os
 import time
 import sys
 
@@ -7,7 +7,6 @@ from app import connection, app
 from datetime import datetime
 from requests.exceptions import ConnectionError
 from pymongo import MongoClient
-from models import Student
 
 client = MongoClient()
 db = client.test
@@ -138,20 +137,18 @@ def get_result(session, login_data, year=2, mca=False):
         # key for dictionaries "sub_marks","sub_code", "sub_name",,
         # and there values will be their values
 
-        marks_tables = soup.find(id='ctl00_ContentPlaceHolder1_divRes').find_all('table')
-        # print 'No of sems: ', marks_tables[1].find('tr').find_all('td', attrs={'width': '50%'})
-        marks_tables = marks_tables[1].find('tr').find_all('td', attrs={'width': '50%'})
-        # marks_rows = marks_table.find('tbody').find_all('tr')[1].find('td').find('table').find('tbody').find_all('tr')
+        marks_tables = soup.find(
+            id='ctl00_ContentPlaceHolder1_divRes'
+        ).find_all('table')
+        marks_tables = marks_tables[1].find('tr').find_all(
+            'td', attrs={'width': '50%'}
+        )
 
 
         odd_marks_rows = marks_tables[0].find_all('tr')[1].find_all('tr')
         even_marks_rows = marks_tables[1].find_all('tr')[1].find_all('tr')
         all_marks_rows = [odd_marks_rows, even_marks_rows]
-        print 'subject-wise marks: '
-        for odd_sem_marks in odd_marks_rows:
-            print odd_sem_marks
-        for even_sem_marks in even_marks_rows:
-            print even_sem_marks
+
         all_marks_dict = {}
 
         count = 1
@@ -167,13 +164,10 @@ def get_result(session, login_data, year=2, mca=False):
                     if sub_code:
                         sub_code = sub_code.strip()
                     else:
-                        print 'skipping and continuing...first else'
                         continue
                 except AttributeError:
                     continue
-                print sub_code
                 if not sub_code:
-                    print 'skipping and continuing...second else'
                     continue
                 sub_name = details[1].string
                 if sub_name:
@@ -201,7 +195,6 @@ def get_result(session, login_data, year=2, mca=False):
                 m = [m1, m2]
                 std_total_int += m2
                 std_total_ext += m1
-                print 'External total: ', std_total_ext
                 sub_dict = {'sub_name': sub_name, 'sub_code': sub_code,
                             'marks': m}
 
@@ -255,10 +248,10 @@ def get_result(session, login_data, year=2, mca=False):
             'section': u''
         }
 
-        collection = connection['test'].students
-        data = collection.Student(student_data)
-        data.save()
-        print("result saved for roll number: ", data['roll_no'])
+        collection = connection.test.students
+        student = collection.Student(student_data)
+        student.save()
+        print "result saved for roll number: ", student.roll_no
         print "Year: " + str(year)
     # return True if result saved succussfully
     return True
@@ -295,7 +288,6 @@ def get_college_results(college_codes=("027",), year=2, mca=False):
             count = 0  # counts number of consecutive failures
             i = 0
             while count <= 5:
-                print "Roll number: ", r_num + i
                 login_data = get_login_credentials(soup, r_num + i, captcha)
                 result = get_result(session=s, login_data=login_data,
                                     year=year, mca=mca)
@@ -334,16 +326,11 @@ def get_login_credentials(soup, rollno, captcha):
     return login_credentials
 
 
-def get_all_result(year_range=(1, 5)):
+def get_all_result(year_range=range(1, 5)):
     college_codes = app.config["COLLEGE_CODES"]
     years = year_range
     for year in years:
         get_college_results(college_codes=college_codes, year=year)
-
-
-if __name__ == '__main__':
-    get_all_result()
-
 
 
 def get_all_mca_result():
