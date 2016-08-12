@@ -5,7 +5,7 @@ from app.models import connection
 from xlrd import open_workbook
 
 
-def open_excel(years=range(2, 3)):
+def open_excel(years=range(1, 4)):
     """
     this function collect all the students roll_no and section in a list of tuple
         student_data = [(roll_no,section)]

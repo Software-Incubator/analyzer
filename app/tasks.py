@@ -77,7 +77,7 @@ def roll_num_generator(college_codes=('027',), year=3, mca=False):
     return roll_nums
 
 
-def get_result(session, login_data, year = 3, mca=False):
+def get_result(session, login_data, year=3, mca=False):
     """
     gets and saves the result data of given roll number
     :param session: session object, sesison with breaked captcha
@@ -334,16 +334,16 @@ def get_login_credentials(soup, rollno, captcha):
     return login_credentials
 
 
-
-def get_all_result(year_range=(1, 5)):
-
-    college_codes = app.config["COLLEGE_CODES"]
+def get_all_result(year_range=(4,3,2)):
+    college_codes = app.config["COLLEGE_CODES"][:]
     years = year_range
     for year in years:
         get_college_results(college_codes=college_codes, year=year)
 
-if __name__ == '__main__':
-    get_all_result()
+
+# if __name__ == '__main__':
+#     get_all_result()
+get_all_result()
 
 
 def get_all_mca_result():

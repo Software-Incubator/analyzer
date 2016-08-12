@@ -19,13 +19,15 @@ branch_choices = tuple([('10', 'Computer Science & Engineering'),
                         ('32', 'Electronics and Instrumentation'),
                         ])
 
-# sem_choices = tuple([
-#     ('1', '1'), ('2', '2'), ('3', '3'), ('4', '4'), ('5', '5'), ('6', '6'), ('7', '7'), ('8', '8')
-#     ])
-
-year_choices = tuple([
-    ('1', '1'), ('2', '2'), ('3', '3'), ('4', '4'),
+sem_choices = tuple([
+    ('1', '1'), ('2', '2'), ('3', '3'), ('4', '4'), ('5', '5'), ('6', '6'), ('7', '7'), ('8', '8')
 ])
+
+
+#
+# year_choices = tuple([
+#     ('1', '1'), ('2', '2'), ('3', '3'), ('4', '4'),
+# ])
 
 
 class InputForm(Form):
@@ -33,11 +35,11 @@ class InputForm(Form):
                                   validators=[Optional()])
     branch = SelectMultipleField('Branch', choices=branch_choices,
                                  validators=[Optional()])
-    year = SelectMultipleField("Year", choices=year_choices,
-                               validators=[Optional()])
+    semester = SelectMultipleField("Year", choices=sem_choices,
+                                   validators=[Optional()])
     file = FileField("Upload excel of faculty information",
                      validators=[Optional(),
-                                 FileAllowed('xlsx',)])
+                                 FileAllowed('xlsx', )])
 
 
 class LoginForm(Form):

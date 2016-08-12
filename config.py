@@ -1,6 +1,6 @@
 import os
 
-BRANCH_CODES = ['00', '10', '13', '20', '21', '31', '32', '40',]
+BRANCH_CODES = ['00', '10', '13', '20', '21', '31', '32', '40', ]
 
 MCA_BRANCH_CODES = ['14', ]
 
@@ -20,12 +20,12 @@ BRANCH_NAMES = {
     "00": "Civil Engineering",
     "10": "Computer Science and Engineering",
     "13": "Information Technology",
-    "21": "Electrical & Electronics Engineering",
     "20": "Electrical Engineering",
     "31": "Electronics and Communication Engineering",
     "32": "Electronics and Instrumentation Engineering",
     "40": "Mechanical Engineering",
     "14": "Master in Computer Applications",
+    "21": "Electrical & Electronics Engineering",
 }
 
 BRANCH_CODENAMES = {
@@ -41,14 +41,10 @@ BRANCH_CODENAMES = {
 }
 
 URLS = {
-    1: ("http://aktu.ac.in/results/gbturesult_11_12/Odd"
-        "Semester2016/frmBtech1Sem.aspx"),
-    2: ("http://aktu.ac.in/akturesult/Even2016Result/fr"
-        "mbtech4semtrererb_2016nrqiop.aspx"),
-    3: ("http://aktu.ac.in/akturesult/Even2016Result/fr"
-        "mbtech6semhjjh_2016fbnhvg.aspx"),
-    4: ("http://aktu.ac.in/akturesult/Even2016Result/fr"
-        "mBtech78even2016.aspx"),
+    1: ("http://164.100.181.80/akturesult/Even2016Result/frmbtech2semester_2016safrgh.aspx"),
+    2: ("http://164.100.181.80/akturesult/Even2016Result/frmbtech4semtrererb_2016nrqiop.aspx"),
+    3: ("http://164.100.181.80/akturesult/Even2016Result/frmbtech6semhjjh_2016fbnhvg.aspx"),
+    4: ("http://164.100.181.80/akturesult/Even2016Result/frmBtech78even2016.aspx"),
 
 }
 
@@ -61,10 +57,8 @@ MCA_URLS = {
         'Semester2016/frmMCA5Semome.aspx'),
 }
 
-
 COLLEGE_CODES = ["027", "029", "032", "091", "143", "033", "161", "030",
                  "222", ]
-
 
 ## total students of all branches of Ajay Kumar Garg Engineering College
 MAX_STUDENTS = {
@@ -105,7 +99,7 @@ MAX_STUDENTS = {
     },
 
     # 4th year
-    '4':  {
+    '4': {
         "00": 69,
         "10": 151,
         "13": 128,

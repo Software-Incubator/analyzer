@@ -33,3 +33,7 @@ def index():
         response.headers["Content-Disposition"] = "attachment; filename=" + filename
         return response
     return render_template('index.html', form=form)
+
+
+" Create a custom validation function to verify data as per selected excel. "
+

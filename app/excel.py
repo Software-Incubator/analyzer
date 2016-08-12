@@ -7,16 +7,15 @@ from app import connection, app
 from xlrd import open_workbook
 
 
-
 def make_excel(semester, college_code='027', branch_code='40', output=None):
-    if semester % 2:
+    if not(semester % 2):
         year = semester / 2
     else:
         year = (semester + 1) / 2
 
     semester = str(semester)
 
-# DONE
+    # DONE
 
     year = str(year)
     if output:
@@ -134,7 +133,6 @@ def make_excel(semester, college_code='027', branch_code='40', output=None):
     return workbook
 
 
-
 # DONE
 def fail_excel(semester, college_code='027', output=None):
     """
@@ -144,10 +142,10 @@ def fail_excel(semester, college_code='027', output=None):
     :param output: for download of the excel
     :return: none
     """
-    if semester % 2:
-        year = semester/2
+    if semester % 2 ==0:
+        year = semester / 2
     else:
-        year = (semester+1)/2
+        year = (semester + 1) / 2
     semester = str(semester)
     year = str(year)
     if output:
@@ -420,7 +418,12 @@ def other_college_summary(college_code, year):
 
 
 # TODO
-def ext_avg(year):
+def ext_avg(semester):
+    if semester % 2:
+        year = (semester + 1) / 2
+    else:
+        year = semester / 2
+    semester = str(semester)
     year = str(year)
     collection = connection.test.students
     college_codes = app.config['COLLEGE_CODES']
@@ -605,6 +608,7 @@ def sec_wise_ext(year):
     workbook.close()
     return True
 
+
 # DONE
 def faculty_performance(year):
     year = str(year)
@@ -645,7 +649,7 @@ def faculty_performance(year):
     sub_details = dict()
     students = collection.find({'year': year, 'college_code': college_code,
                                 'carry_status': {'$ne': 'INC'},
-                        'branch_code': {'$in': ['00', '10', '13', '21',
+                                'branch_code': {'$in': ['00', '10', '13', '21',
                                                         '31', '32', '40']}
                                 })
     section_faculty_info = get_section_faculty_info()
@@ -939,7 +943,7 @@ def pass_percentage():
         c += 1
     r += 1
     c = 0
-    for year in range(2, 3):
+    for year in range(3, 4):
         year = str(year)
         worksheet.write(r, c, year, cell_format)
         c += 1
@@ -1196,7 +1200,6 @@ def get_section_faculty_info():
                 sub_code = sub_code[:3] + sub_code[4:]
 
             if len(sec) > 2:
-                print 'Section: ', sec
                 if sec[2] == ' ':
                     sec = sec[:2] + sec[3:]
                 if len(sec) >= 4 and sec[3] == ' ':
