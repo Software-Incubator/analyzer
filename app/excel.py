@@ -7,10 +7,8 @@ from app import connection, app
 from xlrd import open_workbook
 
 
-
 # TODO 1, 2, 3, 4
 def make_excel(college_code='027', year='4', branch_code='40', output=None):
-
     year = str(year)
     if output:
         workbook = xlsxwriter.Workbook(output)
@@ -27,7 +25,6 @@ def make_excel(college_code='027', year='4', branch_code='40', output=None):
     })
     cell_format = workbook.add_format()
     cell_format.set_text_wrap()
-
 
     student = collection.find({'branch_code': branch_code,
                                'college_code': college_code,
@@ -63,7 +60,7 @@ def make_excel(college_code='027', year='4', branch_code='40', output=None):
         worksheet.write(r, c - 2, student['name'], cell_format)
         worksheet.write(r, c - 1, student['father_name'], cell_format)
 
-        std_marks = student['marks'][str(int(year)*2)]  # list of all sub marks
+        std_marks = student['marks'][str(int(year) * 2)]  # list of all sub marks
 
         std_ext_total = std_marks[-1]['marks'][0]  # external total of student
         std_int_total = std_marks[-1]['marks'][1]  # internal total of student
@@ -123,7 +120,6 @@ def make_excel(college_code='027', year='4', branch_code='40', output=None):
 
     workbook.close()
     return workbook
-
 
 
 # TODO 1, 2, 3, 4
@@ -222,10 +218,13 @@ def fail_excel(college_code='027', year="4", output=None):
 
 
 # TODO 1, 2, 3, 4
-def akgec_summary(year='3'):
+def akgec_summary(year='3', output=None):
     college_code = '027'
     year = str(year)
-    workbook = xlsxwriter.Workbook(
+    if output:
+        workbook = xlsxwriter.Workbook(output)
+    else:
+        workbook = xlsxwriter.Workbook(
         'college_summary_excel_year_' + str(year) + '.xlsx')
     worksheet = workbook.add_worksheet()
     merge_format = workbook.add_format({
@@ -409,10 +408,8 @@ def other_college_summary(college_code, year):
     return True
 
 
-
 # TODO 1, 2, 3, 4
-def ext_avg(year):
-
+def ext_avg(year, output=None):
     year = str(year)
     collection = connection.test.students
     college_codes = app.config['COLLEGE_CODES']
@@ -443,7 +440,11 @@ def ext_avg(year):
         avg_list.append(avg_dict)
 
     # now making excel
-    workbook = xlsxwriter.Workbook('ext_avg_year_' + year + '.xlsx')
+    if output:
+        workbook = xlsxwriter.Workbook(output)
+    else:
+        workbook = xlsxwriter.Workbook('ext_avg_year_' + year + '.xlsx')
+
     worksheet = workbook.add_worksheet()
     merge_format = workbook.add_format({
         'bold': True,
@@ -486,7 +487,7 @@ def ext_avg(year):
 
 
 # TODO 1, 2, 3, 4
-def sec_wise_ext(year):
+def sec_wise_ext(year, output=None):
     college_code = "027"
     year = str(year)
     collection = connection.test.students
@@ -494,7 +495,11 @@ def sec_wise_ext(year):
                                     "college_code": college_code}).distinct(
         'branch_code')
     # print "distinct branch codes: ", branch_codes
-    workbook = xlsxwriter.Workbook('section_wise_year_' + year + '.xlsx')
+    if output:
+        workbook = xlsxwriter.Workbook(output)
+    else:
+        workbook = xlsxwriter.Workbook('section_wise_year_' + year + '.xlsx')
+
     merge_format = workbook.add_format({
         "bold": True,
         "align": "center",
@@ -598,12 +603,14 @@ def sec_wise_ext(year):
     return True
 
 
-
 # TODO 1, 2, 3, 4
-def faculty_performance(year):
+def faculty_performance(year, output=None):
     year = str(year)
+    if output:
+        workbook = xlsxwriter.Workbook(output)
+    else:
+        workbook = xlsxwriter.Workbook('faculty_performance_year_' + year + '.xlsx')
 
-    workbook = xlsxwriter.Workbook('faculty_performance_year_' + year + '.xlsx')
     worksheet = workbook.add_worksheet('YEAR - ' + year)
     worksheet.set_column('A:A', 18)
     worksheet.set_column('B:B', 30)
@@ -653,7 +660,7 @@ def faculty_performance(year):
             sub_name = mark_dict['sub_name']
             sub_sec_fac = section_faculty_info.get(sub_code, {})
             if (sub_code[:2] == "GP" or sub_code[1:3] == "GP" or
-                    sub_code[-2] == "5"):
+                        sub_code[-2] == "5"):
                 continue
             if sub_code in carry_papers:
                 num_carry = 1
@@ -806,14 +813,17 @@ def faculty_performance(year):
 
 
 # TODO 1, 2, 3, 4
-def subject_wise(year='2'):
+def subject_wise(year='2', output=None):
     """
     subject wise comparison of marks of all 4 colleges
     :param year: year for which the analysis is done
     :return:
     """
     year = str(year)
-    workbook = xlsxwriter.Workbook('subject_wise_year_' + year + '.xlsx')
+    if output:
+        workbook = xlsxwriter.Workbook(output)
+    else:
+        workbook = xlsxwriter.Workbook('subject_wise_year_' + year + '.xlsx')
     worksheet = workbook.add_worksheet()
     merge_format = workbook.add_format({
         "bold": True,
@@ -908,8 +918,11 @@ def subject_wise(year='2'):
 
 
 # TODO common for all years
-def pass_percentage(year_range=range(1, 5)):
-    workbook = xlsxwriter.Workbook('pass_percentage_comparison' + '.xlsx')
+def pass_percentage(year_range=range(1, 5), output=None):
+    if output:
+        workbook = xlsxwriter.Workbook(output)
+    else:
+        workbook = xlsxwriter.Workbook('pass_percentage_comparison' + '.xlsx')
     heading_format = workbook.add_format({
         "bold": True,
         "align": "center",
@@ -964,7 +977,7 @@ def pass_percentage(year_range=range(1, 5)):
 
 
 # TODO 1, 2, 3, 4
-def branch_wise_pass_percent(year='2'):
+def branch_wise_pass_percent(year='2', output=None):
     """
     creates report with pass percetage of each college for each branch for
     given year
@@ -973,7 +986,10 @@ def branch_wise_pass_percent(year='2'):
     """
     year = str(year)
     collection = connection.test.students
-    workbook = xlsxwriter.Workbook('inter_college_branch_wise_comparison'
+    if output:
+        workbook = xlsxwriter.Workbook(output)
+    else:
+        workbook = xlsxwriter.Workbook('inter_college_branch_wise_comparison'
                                    '_year-' + year + '.xlsx')
     heading_format = workbook.add_format({
         "bold": True,
@@ -1066,7 +1082,7 @@ def branch_wise_pass_percent(year='2'):
 
 
 # TODO 1, 2, 3, 4
-def branch_wise_ext_avg(year='2'):
+def branch_wise_ext_avg(year='2', output=None):
     """
     generates report for branchwise comparison of external percentage of
     each college
@@ -1075,7 +1091,10 @@ def branch_wise_ext_avg(year='2'):
     """
     year = str(year)
     collection = connection.test.students
-    workbook = xlsxwriter.Workbook(
+    if output:
+        workbook = xlsxwriter.Workbook(output)
+    else:
+        workbook = xlsxwriter.Workbook(
         'inter_college_branch_wise_external_comparison_year-' + year + '.xlsx')
     heading_format = workbook.add_format({
         "bold": True,
@@ -1204,7 +1223,6 @@ def get_section_faculty_info():
                     sec = sec[:2] + sec[3:]
                 if len(sec) >= 4 and sec[3] == ' ':
                     sec = sec[:3] + sec[4:]
-
 
             if sub_code not in section_faculty_info:
                 section_faculty_info[sub_code] = dict()

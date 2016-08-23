@@ -1,7 +1,10 @@
 from flask import Flask
 import os
 from mongokit import Connection
-from werkzeug.utils import secure_filename
+# from flask_wtf import csrf
+# from werkzeug.utils import secure_filename
+
+# csrf = CsrfProtect()
 
 # configuring mongodb
 MONGODB_HOST = 'localhost'
@@ -13,9 +16,10 @@ app.config.from_object('config')
 connection = Connection(app.config['MONGODB_HOST'],
                         app.config['MONGODB_PORT'])
 
-UPLOAD_FOLDER = os.getcwd()+'/UPLOAD'
-ALLOWED_EXTENSIONS = set(['xlsx',])
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+# UPLOAD_FOLDER = os.getcwd()+'/UPLOAD'
+# ALLOWED_EXTENSIONS = set(['xlsx',])
+# app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
 app.secret_key = 'GuessItIfUCan'
 
 from app import views, models
