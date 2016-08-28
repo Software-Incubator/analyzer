@@ -30,9 +30,9 @@ year_choices = tuple([
 ])
 
 excel_choices = tuple([
-    (1, 'Main Excel'), (2, 'Fail Excel'), (3, 'Akgec Summary'), (4, 'External average'), (5, 'Section Wise Summary'),
-    (6, 'Subject Wise'), (7, 'Pass Percent'), (8, 'Branch Wise Pass Percent'), (9, 'Branch Wise ext avg'),
-    (10, 'Faculty Performance'),
+    ('1', 'Main Excel'), ('2', 'Fail Excel'), ('3', 'Akgec Summary'), ('4', 'External average'), ('5', 'Section Wise Summary'),
+    ('6', 'Subject Wise'), ('7', 'Pass Percent'), ('8', 'Branch Wise Pass Percent'), ('9', 'Branch Wise ext avg'),
+    ('10', 'Faculty Performance'),
 ])
 
 
@@ -42,7 +42,7 @@ class InputForm(Form):
 
 
 class MainExcelForm(Form):
-    college = SelectMultipleField('College', choices=colg_choices,
+    college = SelectField('College', choices=colg_choices,
                                   validators=[DataRequired()])
     branch = SelectMultipleField('Branch', choices=branch_choices,
                                  validators=[DataRequired()])
@@ -51,7 +51,7 @@ class MainExcelForm(Form):
 
 
 class FailExcelForm(Form):
-    college = SelectMultipleField('College', choices=colg_choices,
+    college = SelectField('College', choices=colg_choices,
                                   validators=[DataRequired()])
     year = SelectMultipleField("Year", choices=year_choices,
                                validators=[DataRequired()])
@@ -63,7 +63,7 @@ class AkgecForm(Form):
 
 
 class OtherColgForm(Form):
-    college = SelectMultipleField('College', choices=colg_choices,
+    college = SelectField('College', choices=colg_choices,
                                   validators=[DataRequired()])
 
 
@@ -82,7 +82,7 @@ class FacultyForm(Form):
                                validators=[DataRequired()])
     file = FileField("Upload excel of faculty information",
                      validators=[DataRequired(),
-                                 FileAllowed('xlsx', )])
+                                 FileAllowed('xlsx','Excel Sheets only' )])
 
 
 class SubWiseForm(Form):
@@ -98,6 +98,7 @@ class PassPercentForm(Form):
 class BranchWisePassForm(Form):
     year = SelectMultipleField("Year", choices=year_choices,
                                validators=[DataRequired()])
+
 
 class BranchWiseExtForm(Form):
     year = SelectMultipleField("Year", choices=year_choices,

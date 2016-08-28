@@ -8,144 +8,144 @@ from flask import render_template, Response, flash, request, redirect, url_for, 
 
 
 # def allowed_file(filename):
-#     return '.' in filename and filename.rsplit('.',1)[1] in ALLOWED_EXTENSIONS
+#     return '.' in filename and filename.rsplit('.', 1)[1] in app.config['ALLOWED_EXTENSIONS']
 
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
     form = InputForm(request.form)
-    # print request.form['excel']
-    # print "entered" right
-    print 'Method: ', request.method
-    print form.validate_on_submit()  # gives false why?
-    print form.csrf_token
-    if request.method == 'POST' and not form.validate_on_submit():
+
+    if request.method == 'POST' and form.validate_on_submit():
         fnum = request.form.get('excel')
-        print fnum
-        return redirect(url_for('excel_generator'), request.form.get('excel'))
+        return redirect(url_for('excel_generator', fnum=fnum))
 
     return render_template("index.html", form=form)
 
 
-@app.route('/excel_generator')
-def excel_generator(fnum):
+@app.route('/excel_generator', methods=['GET', 'POST'])
+def excel_generator():
+    fnum = int(request.args['fnum'])  # fnum value in prev as well as that passed here is of type unicode
+
     if fnum:
         if fnum == 1:
             form = MainExcelForm(request.form)
+            title = "Main Excel Form"
 
         elif fnum == 2:
             form = FailExcelForm(request.form)
+            title = "Fail Excel Form"
 
         elif fnum == 3:
             form = AkgecForm(request.form)
+            title = "Akgec Summary Form"
 
         elif fnum == 4:
             form = ExtAvgForm(request.form)
+            title = "External Average form"
 
         elif fnum == 5:
             form = SecWiseForm(request.form)
+            title = "Section Wise Form"
+
 
         elif fnum == 6:
             form = SubWiseForm(request.form)
+            title = "Subject Wise Form"
 
         elif fnum == 7:
             form = PassPercentForm(request.form)
+            title = "Pass Percentage Form"
 
         elif fnum == 8:
             form = BranchWisePassForm(request.form)
+            title = "Branch Wise Pass Percentage Form"
 
         elif fnum == 9:
             form = BranchWiseExtForm(request.form)
+            title = "Branch Wise External Avg Form"
 
         else:
             form = FacultyForm(request.form)
+            title = "Faculty Performance Form"
 
-        if request.method == 'POST' and form.validate():
+        print request.method, form.validate_on_submit()
+        if request.method == 'POST' and form.validate_on_submit():
+
             output = BytesIO()
-            colg = form.college.data
-            branch = form.branch.data
-            year = form.year.data
-            section_file = form.file
+            section_file=None
+            if 'college' in form:
+                college = form.college.data
+                print college
 
-            if fnum == 1 or fnum == 2:
-                for college in colg:
-                    for year in year:
-                        if fnum == 1:
-                            for branch in branch:
-                                make_excel(branch_code=branch, year=year, college_code=colg, output=output)
-                                output.seek(0)
-                                filename = 'main_year_' + str(year) + '_branch_' + branch + '.xlsx'
-                                response = Response(output.read(),
-                                                    content_type="application/vnd.openxmlformats-"
-                                                                 "officedocument.spreadsheetml.sheet")
-                                response.headers["Content-Disposition"] = "attachment; filename=" + filename
+            if 'branch' in form:
+                branch = form.branch.data
 
-                        else:
-                            fail_excel(college_code=colg, year=year, output=output)
-                            output.seek(0)
-                            filename = 'main_year_' + str(year) + '_branch_' + branch + '.xlsx'
-                            response = Response(output.read(),
-                                                content_type="application/vnd.openxmlformats-"
-                                                             "officedocument.spreadsheetml.sheet")
-                            response.headers["Content-Disposition"] = "attachment; filename=" + filename
+            if 'year' in form:
+                years = form.year.data
+
+            if 'file' in form:
+                section_file = form.file.data
+                print request.files[section_file.filename]
+            # section_file = form.file
+
+            if fnum == 1:
+                make_excel(branch_codes=branch, years=years, college_code=college, output=output)
+                output.seek(0)
+                filename = 'main_year_' + '.xlsx'
+
+            elif fnum == 2:
+                fail_excel(college_code=college, years=years, output=output)
+                output.seek(0)
+                filename = 'fail_excel' + '.xlsx'
+
+            elif fnum == 3:
+                akgec_summary(years, output=output)
+                output.seek(0)
+                filename = 'Akgec_Summary_' + '.xlsx'
+
+            elif fnum == 4:
+                ext_avg(years, output=output)
+                output.seek(0)
+                filename = 'External_Average' + '.xlsx'
+
+            elif fnum == 5:
+                sec_wise_ext(years, output=output)
+                output.seek(0)
+                filename = 'Section_wise_' + '.xlsx'
+
+            elif fnum == 6:
+                subject_wise(years=years)
+                output.seek(0)
+                filename = 'Subject_Wise_' + '.xlsx'
+
+            elif fnum == 7:
+                pass_percentage(year_range=years, output=output)
+                output.seek(0)
+                filename = 'Pass_Percentage_' + '.xlsx'
+
+            elif fnum == 8:
+                branch_wise_pass_percent(years=years, output=output)
+                output.seek(0)
+                filename = 'Branch_Wise_Pass_Percentage' + '.xlsx'
+
+            elif fnum == 9:
+                branch_wise_ext_avg(years=years, output=output)
+                output.seek(0)
+                filename = 'Branch_Wise_External_Average_' + '.xlsx'
 
             else:
-                for year in year:
-                    if fnum == 3:
-                        akgec_summary(year)
+                open_excel()
 
-                    elif fnum == 4:
-                        ext_avg(year)
+                faculty_performance(years, output=output, file=section_file)
 
-                    elif fnum == 5:
-                        sec_wise_ext(year)
+                output.seek(0)
+                filename = 'Faculty_Performance_' + '.xlsx'
 
-                    elif fnum == 6:
-                        subject_wise(year)
-
-                    elif fnum == 7:
-                        pass_percentage(year_range=range(1, year))
-
-                    elif fnum == 8:
-                        branch_wise_pass_percent(year=year)
-
-                    elif fnum == 9:
-                        branch_wise_ext_avg(year=year)
-
-                    else:
-                        open_excel()
-                        faculty_performance(year)
-
+            response = Response(output.read(),
+                                content_type="application/vnd.openxmlformats-"
+                                             "officedocument.spreadsheetml.sheet")
+            response.headers["Content-Disposition"] = "attachment; filename=" + filename
 
             return response
 
-        return render_template("excel_generate.html", form=form)
-
-        # elif fnum == 2:
-        #     fail_excel
-        #
-
-
-
-
-        #     colg = form.college.data
-        #     branch = form.branch.data
-        #     sem = form.year.data[0]
-        #     sem = int(sem)
-        #     year = int((sem - .1) // 2 + 1)
-        #     print 'In the views:', colg, branch, sem
-        #     output = BytesIO()
-        #     for college in colg:
-        #         for year in year:
-        #             for branch in branch:
-        #                 make_excel(branch_code=branch, year=year, college_code=colg, output=output)
-        #                 output.seek(0)
-        #                 filename = 'main_year_' + str(year) + '_branch_' + branch + '.xlsx'
-        #                 response = Response(output.read(),
-        #                                     content_type="application/vnd.openxmlformats-"
-        #                                                  "officedocument.spreadsheetml.sheet")
-        #                 response.headers["Content-Disposition"] = "attachment; filename=" + filename
-        #                 return response
-        #
-        # return render_template('excel_generate.html', form=form)
-        # " Create a custom validation function to verify data as per selected excel. "
+        return render_template("excel_generate.html", form=form, title=title)

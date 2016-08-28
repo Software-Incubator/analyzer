@@ -1,34 +1,21 @@
-{#<!DOCTYPE html>#}
-{#<html lang="en" xmlns="http://www.w3.org/1999/html">#}
-{#<head>#}
-{#    <meta charset="UTF-8">#}
-{#    <title>Analyzer</title>#}
-{#</head>#}
-{#<body>#}
-{#    <form method="post">#}
-{#        {{ form.csrf_token }}#}
-{#        <label>{{form.college.label}}</label>#}
-{#        {{ form.college }} </br>#}
-{#        <label>{{ form.branch.label}}</label>#}
-{#        {{ form.branch }} </br>#}
-{#        <label>{{ form.sem.label}}</label>#}
-{#        {{ form.sem }}#}
-{#        <input type='submit' value='Submit'>#}
-{#</form>#}
-{#    </form>#}
-{#</body>#}
-{#</html>#}
-
-{#{% extends 'base.html' %}#}
+{% extends 'base.html' %}
 {% block content %}
 
-    <div>
-        <form method="post">
-            {% for field in form.fields %}
-                <div>
-                {{ field }}
-            </div>
+    <div id="chosen-excel" class="container">
+        <form method="post" action="" enctype="multipart/form-data">
+            {{ form.csrf_token }}
+            {% for field in form %}
+                {% if field.id != "csrf_token" %}
+                    <div>
+                        <p>{{ field.label }}:</p>
+                        <p>{{ field }}</p>
+                        <p>{{ field.errors }}</p>
+                    </div>
+
+
+                {% endif %}
             {% endfor %}
+            <input type="submit" value="Generate Excel">
         </form>
 
     </div>
