@@ -68,8 +68,8 @@ def excel_generator():
             form = FacultyForm(request.form)
             title = "Faculty Performance Form"
 
-        print request.method, form.validate_on_submit()
-        if request.method == 'POST' and form.validate_on_submit():
+        print request.method,form.validate_on_submit()
+        if request.method == 'POST' and not form.validate_on_submit():
 
             output = BytesIO()
             section_file=None
@@ -84,8 +84,11 @@ def excel_generator():
                 years = form.year.data
 
             if 'file' in form:
-                section_file = form.file.data
-                print request.files[section_file.filename]
+                # section_file = form.file.data
+                section_file = request.files['file']
+                print dir(request.files['file']), section_file
+
+
             # section_file = form.file
 
             if fnum == 1:
@@ -114,7 +117,7 @@ def excel_generator():
                 filename = 'Section_wise_' + '.xlsx'
 
             elif fnum == 6:
-                subject_wise(years=years)
+                subject_wise(years=years, output=output)
                 output.seek(0)
                 filename = 'Subject_Wise_' + '.xlsx'
 
@@ -136,7 +139,7 @@ def excel_generator():
             else:
                 open_excel()
 
-                faculty_performance(years, output=output, file=section_file)
+                faculty_performance(years=years, output=output, file=section_file)
 
                 output.seek(0)
                 filename = 'Faculty_Performance_' + '.xlsx'
@@ -144,6 +147,7 @@ def excel_generator():
             response = Response(output.read(),
                                 content_type="application/vnd.openxmlformats-"
                                              "officedocument.spreadsheetml.sheet")
+
             response.headers["Content-Disposition"] = "attachment; filename=" + filename
 
             return response

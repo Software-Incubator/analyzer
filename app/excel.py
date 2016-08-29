@@ -842,7 +842,7 @@ def subject_wise(years=('2',), output=None):
     else:
         workbook = xlsxwriter.Workbook('subject_wise_year_' + '.xlsx')
     for year in years:
-        print year
+
         worksheet = workbook.add_worksheet('year-'+ year)
         merge_format = workbook.add_format({
             "bold": True,
@@ -1222,7 +1222,7 @@ def get_section_faculty_info(file = None):
 
     if file:
         filename = secure_filename(file.filename)
-        file.save(os.path.join(app.config['UPLOAD_FOLDER'],filename))
+        file.save(app.config['UPLOAD_FOLDER'])
         wb = open_workbook(filename)
     else:
         wb = open_workbook(os.getcwd() + "/Section-Faculty Informa"
