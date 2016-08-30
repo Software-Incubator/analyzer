@@ -1,7 +1,7 @@
 from flask.ext.wtf import Form
 
 from wtforms import SelectField, SelectMultipleField, StringField, PasswordField
-from flask_wtf.file import FileField
+from flask_wtf.file import FileField, FileRequired, FileAllowed
 from wtforms.validators import DataRequired
 
 colg_choices = tuple([('027', 'Ajay Kumar Garg Engineering College'),
@@ -81,25 +81,34 @@ class SecWiseForm(Form):
 class FacultyForm(Form):
     year = SelectMultipleField("Year", choices=year_choices,
                                validators=[DataRequired()])
-    file = FileField("Upload excel of faculty information",
-                     validators=[DataRequired()
-                     ])
+    file = FileField("Upload excel of faculty information")
+
+
+
+                     # validators=[FileRequired(),
+                     #             FileAllowed(['xlsx', 'xls'], 'File Type Incorrect')
+                     #             ])
+
 
 class SubWiseForm(Form):
     year = SelectMultipleField("Year", choices=year_choices,
                                validators=[DataRequired()])
 
+
 class PassPercentForm(Form):
     year = SelectMultipleField("Year", choices=year_choices,
                                validators=[DataRequired()])
+
 
 class BranchWisePassForm(Form):
     year = SelectMultipleField("Year", choices=year_choices,
                                validators=[DataRequired()])
 
+
 class BranchWiseExtForm(Form):
     year = SelectMultipleField("Year", choices=year_choices,
                                validators=[DataRequired()])
+
 
 class LoginForm(Form):
     username = StringField('username')

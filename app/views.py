@@ -69,7 +69,7 @@ def excel_generator():
             title = "Faculty Performance Form"
 
         print request.method,form.validate_on_submit()
-        if request.method == 'POST' and not form.validate_on_submit():
+        if request.method == 'POST' and form.validate_on_submit():
 
             output = BytesIO()
             section_file=None
@@ -85,9 +85,9 @@ def excel_generator():
 
             if 'file' in form:
                 # section_file = form.file.data
-                section_file = request.files['file']
-                print dir(request.files['file']), section_file
-
+                # section_file = request.files['file']
+                # print dir(request.files['file']), section_file
+                section_file = form.file.data
 
             # section_file = form.file
 

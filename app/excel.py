@@ -1219,14 +1219,13 @@ def get_section_faculty_info(file = None):
         :return: dict containing subject, section and faculty information
        """
 
-
     if file:
         filename = secure_filename(file.filename)
-        file.save(app.config['UPLOAD_FOLDER'])
+        file.save(app.config['UPLOAD_FOLDER']+filename)
         wb = open_workbook(filename)
     else:
-        wb = open_workbook(os.getcwd() + "/Section-Faculty Informa"
-                                     "tion/subject_section_faculty_even_sem_2016.xlsx")
+        wb = open_workbook(os.getcwd() + "/Section-Faculty Information/"
+                                         "subject_section_faculty_even_sem_2016.xlsx")
 
     sheet = wb.sheet_by_index(0)
     section_faculty_info = dict()
