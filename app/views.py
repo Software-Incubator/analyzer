@@ -66,9 +66,10 @@ def excel_generator():
 
         else:
             form = FacultyForm(request.form)
+            print dir(request.form.data)
             title = "Faculty Performance Form"
 
-        print request.method,form.validate_on_submit()
+            print request.method,dir(request),form.validate_on_submit(), request.files
         if request.method == 'POST' and form.validate_on_submit():
 
             output = BytesIO()

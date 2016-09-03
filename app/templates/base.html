@@ -1,6 +1,6 @@
 {#This will be the base template.#}
 {#TODO:#}
-{#Include favicon#}
+
 {#Page will have header and footer.#}
 {#Page will have buttons for each excel.#}
 {#The buttons will be displayed on the l#}
@@ -9,6 +9,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <link rel='shortcut icon' href="{{ url_for('static',filename='images/favicon.ico')}}" >
     <h2>
         {% if title %}
             {{ title }}

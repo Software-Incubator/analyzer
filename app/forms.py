@@ -1,33 +1,39 @@
 from flask.ext.wtf import Form
-
+from app import connection
 from wtforms import SelectField, SelectMultipleField, StringField, PasswordField
 from flask_wtf.file import FileField, FileRequired, FileAllowed
 from wtforms.validators import DataRequired
 
-colg_choices = tuple([('027', 'Ajay Kumar Garg Engineering College'),
-                      ('029', 'Krishna Institute of Technology'),
-                      ('091', 'JSS Academy of Technical Education'),
-                      ('290', 'ABES Institute of Technology'),
-                      ])
+col = connection.test.students
+col.update({"college_code":'KRISHNA INSTITUTE OF ENGINEERING AND TECHNOLOGY'},{"$set":{"college_code":"029"}},upsert=False,multi=True)
 
-branch_choices = tuple([('10', 'Computer Science & Engineering'),
-                        ('31', 'Electronics & Communication Engineering	'),
-                        ('40', 'Mechanical Engineering'),
-                        ('21', 'Electrical & Electronics Engineering'),
-                        ('13', 'Information Technology'),
-                        ('00', 'Civil Engineering'),
-                        ('32', 'Electronics and Instrumentation'),
-                        ])
+colg_choices = col.distinct('college_code')
+
+# colg_choices = tuple([('027', 'Ajay Kumar Garg Engineering College'),
+#                       ('029', 'Krishna Institute of Technology'),
+#                       ('091', 'JSS Academy of Technical Education'),
+#                       ('290', 'ABES Institute of Technology'),
+#                       ])
+branch_choices = col.distinct('branch_choices')
+
+# branch_choices = tuple([('10', 'Computer Science & Engineering'),
+#                         ('31', 'Electronics & Communication Engineering	'),
+#                         ('40', 'Mechanical Engineering'),
+#                         ('21', 'Electrical & Electronics Engineering'),
+#                         ('13', 'Information Technology'),
+#                         ('00', 'Civil Engineering'),
+#                         ('32', 'Electronics and Instrumentation'),
+#                         ])
 
 # sem_choices = tuple([
 #     ('1', '1'), ('2', '2'), ('3', '3'), ('4', '4'), ('5', '5'), ('6', '6'), ('7', '7'), ('8', '8')
 # ])
 
+year_choices = col.distinct('year')
 
-#
-year_choices = tuple([
-    ('1', '1'), ('2', '2'), ('3', '3'), ('4', '4'),
-])
+# year_choices = tuple([
+#     ('1', '1'), ('2', '2'), ('3', '3'), ('4', '4'),
+# ])
 
 excel_choices = tuple([
     ('1', 'Main Excel'), ('2', 'Fail Excel'), ('3', 'Akgec Summary'), ('4', 'External average'),
@@ -81,13 +87,10 @@ class SecWiseForm(Form):
 class FacultyForm(Form):
     year = SelectMultipleField("Year", choices=year_choices,
                                validators=[DataRequired()])
-    file = FileField("Upload excel of faculty information")
-
-
-
-                     # validators=[FileRequired(),
-                     #             FileAllowed(['xlsx', 'xls'], 'File Type Incorrect')
-                     #             ])
+    file = FileField("Upload excel of faculty information",
+                     validators=[FileRequired(),
+                                 FileAllowed(['xlsx', 'xls'], 'File Type Incorrect')
+                                 ])
 
 
 class SubWiseForm(Form):

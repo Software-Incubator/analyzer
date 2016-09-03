@@ -16,10 +16,6 @@ app.config.from_object('config')
 connection = Connection(app.config['MONGODB_HOST'],
                         app.config['MONGODB_PORT'])
 
-# UPLOAD_FOLDER = os.getcwd()+'/UPLOAD'
-# ALLOWED_EXTENSIONS = set(['xlsx',])
-# app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-
 app.secret_key = 'GuessItIfUCan'
 
 from app import views, models
