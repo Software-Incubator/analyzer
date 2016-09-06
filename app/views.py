@@ -1,10 +1,9 @@
 from io import BytesIO
 from app import app
 # from app import ALLOWED_EXTENSIONS, UPLOAD_FOLDER
-from .data_updater import open_excel
 from .forms import *
 from .excel import *
-from flask import render_template, Response, flash, request, redirect, url_for, session
+from flask import render_template, Response, request, redirect, url_for
 
 
 # def allowed_file(filename):
@@ -68,7 +67,6 @@ def excel_generator():
             form = FacultyForm(request.form)
             title = "Faculty Performance Form"
 
-        print request.method,form.validate_on_submit()
         if request.method == 'POST' and form.validate_on_submit():
 
             output = BytesIO()
@@ -114,17 +112,17 @@ def excel_generator():
             elif fnum == 5:
                 sec_wise_ext(years, output=output)
                 output.seek(0)
-                filename = 'Section_wise_' + '.xlsx'
+                filename = 'Section_wise' + '.xlsx'
 
             elif fnum == 6:
                 subject_wise(years=years, output=output)
                 output.seek(0)
-                filename = 'Subject_Wise_' + '.xlsx'
+                filename = 'Subject_Wise' + '.xlsx'
 
             elif fnum == 7:
                 pass_percentage(year_range=years, output=output)
                 output.seek(0)
-                filename = 'Pass_Percentage_' + '.xlsx'
+                filename = 'Pass_Percentage' + '.xlsx'
 
             elif fnum == 8:
                 branch_wise_pass_percent(years=years, output=output)
@@ -134,16 +132,12 @@ def excel_generator():
             elif fnum == 9:
                 branch_wise_ext_avg(years=years, output=output)
                 output.seek(0)
-                filename = 'Branch_Wise_External_Average_' + '.xlsx'
+                filename = 'Branch_Wise_External_Average' + '.xlsx'
 
             else:
-                open_excel()
-
                 faculty_performance(years=years, output=output, file=section_file)
-
                 output.seek(0)
-                filename = 'Faculty_Performance_' + '.xlsx'
-
+                filename = 'faculty_performance.xlsx'
             response = Response(output.read(),
                                 content_type="application/vnd.openxmlformats-"
                                              "officedocument.spreadsheetml.sheet")

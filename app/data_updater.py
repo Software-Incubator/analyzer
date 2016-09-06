@@ -5,7 +5,7 @@ from app.models import connection
 from xlrd import open_workbook
 
 
-def open_excel(years=range(1, 4)):
+def open_excel(start_year=1, end_year=4):
     """
     this function collect all the students roll_no and section in a list of tuple
         student_data = [(roll_no,section)]
@@ -14,7 +14,8 @@ def open_excel(years=range(1, 4)):
     :param years: iterable, years for which the sections are to be updated
     :return: True
     """
-    for year in years:
+    year_range = range(start_year, end_year + 1)
+    for year in year_range:
         year = str(year)
         col = 0
         wb = open_workbook(os.getcwd() + "/Roll Number lists/" +
