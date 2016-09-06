@@ -65,6 +65,7 @@ def excel_generator():
 
         else:
             form = FacultyForm(request.form)
+            print dir(request.form.data)
             title = "Faculty Performance Form"
 
         if request.method == 'POST' and form.validate_on_submit():

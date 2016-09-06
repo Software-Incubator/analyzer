@@ -1,6 +1,9 @@
 import os
 
+
+
 BRANCH_CODES = ['00', '10', '13', '20', '21', '31', '32', '40', ]
+
 
 MCA_BRANCH_CODES = ['14', ]
 
@@ -16,6 +19,7 @@ COLLEGE_CODENAMES = {
     '222': 'ITS',
 }
 
+
 BRANCH_NAMES = {
     "00": "Civil Engineering",
     "10": "Computer Science and Engineering",
@@ -27,7 +31,6 @@ BRANCH_NAMES = {
     "14": "Master in Computer Applications",
     "21": "Electrical & Electronics Engineering",
 }
-
 BRANCH_CODENAMES = {
     "00": "CE",
     "10": "CSE",
@@ -49,8 +52,6 @@ URLS = {
         "t/frmbtech6semhjjh_2016fbnhvg.aspx"),
     4: ("http://164.100.181.80/akturesult/Even2016Resul"
         "t/frmBtech78even2016.aspx"),
-
-
 }
 
 MCA_URLS = {
@@ -64,8 +65,7 @@ MCA_URLS = {
 
 COLLEGE_CODES = ["027", "029", "032", "091", "143", "033", "161", "030",
                  "222", ]
-
-## total students of all branches of Ajay Kumar Garg Engineering College
+# total students of all branches of Ajay Kumar Garg Engineering College
 MAX_STUDENTS = {
     # 1st year
     '1': {
