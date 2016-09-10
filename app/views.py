@@ -1,10 +1,12 @@
 from io import BytesIO
 from app import app
-# from app import ALLOWED_EXTENSIONS, UPLOAD_FOLDER
+from app.models import User
+from mongokit import Connection
 from .data_updater import open_excel
 from .forms import *
 from .excel import *
 from flask import render_template, Response, flash, request, redirect, url_for, session
+
 
 
 # def allowed_file(filename):
@@ -14,6 +16,7 @@ from flask import render_template, Response, flash, request, redirect, url_for, 
 @app.route('/', methods=['GET', 'POST'])
 def index():
     form = InputForm(request.form)
+    print form
 
     if request.method == 'POST' and form.validate_on_submit():
         fnum = request.form.get('excel')
@@ -47,7 +50,6 @@ def excel_generator():
             form = SecWiseForm(request.form)
             title = "Section Wise Form"
 
-
         elif fnum == 6:
             form = SubWiseForm(request.form)
             title = "Subject Wise Form"
@@ -69,11 +71,12 @@ def excel_generator():
             print dir(request.form.data)
             title = "Faculty Performance Form"
 
-            print request.method,dir(request),form.validate_on_submit(), request.files
+        print form, form.validate_on_submit()
+
         if request.method == 'POST' and form.validate_on_submit():
 
             output = BytesIO()
-            section_file=None
+            section_file = None
             if 'college' in form:
                 college = form.college.data
                 print college
@@ -85,12 +88,7 @@ def excel_generator():
                 years = form.year.data
 
             if 'file' in form:
-                # section_file = form.file.data
-                # section_file = request.files['file']
-                # print dir(request.files['file']), section_file
                 section_file = form.file.data
-
-            # section_file = form.file
 
             if fnum == 1:
                 make_excel(branch_codes=branch, years=years, college_code=college, output=output)
@@ -139,9 +137,7 @@ def excel_generator():
 
             else:
                 open_excel()
-
                 faculty_performance(years=years, output=output, file=section_file)
-
                 output.seek(0)
                 filename = 'Faculty_Performance_' + '.xlsx'
 
@@ -154,3 +150,28 @@ def excel_generator():
             return response
 
         return render_template("excel_generate.html", form=form, title=title)
+
+
+connection = Connection()
+collection = connection.test.users
+user = {}
+user['username'] = unicode('name')
+user['password'] = unicode('password')
+collection.insert(user)
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    title = 'Sign In'
+    error = None
+    form = LoginForm(request.form)
+    if form.validate_on_submit():
+        if form.username.data == user['username'] and form.password.data == user['password']:
+            session['username'] = form.username.data
+            flash('Successfully Logged In')
+
+            return redirect(url_for('index'))
+        else:
+            error = 'Invalid Credentials'
+    return render_template('login.html', error=error, form=form, title=title)
+

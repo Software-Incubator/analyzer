@@ -1,10 +1,9 @@
 from flask import Flask
 import os
-from mongokit import Connection
-# from flask_wtf import csrf
-# from werkzeug.utils import secure_filename
 
-# csrf = CsrfProtect()
+from mongokit import Connection
+from flask.ext.login import LoginManager
+from flask_admin import Admin
 
 # configuring mongodb
 MONGODB_HOST = 'localhost'
@@ -17,5 +16,10 @@ connection = Connection(app.config['MONGODB_HOST'],
                         app.config['MONGODB_PORT'])
 
 app.secret_key = 'GuessItIfUCan'
+
+lm = LoginManager()
+lm.init_app(app)
+admin = Admin()
+admin.init_app(app)
 
 from app import views, models

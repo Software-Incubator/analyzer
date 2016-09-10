@@ -9,6 +9,7 @@ from werkzeug.utils import secure_filename
 
 arg_to_string = lambda x: str(x)
 
+
 # TODO 1, 2, 3, 4
 def make_excel(college_code='027', years=(1, 2, 3, 4,), branch_codes=('40',), output=None):
     years = map(arg_to_string, years)
@@ -530,7 +531,7 @@ def sec_wise_ext(years, output=None):
         for branch_code in branch_codes:
             branch_codename = branch_codenames[branch_code]
             branch_name = branch_names[branch_code]
-            worksheet = workbook.add_worksheet(year+branch_codename)
+            worksheet = workbook.add_worksheet(year + branch_codename)
             r, c = 0, 0
             worksheet.merge_range(r, c, r, c + 5,
                                   'AKGEC Section-wise External Marks', merge_format)
@@ -843,7 +844,7 @@ def subject_wise(years=('2',), output=None):
         workbook = xlsxwriter.Workbook('subject_wise_year_' + '.xlsx')
     for year in years:
 
-        worksheet = workbook.add_worksheet('year-'+ year)
+        worksheet = workbook.add_worksheet('year-' + year)
         merge_format = workbook.add_format({
             "bold": True,
             "align": "center",
@@ -1127,7 +1128,7 @@ def branch_wise_ext_avg(years=('2',), output=None):
         "valign": "vcenter",
     })
     for year in years:
-        
+
         worksheet = workbook.add_worksheet()
         r, c = 0, 0
         r += 1  # left first row for heading
@@ -1150,7 +1151,7 @@ def branch_wise_ext_avg(years=('2',), output=None):
                                'Comparison - Year: {}'.format(year)),
                               heading_format)
         branch_codes = collection.find({'year': year}).distinct('branch_code')
-    
+
         # removing MCA from the analysis
         if '14' in branch_codes:
             branch_codes.remove('14')
@@ -1212,7 +1213,7 @@ def branch_wise_ext_avg(years=('2',), output=None):
 
 
 # Helper function
-def get_section_faculty_info(file = None):
+def get_section_faculty_info(file=None):
     """
         reads information from excel and returns dictionary of section faculty
          information.
@@ -1221,7 +1222,7 @@ def get_section_faculty_info(file = None):
 
     if file:
         filename = secure_filename(file.filename)
-        file.save(app.config['UPLOAD_FOLDER']+filename)
+        file.save(app.config['UPLOAD_FOLDER'] + filename)
         wb = open_workbook(filename)
     else:
         wb = open_workbook(os.getcwd() + "/Section-Faculty Information/"
