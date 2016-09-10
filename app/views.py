@@ -1,11 +1,13 @@
 from io import BytesIO
 from app import app
+
 from app.models import User
 from mongokit import Connection
 from .data_updater import open_excel
+
 from .forms import *
 from .excel import *
-from flask import render_template, Response, flash, request, redirect, url_for, session
+from flask import render_template, Response, request, redirect, url_for, session, flash
 
 
 
@@ -71,7 +73,6 @@ def excel_generator():
             print dir(request.form.data)
             title = "Faculty Performance Form"
 
-        print form, form.validate_on_submit()
 
         if request.method == 'POST' and form.validate_on_submit():
 
@@ -113,17 +114,17 @@ def excel_generator():
             elif fnum == 5:
                 sec_wise_ext(years, output=output)
                 output.seek(0)
-                filename = 'Section_wise_' + '.xlsx'
+                filename = 'Section_wise' + '.xlsx'
 
             elif fnum == 6:
                 subject_wise(years=years, output=output)
                 output.seek(0)
-                filename = 'Subject_Wise_' + '.xlsx'
+                filename = 'Subject_Wise' + '.xlsx'
 
             elif fnum == 7:
                 pass_percentage(year_range=years, output=output)
                 output.seek(0)
-                filename = 'Pass_Percentage_' + '.xlsx'
+                filename = 'Pass_Percentage' + '.xlsx'
 
             elif fnum == 8:
                 branch_wise_pass_percent(years=years, output=output)
@@ -133,14 +134,12 @@ def excel_generator():
             elif fnum == 9:
                 branch_wise_ext_avg(years=years, output=output)
                 output.seek(0)
-                filename = 'Branch_Wise_External_Average_' + '.xlsx'
+                filename = 'Branch_Wise_External_Average' + '.xlsx'
 
             else:
-                open_excel()
                 faculty_performance(years=years, output=output, file=section_file)
                 output.seek(0)
-                filename = 'Faculty_Performance_' + '.xlsx'
-
+                filename = 'faculty_performance.xlsx'
             response = Response(output.read(),
                                 content_type="application/vnd.openxmlformats-"
                                              "officedocument.spreadsheetml.sheet")
@@ -150,7 +149,6 @@ def excel_generator():
             return response
 
         return render_template("excel_generate.html", form=form, title=title)
-
 
 connection = Connection()
 collection = connection.test.users
@@ -174,4 +172,5 @@ def login():
         else:
             error = 'Invalid Credentials'
     return render_template('login.html', error=error, form=form, title=title)
+
 
