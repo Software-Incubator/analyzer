@@ -208,7 +208,7 @@ def get_result(session, login_data, year=2, mca=False):
 
         # for carry papers
         c = soup.find(
-            id='ctl00_ContentPlaceHolder1_lblCarryOver').string.strip()
+            id='ctl00_ContentPlaceHolder1_lblCarryOver').string
         if c:
             c = c.strip()
         if len(c) > 0:
@@ -220,15 +220,19 @@ def get_result(session, login_data, year=2, mca=False):
         if year == 4:
             max_marks = soup.find(
                 id='ctl00_ContentPlaceHolder1_lblSTAT_8MRK'
-            ).string.strip()
+            ).string
             aggregate_marks = soup.find(
                 id='ctl00_ContentPlaceHolder1_lblAGG_MRK'
-            ).string.strip()
+            ).string
+            if aggregate_marks:
+                aggregate_marks = aggregate_marks.strip()
         else:
             max_marks = soup.find(
                 id='ctl00_ContentPlaceHolder1_lblSTAT_8MRK'
-            ).string.strip()
+            ).string
             aggregate_marks = u''
+        if max_marks:
+            max_marks = max_marks.strip()
         year = str(year)
         year = unicode(year, 'utf-8')
         student_data = {
@@ -328,8 +332,7 @@ def get_login_credentials(soup, rollno, captcha):
 
 def get_all_result(year_range=range(1, 5)):
     college_codes = app.config["COLLEGE_CODES"]
-    years = year_range
-    for year in years:
+    for year in year_range:
         get_college_results(college_codes=college_codes, year=year)
 
 
