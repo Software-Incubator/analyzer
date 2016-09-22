@@ -10,7 +10,6 @@ from .excel import *
 from flask import render_template, Response, request, redirect, url_for, session, flash
 
 
-
 # def allowed_file(filename):
 #     return '.' in filename and filename.rsplit('.', 1)[1] in app.config['ALLOWED_EXTENSIONS']
 
@@ -72,7 +71,6 @@ def excel_generator():
             form = FacultyForm(request.form)
             print dir(request.form.data)
             title = "Faculty Performance Form"
-
 
         if request.method == 'POST' and form.validate_on_submit():
 
@@ -150,6 +148,7 @@ def excel_generator():
 
         return render_template("excel_generate.html", form=form, title=title)
 
+
 connection = Connection()
 collection = connection.test.users
 user = {}
@@ -171,6 +170,4 @@ def login():
             return redirect(url_for('index'))
         else:
             error = 'Invalid Credentials'
-    return render_template('login.html', error=error, form=form, title=title)
-
-
+    return render_template('login.html', form=form, title=title)
