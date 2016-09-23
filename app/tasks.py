@@ -208,10 +208,10 @@ def get_result(session, login_data, year=3, mca=False):
 
         # for carry papers
         c = soup.find(
-            id='ctl00_ContentPlaceHolder1_lblCarryOver').string.strip()
+            id='ctl00_ContentPlaceHolder1_lblCarryOver').string
         if c:
             c = c.strip()
-        if len(c) > 0:
+        if c and len(c) > 0:
             if c[-1] == ',':
                 c = c[:-1]
             carry_papers = c.split(' ')
