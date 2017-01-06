@@ -44,13 +44,13 @@ BRANCH_CODENAMES = {
 }
 
 URLS = {
-    1: ("http://164.100.181.80/akturesult/Even2016Resul"
+    1: ("http://results.aktu.ac.in/akturesult/Even2016Resul"
         "t/frmbtech2semester_2016safrgh.aspx"),
-    2: ("http://164.100.181.80/akturesult/Even2016Resul"
+    2: ("http://results.aktu.ac.in/akturesult/Even2016Resul"
         "t/frmbtech4semtrererb_2016nrqiop.aspx"),
-    3: ("http://164.100.181.80/akturesult/Even2016Resul"
+    3: ("http://results.aktu.ac.in/akturesult/Even2016Resul"
         "t/frmbtech6semhjjh_2016fbnhvg.aspx"),
-    4: ("http://164.100.181.80/akturesult/Even2016Resul"
+    4: ("http://results.aktu.ac.in/akturesult/Even2016Resul"
         "t/frmBtech78even2016.aspx"),
 }
 

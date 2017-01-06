@@ -1,32 +1,37 @@
 {#This will be the base template.#}
 {#TODO:#}
 
-{#Page will have header and footer.#}
-{#Page will have buttons for each excel.#}
-{#The buttons will be displayed on the l#}
-{#Use a loop for excel generation buttons#}
-
 <!DOCTYPE html>
 <html>
 <head>
-    <link rel='shortcut icon' href="{{ url_for('static',filename='images/favicon.ico')}}" >
+    <link rel='shortcut icon' href="{{ url_for('static',filename='images/favicon.ico') }}">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     <h2>
         {% if title %}
             {{ title }}
         {% endif %}
     </h2>
     {% with messages = get_flashed_messages() %}
-     {% if messages %}
-        <ul class="flashes">
-            {% for message in messages %}
-            <li>{{ message }}</li>
-            {% endfor %}
-        </ul>
-     {% endif %}
+        {% if messages %}
+            <ul class="flashes">
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
     {% endwith %}
 </head>
 <body>
-<div id="content">{% block content %}{% endblock %}</div>
+<div id="content">
+    {% block year_form %}
+    {% endblock %}
+</div>
+<div id="other">
+        {% block content %}{% endblock %}
+    </div>
+
+</div>
 </body>
 </html>
 

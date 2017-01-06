@@ -144,7 +144,6 @@ def get_result(session, login_data, year=3, mca=False):
             'td', attrs={'width': '50%'}
         )
 
-
         odd_marks_rows = marks_tables[0].find_all('tr')[1].find_all('tr')
         even_marks_rows = marks_tables[1].find_all('tr')[1].find_all('tr')
         all_marks_rows = [odd_marks_rows, even_marks_rows]
@@ -257,14 +256,17 @@ def get_result(session, login_data, year=3, mca=False):
     return True
 
 
-def get_college_results(college_codes=("027",), year=3, mca=False):
+def get_college_results(session=None, response=None, captcha=None, college_codes=("027",), year=3, mca=False,
+                        in_view=False):
     """
     gets the result of all branches of the given college code
     of all years
+    :param login_data: used when function called from view to pass crawlform data
     :param college_codes: str, code of the college of which the result
     to be fetched
     :param year: int, year of which the result is asked
     :param mca: boolean tells whether to get mca result or B.Tech
+    :param in_view: To check whether the function is called form view
     :return: True if successfully fetched all the results, False otherwise
     """
     roll_nums = roll_num_generator(college_codes=college_codes,
@@ -273,32 +275,40 @@ def get_college_results(college_codes=("027",), year=3, mca=False):
         urls = app.config['MCA_URLS']
     else:
         urls = app.config['URLS']
-    with requests.Session() as s:
+
+    session = requests.Session()
+
+    with session as s:
         url = urls[year]  # getting url corresponding to year
         print 'url for current year: ', url
-        response = get_in_session(s, url)
+        if not response:
+            response = get_in_session(s, url)
+
         plain_text = response.text
         soup = BeautifulSoup(plain_text, 'html.parser')
+
         img = soup.find('img')
         imgurl = img.get('src')
         dnld_captcha(imgurl)
         captcha = raw_input('enter captcha: ')
-        for roll_num in roll_nums:  # for first roll number of each branch
-            r_num = int(roll_num)
-            count = 0  # counts number of consecutive failures
-            i = 0
-            while count <= 5:
-                login_data = get_login_credentials(soup, r_num + i, captcha)
-                result = get_result(session=s, login_data=login_data,
-                                    year=year, mca=mca)
-                if result:
-                    count = 0
-                else:
-                    count += 1
-                i += 1
-            print("Fetched {} results, first roll num: {}".format(
-                (i - count), roll_num
-            ))
+
+    for roll_num in roll_nums:  # for first roll number of each branch
+        r_num = int(roll_num)
+        count = 0  # counts number of consecutive failures
+        i = 0
+        while count <= 5:
+            login_data = get_login_credentials(soup, r_num + i, captcha)
+            result = get_result(session=s, login_data=login_data,
+                                year=year, mca=mca)
+            if result:
+                count = 0
+            else:
+                count += 1
+            i += 1
+        print("Fetched {} results, first roll num: {}".format(
+            (i - count), roll_num
+        ))
+
     return True
 
 

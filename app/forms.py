@@ -1,33 +1,33 @@
 from flask.ext.wtf import Form
 from app import connection
-from wtforms import SelectField, SelectMultipleField, StringField, PasswordField
+from wtforms import SelectField, SelectMultipleField, StringField, PasswordField, FileField
 from flask_wtf.file import FileField, FileRequired, FileAllowed
-from wtforms.validators import DataRequired, Email, Length
+from wtforms.validators import DataRequired
 
 col = connection.test.students
 col.update({"college_code": 'KRISHNA INSTITUTE OF ENGINEERING AND TECHNOLOGY'}, {"$set": {"college_code": "029"}},
            upsert=False, multi=True)
 
-colg_choices = col.distinct('college_code')
-branch_choices = col.distinct('branch_choices')
+colg_codes = col.distinct('college_code')
+colg_names = col.distinct('college_name')
+branch_codes = col.distinct('branch_code')
+branch_names = col.distinct('branch_name')
+colg_choices = tuple(zip(colg_codes, colg_names))
+branch_choices = tuple(zip(branch_codes, branch_names))
 
-# sem_choices = tuple([
-#     ('1', '1'), ('2', '2'), ('3', '3'), ('4', '4'), ('5', '5'), ('6', '6'), ('7', '7'), ('8', '8')
-# ])
-
-year_choices = col.distinct('year')
+year_choices = tuple((str(x), str(x)) for x in col.distinct('year'))
 
 excel_choices = tuple([
-    ('1', 'Main Excel'), ('2', 'Fail Excel'), ('3', 'Akgec Summary'), ('4', 'External average'),
+    ('1', 'Main Excel'), ('2', 'Fail Excel'), ('3', 'Faculty Performance'), ('4', 'External average'),
     ('5', 'Section Wise Summary'),
     ('6', 'Subject Wise'), ('7', 'Pass Percent'), ('8', 'Branch Wise Pass Percent'), ('9', 'Branch Wise ext avg'),
-    ('10', 'Faculty Performance'),
+    ('10', 'Akgec Summary'),
 ])
 
 
 class InputForm(Form):
     excel = SelectField('Excel', choices=excel_choices,
-                        validators=[])
+                        validators=[DataRequired()])
 
 
 class MainExcelForm(Form):
@@ -46,26 +46,7 @@ class FailExcelForm(Form):
                                validators=[DataRequired()])
 
 
-class AkgecForm(Form):
-    year = SelectMultipleField("Year", choices=year_choices,
-                               validators=[DataRequired()])
-
-
-class OtherColgForm(Form):
-    college = SelectField('College', choices=colg_choices,
-                          validators=[DataRequired()])
-
-
-class ExtAvgForm(Form):
-    year = SelectMultipleField("Year", choices=year_choices,
-                               validators=[DataRequired()])
-
-
-class SecWiseForm(Form):
-    year = SelectMultipleField("Year", choices=year_choices,
-                               validators=[DataRequired()])
-
-
+# fnum=3 for faculty form
 class FacultyForm(Form):
     year = SelectMultipleField("Year", choices=year_choices,
                                validators=[DataRequired()])
@@ -75,24 +56,16 @@ class FacultyForm(Form):
                                  ])
 
 
-class SubWiseForm(Form):
+# fnum=4 for year form which is a single form for all other
+#  forms previously used containing only year field
+class YearForm(Form):
     year = SelectMultipleField("Year", choices=year_choices,
                                validators=[DataRequired()])
 
 
-class PassPercentForm(Form):
-    year = SelectMultipleField("Year", choices=year_choices,
-                               validators=[DataRequired()])
-
-
-class BranchWisePassForm(Form):
-    year = SelectMultipleField("Year", choices=year_choices,
-                               validators=[DataRequired()])
-
-
-class BranchWiseExtForm(Form):
-    year = SelectMultipleField("Year", choices=year_choices,
-                               validators=[DataRequired()])
+class CrawlForm(Form):
+    year = SelectField("Select Year", choices=year_choices,
+                       validators=[DataRequired()])
 
 
 class LoginForm(Form):
@@ -100,6 +73,11 @@ class LoginForm(Form):
                            validators=[DataRequired()])
     password = PasswordField('password',
                              validators=[DataRequired()])
+
+# class CrawlDataForm(Form):
+#     year = SelectMultipleField('year',choices=year_choices,validators=[DataRequired()])
+#     captcha = FileField('Enter the captcha',[regexp(u'^[^/\\]\.jpg$'), FileRequired()])
+
 
 # class SignUpForm(Form):
 #     username = StringField('username', validators=[DataRequired()])

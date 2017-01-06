@@ -496,7 +496,7 @@ def ext_avg(years=(4,), output=None):
     return True
 
 
-def sec_wise_ext(years, output=None):
+def sec_wise_ext(years=(4,), output=None):
     college_code = "027"
     years = map(arg_to_string, years)
     collection = connection.test.students
