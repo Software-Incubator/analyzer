@@ -622,7 +622,7 @@ def faculty_performance(years=(4, ), output=None, file=None):
     else:
         workbook = xlsxwriter.Workbook('faculty_performance.xlsx')
 
-    collection = connection.test.students
+    collection = connection.mydb.students
 
     for year in years:
         worksheet = workbook.add_worksheet('YEAR - ' + year)
@@ -1242,9 +1242,7 @@ def get_section_faculty_info(file=None):
         file.save(app.config['UPLOAD_FOLDER'] + filename)
         wb = open_workbook(filename)
     else:
-        wb = open_workbook("/home/animesh/Devel/analyzer/Section-Faculty Information/"
-                           "subject_section_faculty_even_sem_2016.xlsx")
-
+        wb = open_workbook("/home/nishtha/Desktop/Result-analyser/analyzer/Section-Faculty Information/subject_section_faculty_even_sem_2016.xlsx")
     sheet = wb.sheet_by_index(0)
     section_faculty_info = dict()
     row, col = 0, 0

@@ -1,23 +1,13 @@
 from io import BytesIO
 from app import app
-from app import celery
 
 from mongokit import Connection
 
 from .forms import *
 from .excel import *
-from flask import render_template, Response, request, redirect, url_for, session, flash, jsonify, g
-from .tasks import get_college_results
+from flask import render_template, Response, request, redirect, url_for, session, flash
 
-same_session = None
 response = None
-
-
-@celery.task
-def crawl(captcha, same_session, response):
-    get_college_results(session=same_session, response=response, captcha=captcha,
-                        college_codes=app.config["COLLEGE_CODES"],
-                        year=session['year'])
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -29,39 +19,6 @@ def index():
         return redirect(url_for('excel_generator', fnum=fnum))
 
     return render_template("index.html", form=form)
-
-
-# @app.route('/get_captcha', methods=['GET', 'POST'])
-# def get_captcha():
-#     if request.is_xhr:
-#         year = int(request.form['year'])
-#         session['year'] = year
-#         data = get_crawl_data(year=year)  will need to define get_crawl_data in tasks.py to get info
-#         same_session = data[0]
-#         response = data[1]
-#         return jsonify(imgurl=data[2])
-
-
-@app.route('/get_data', methods=['GET', 'POST'])
-def get_crawl_info():
-    """
-    """
-    form = CrawlForm(request.form)
-
-    # if request.is_xhr:
-    #     year = int(request.form['year'])
-    #     session['year'] = year
-    #     data = get_college_results(college_codes=app.config["COLLEGE_CODES"], year=year, in_view=True)
-    #
-    #     same_session = data[1]
-    #     return jsonify(imgurl=data[1])
-
-    if request.method == 'POST' and request.form['captcha']:
-        captcha = str(request.form['captcha'])
-
-        task = crawl.apply_async(args=[captcha, same_session, response])
-
-    return render_template('get_data.html', form=form)
 
 
 @app.route('/excel_generator', methods=['GET', 'POST'])

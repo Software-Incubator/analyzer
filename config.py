@@ -1,9 +1,6 @@
 import os
 
-
-
 BRANCH_CODES = ['00', '10', '13', '20', '21', '31', '32', '40', ]
-
 
 MCA_BRANCH_CODES = ['14', ]
 
@@ -18,7 +15,6 @@ COLLEGE_CODENAMES = {
     '030': 'IPEC',
     '222': 'ITS',
 }
-
 
 BRANCH_NAMES = {
     "00": "Civil Engineering",
@@ -126,6 +122,6 @@ MAX_MARKS_YEARWISE = {
 
 WTF_CSRF_ENABLED = True
 # SECRET_KEY = 'GuessItIfUCan'
-UPLOAD_FOLDER = os.getcwd()+'/Section-Faculty Information'
+UPLOAD_FOLDER = os.getcwd() + '/Section-Faculty Information'
 # ALLOWED_EXTENSIONS = set(['xlsx',])
 # app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER

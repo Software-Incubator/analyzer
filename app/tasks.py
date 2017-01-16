@@ -256,8 +256,7 @@ def get_result(session, login_data, year=3, mca=False):
     return True
 
 
-def get_college_results(session=None, response=None, captcha=None, college_codes=("027",), year=3, mca=False,
-                        in_view=False):
+def get_college_results(college_codes=("027",), year=3, mca=False):
     """
     gets the result of all branches of the given college code
     of all years
@@ -281,8 +280,7 @@ def get_college_results(session=None, response=None, captcha=None, college_codes
     with session as s:
         url = urls[year]  # getting url corresponding to year
         print 'url for current year: ', url
-        if not response:
-            response = get_in_session(s, url)
+        response = get_in_session(s, url)
 
         plain_text = response.text
         soup = BeautifulSoup(plain_text, 'html.parser')
