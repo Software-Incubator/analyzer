@@ -10,7 +10,6 @@ from werkzeug.utils import secure_filename
 arg_to_string = lambda x: str(x)
 
 
-
 # TODO 1, 2, 3, 4
 def make_excel(college_code='027', years=(1, 2, 3, 4,), branch_codes=('40',), output=None):
     years = map(arg_to_string, years)
@@ -615,14 +614,14 @@ def sec_wise_ext(years=(4,), output=None):
     return True
 
 
-def faculty_performance(years=(4, ), output=None, file=None):
+def faculty_performance(years=(4,), output=None, file=None):
     years = map(arg_to_string, years)
     if output:
         workbook = xlsxwriter.Workbook(output)
     else:
         workbook = xlsxwriter.Workbook('faculty_performance.xlsx')
 
-    collection = connection.mydb.students
+    collection = connection.test.students
 
     for year in years:
         worksheet = workbook.add_worksheet('YEAR - ' + year)
@@ -663,7 +662,9 @@ def faculty_performance(years=(4, ), output=None, file=None):
                                         '$in': ['00', '10', '13', '21',
                                                 '31', '32', '40']}
                                     })
+
         section_faculty_info = get_section_faculty_info(file=file)
+        students[0]
 
         for student in students:
             carry_papers = student['carry_papers']
@@ -672,7 +673,7 @@ def faculty_performance(years=(4, ), output=None, file=None):
                 sub_name = mark_dict['sub_name']
                 sub_sec_fac = section_faculty_info.get(sub_code, {})
                 if (sub_code[:2] == "GP" or sub_code[1:3] == "GP" or
-                        sub_code[-2] == "5"):
+                            sub_code[-2] == "5"):
                     continue
                 if sub_code in carry_papers:
                     num_carry = 1
@@ -897,6 +898,7 @@ def subject_wise(years=('2',), output=None):
         r += 2
         students = collection.find({"year": year,
                                     "carry_status": {"$ne": "INC"}})
+
         year_dict = dict()
         sub_names = dict()
         for student in students:
@@ -1242,7 +1244,8 @@ def get_section_faculty_info(file=None):
         file.save(app.config['UPLOAD_FOLDER'] + filename)
         wb = open_workbook(filename)
     else:
-        wb = open_workbook("/home/nishtha/Desktop/Result-analyser/analyzer/Section-Faculty Information/subject_section_faculty_even_sem_2016.xlsx")
+        wb = open_workbook(
+            "/home/nishtha/Desktop/Result-analyser/analyzer/Section-Faculty Information/subject_section_faculty_even_sem_2016.xlsx")
     sheet = wb.sheet_by_index(0)
     section_faculty_info = dict()
     row, col = 0, 0
@@ -1278,6 +1281,7 @@ def get_section_faculty_info(file=None):
                 else:
                     section_faculty_info[sub_code][faculty_name] = [sec, ]
 
+
     return section_faculty_info
 
 
@@ -1291,4 +1295,4 @@ def get_alpha_column(col_num):
         i = col_num % 26
         return letters[n - 1] + letters[i]
 
-# faculty_performance()
+        # faculty_performance()

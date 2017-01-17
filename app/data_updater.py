@@ -63,7 +63,7 @@ def update_section(student_data):
 
 
 def generate_list():
-    collection  = connection.test.students
+    collection = connection.test.students
     college_students = collection.find({"college_code": "027"})
     workbook = xlsxwriter.Workbook('roll_num_list.xlsx')
     worksheet = workbook.add_worksheet()
@@ -71,15 +71,13 @@ def generate_list():
     worksheet.set_column("A:A", 20)
     r, c = 0, 0
     worksheet.write(r, c, "Roll No.", heading_format)
-    worksheet.write(r, c+1, "Section", heading_format)
-    worksheet.write(r, c+2, "Year", heading_format)
+    worksheet.write(r, c + 1, "Section", heading_format)
+    worksheet.write(r, c + 2, "Year", heading_format)
     r += 1
     for student in college_students:
         worksheet.write(r, c, student['roll_no'])
-        worksheet.write(r, c+1, student.get('section', 'not provided'))
-        worksheet.write(r, c+2, student['year'])
+        worksheet.write(r, c + 1, student.get('section', 'not provided'))
+        worksheet.write(r, c + 2, student['year'])
         r += 1
     workbook.close()
     return True
-
-
