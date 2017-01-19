@@ -11,7 +11,8 @@ def open_excel(start_year=1, end_year=4):
         student_data = [(roll_no,section)]
     this particular list is send to the update_section function will update
     the section detail of the student
-    :param years: iterable, years for which the sections are to be updated
+    :param start_year: iterable, years for which the sections are to be updated
+    :param end_year: last year till which the result has to be updated
     :return: True
     """
     year_range = range(start_year, end_year + 1)

@@ -649,11 +649,12 @@ def faculty_performance(years=(4,), output=None, file=None):
         r, c = 1, 0
         worksheet.write(r, c, 'Subject Name', heading_format)
         worksheet.write(r, c + 1, 'Name Of Faculty', heading_format)
-        worksheet.write(r, c + 2, 'External Avg %s Marks' % sep, heading_format)
-        worksheet.write(r, c + 3, 'Total Avg %s Marks' % sep, heading_format)
-        worksheet.write(r, c + 4, 'Pass %', heading_format)
-        worksheet.write(r, c + 5, 'Section', heading_format)
-        worksheet.write(r, c + 6, "Students in sec", heading_format)
+        worksheet.write(r, c + 2, 'Internal Avg %s Marks' % sep, heading_format)
+        worksheet.write(r, c + 3, 'External Avg %s Marks' % sep, heading_format)
+        worksheet.write(r, c + 4, 'Total Avg %s Marks' % sep, heading_format)
+        worksheet.write(r, c + 5, 'Pass %', heading_format)
+        worksheet.write(r, c + 6, 'Section', heading_format)
+        worksheet.write(r, c + 7, "Students in sec", heading_format)
         r += 1
         sub_details = dict()
         students = collection.find({'year': year, 'college_code': college_code,
@@ -687,6 +688,7 @@ def faculty_performance(years=(4,), output=None, file=None):
                                 sub_details[(sub_code, sub_name)] = {
                                     section_str: {
                                         'ext_tot': mark_dict['marks'][0],
+                                        'int_tot': mark_dict['marks'][1],
                                         'num_tot': 1,
                                         'marks_tot': sum(mark_dict['marks']),
                                         'num_carry': num_carry,
@@ -697,6 +699,7 @@ def faculty_performance(years=(4,), output=None, file=None):
                             sub_details[(sub_code, sub_name)] = {
                                 section_str: {
                                     'ext_tot': mark_dict['marks'][0],
+                                    'int_tot': mark_dict['marks'][1],
                                     'num_tot': 1,
                                     'marks_tot': sum(mark_dict['marks']),
                                     'num_carry': num_carry,
@@ -711,6 +714,7 @@ def faculty_performance(years=(4,), output=None, file=None):
                                 sub_details[(sub_code, sub_name)] = {
                                     student['section']: {
                                         'ext_tot': mark_dict['marks'][0],
+                                        'int_tot': mark_dict['marks'][1],
                                         'num_tot': 1,
                                         'marks_tot': sum(mark_dict['marks']),
                                         'num_carry': num_carry,
@@ -723,6 +727,7 @@ def faculty_performance(years=(4,), output=None, file=None):
                             sub_details[(sub_code, sub_name)] = {
                                 student['section']: {
                                     'ext_tot': mark_dict['marks'][0],
+                                    'int_tot': mark_dict['marks'][1],
                                     'num_tot': 1,
                                     'marks_tot': sum(mark_dict['marks']),
                                     'num_carry': num_carry,
@@ -738,6 +743,7 @@ def faculty_performance(years=(4,), output=None, file=None):
                                 if section_str not in sub_dict:
                                     sub_dict[section_str] = {
                                         'ext_tot': mark_dict['marks'][0],
+                                        'int_tot': mark_dict['marks'][1],
                                         'num_tot': 1,
                                         'marks_tot': sum(mark_dict['marks']),
                                         'num_carry': num_carry,
@@ -746,6 +752,8 @@ def faculty_performance(years=(4,), output=None, file=None):
                                 else:
                                     sub_dict[section_str][
                                         'ext_tot'] += mark_dict['marks'][0]
+                                    sub_dict[section_str][
+                                        'int_tot'] += mark_dict['marks'][1]
                                     sub_dict[section_str][
                                         'num_tot'] += 1
                                     sub_dict[section_str][
@@ -757,6 +765,7 @@ def faculty_performance(years=(4,), output=None, file=None):
                             if not sub_dict.get(section_str):
                                 sub_dict[section_str] = {
                                     'ext_tot': mark_dict['marks'][0],
+                                    'int_tot': mark_dict['marks'][1],
                                     'num_tot': 1,
                                     'marks_tot': sum(mark_dict['marks']),
                                     'num_carry': num_carry,
@@ -764,6 +773,7 @@ def faculty_performance(years=(4,), output=None, file=None):
                                 }
                             else:
                                 sub_dict[section_str]['ext_tot'] += mark_dict['marks'][0]
+                                sub_dict[section_str]['int_tot'] += mark_dict['marks'][1]
                                 sub_dict[section_str]['num_tot'] += 1
                                 sub_dict[section_str]['marks_tot'] += sum(mark_dict['marks'])
                                 sub_dict[section_str]['num_carry'] += num_carry
@@ -775,6 +785,7 @@ def faculty_performance(years=(4,), output=None, file=None):
                                     sub_dict[
                                         student['section']] = {
                                         'ext_tot': mark_dict['marks'][0],
+                                        'int_tot': mark_dict['marks'][1],
                                         'num_tot': 1,
                                         'marks_tot': sum(mark_dict['marks']),
                                         'num_carry': num_carry,
@@ -784,6 +795,9 @@ def faculty_performance(years=(4,), output=None, file=None):
                                     sub_dict[
                                         student['section']]['ext_tot'] += \
                                         mark_dict['marks'][0]
+                                    sub_dict[
+                                        student['section']]['int_tot'] += \
+                                        mark_dict['marks'][1]
                                     sub_dict[
                                         student['section']]['num_tot'] += 1
                                     sub_dict[
@@ -797,6 +811,8 @@ def faculty_performance(years=(4,), output=None, file=None):
                             if sub_dict.get(student['section']):
                                 sub_dict[student['section']][
                                     'ext_tot'] += mark_dict['marks'][0]
+                                sub_dict[student['section']][
+                                    'int_tot'] += mark_dict['marks'][1]
                                 sub_dict[
                                     student['section']][
                                     'num_tot'] += 1
@@ -810,6 +826,7 @@ def faculty_performance(years=(4,), output=None, file=None):
                                 sub_dict[
                                     student['section']] = {
                                     'ext_tot': mark_dict['marks'][0],
+                                    'int_tot': mark_dict['marks'][1],
                                     'num_tot': 1,
                                     'marks_tot': sum(mark_dict['marks']),
                                     'num_carry': num_carry,
@@ -834,6 +851,7 @@ def faculty_performance(years=(4,), output=None, file=None):
                 section_dict = sub_od[section]
                 faculty = section_dict['faculty']
                 num_tot = section_dict['num_tot']
+                int_avg = float(section_dict['int_tot']) / num_tot
                 ext_avg = float(section_dict['ext_tot']) / num_tot
                 ext_avg = round(ext_avg, 2)
                 tot_avg = float(section_dict['marks_tot']) / num_tot
@@ -842,11 +860,12 @@ def faculty_performance(years=(4,), output=None, file=None):
                 num_pass = num_tot - num_carry
                 pass_percent = round(float(num_pass) / num_tot * 100, 2)
                 worksheet.write(r, c + 1, faculty, cell_format)
-                worksheet.write(r, c + 2, ext_avg, cell_format)
-                worksheet.write(r, c + 3, tot_avg, cell_format)
-                worksheet.write(r, c + 4, pass_percent, cell_format)
-                worksheet.write(r, c + 5, section, cell_format)
-                worksheet.write(r, c + 6, num_tot, cell_format)
+                worksheet.write(r, c + 2, int_avg, cell_format)
+                worksheet.write(r, c + 3, ext_avg, cell_format)
+                worksheet.write(r, c + 4, tot_avg, cell_format)
+                worksheet.write(r, c + 5, pass_percent, cell_format)
+                worksheet.write(r, c + 6, section, cell_format)
+                worksheet.write(r, c + 7, num_tot, cell_format)
                 r += 1
 
     workbook.close()
@@ -1280,7 +1299,6 @@ def get_section_faculty_info(file=None):
                         section_faculty_info[sub_code][faculty_name].append(sec)
                 else:
                     section_faculty_info[sub_code][faculty_name] = [sec, ]
-
 
     return section_faculty_info
 
