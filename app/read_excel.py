@@ -103,7 +103,7 @@ def read_excel_data(year=4, branch_code=13, filename=None):
         student[u'aggregate_marks'] = unicode(aggregate_marks)
         print student
 
-        # collection.insert(student)
+        collection.insert(student)
     # collection.insert(student)
     return True
 
