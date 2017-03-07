@@ -16,7 +16,7 @@
 *.xlsx
 *.xlsx#
 *.xls
-
+*.ods
 
 #all the excel files
 *.xlsx

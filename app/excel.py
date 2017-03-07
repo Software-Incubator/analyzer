@@ -11,7 +11,7 @@ arg_to_string = lambda x: str(x)
 
 
 # TODO 1, 2, 3, 4
-def make_excel(college_code='027', years=(1, 2, 3, 4,), branch_codes=('40',), output=None):
+def make_excel(college_code='027', years=(1, ), branch_codes=('10',), output=None):
     years = map(arg_to_string, years)
     branch_codes = map(arg_to_string, branch_codes)
     if output:
@@ -67,7 +67,7 @@ def make_excel(college_code='027', years=(1, 2, 3, 4,), branch_codes=('40',), ou
                 worksheet.write(r, c - 2, student['name'], cell_format)
                 worksheet.write(r, c - 1, student['father_name'], cell_format)
 
-                std_marks = student['marks'][str(int(year) * 2)]  # list of all sub marks
+                std_marks = student['marks'][str(int(year) * 2 - 1)]  # list of all sub marks
 
                 std_ext_total = std_marks[-1]['marks'][0]  # external total of student
                 std_int_total = std_marks[-1]['marks'][1]  # internal total of student
@@ -130,7 +130,7 @@ def make_excel(college_code='027', years=(1, 2, 3, 4,), branch_codes=('40',), ou
     return workbook
 
 
-def fail_excel(college_code='027', years=('4',), output=None):
+def fail_excel(college_code='027', years=('1',), output=None):
     """
     generates excel for failed students
     :param college_code: code of the college of which the excel is to be made
@@ -247,7 +247,7 @@ def akgec_summary(years=('3',), output=None):
         collection = connection.test.students
         branch_codes = collection.distinct("branch_code")
         r = 0
-        # for headding
+        # for heading
         heading = str(app.config['COLLEGE_CODENAMES'][
                           college_code]) + '  YEAR: ' + year + '  2015-16'
         worksheet.write(r, 0, heading, merge_format)
@@ -361,7 +361,7 @@ def other_college_summary(college_code, year):
     worksheet.set_row(0, 30)
     collection = connection.test.students
     r, c = 0, 0
-    # for headding
+    # for heading
     heading = ('Inter-Branch Comparison\n' +
                str(app.config['COLLEGE_CODENAMES'][college_code]) +
                '  YEAR: ' + year + '  2015-16')
@@ -665,7 +665,7 @@ def faculty_performance(years=(4,), output=None, file=None):
                                     })
 
         section_faculty_info = get_section_faculty_info(file=file)
-        students[0]
+
 
         for student in students:
             carry_papers = student['carry_papers']

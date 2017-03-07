@@ -123,5 +123,3 @@ MAX_MARKS_YEARWISE = {
 WTF_CSRF_ENABLED = True
 # SECRET_KEY = 'GuessItIfUCan'
 UPLOAD_FOLDER = os.getcwd() + '/Section-Faculty Information'
-# ALLOWED_EXTENSIONS = set(['xlsx',])
-# app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER

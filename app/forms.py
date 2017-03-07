@@ -46,7 +46,6 @@ class FailExcelForm(Form):
                                validators=[DataRequired()])
 
 
-# fnum=3 for faculty form
 class FacultyForm(Form):
     year = SelectMultipleField("Year", choices=year_choices,
                                validators=[DataRequired()])
@@ -56,8 +55,6 @@ class FacultyForm(Form):
                                  ])
 
 
-# fnum=4 for year form which is a single form for all other
-#  forms previously used containing only year field
 class YearForm(Form):
     year = SelectMultipleField("Year", choices=year_choices,
                                validators=[DataRequired()])
@@ -73,16 +70,3 @@ class LoginForm(Form):
                            validators=[DataRequired()])
     password = PasswordField('password',
                              validators=[DataRequired()])
-
-# class CrawlDataForm(Form):
-#     year = SelectMultipleField('year',choices=year_choices,validators=[DataRequired()])
-#     captcha = FileField('Enter the captcha',[regexp(u'^[^/\\]\.jpg$'), FileRequired()])
-
-
-# class SignUpForm(Form):
-#     username = StringField('username', validators=[DataRequired()])
-#     name = StringField('name', validators=DataRequired())
-#     email_id = StringField('email_id', validators=[DataRequired(),
-#                            Email()])
-#     password = PasswordField('password',
-#                              validators=[DataRequired(),Length(min=8)])
