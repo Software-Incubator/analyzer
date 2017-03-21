@@ -5,7 +5,7 @@ from app.models import connection
 from xlrd import open_workbook
 
 
-def open_excel(start_year=1, end_year=4):
+def open_excel(start_year=1, end_year=1):
     """
     this function collect all the students roll_no and section in a list of tuple
         student_data = [(roll_no,section)]
@@ -20,7 +20,7 @@ def open_excel(start_year=1, end_year=4):
         year = str(year)
         col = 0
         wb = open_workbook(os.getcwd() + "/Roll Number lists/" +
-                           year + "_year2.xlsx")
+                           year + "_year.xlsx")
         student_data = []
         # for s in wb.sheets()[: -1]:
         for s in wb.sheets():
@@ -44,6 +44,7 @@ def update_section(student_data):
     if collection:
         for roll_num, section in student_data:
             # unicode_roll = "u'{}".format(roll_num)
+            print type(roll_num), roll_num
             roll_num = int(roll_num)
             student = collection.find_one(
                 {'roll_no': str(roll_num).encode("utf-8").decode("utf-8")})

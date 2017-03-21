@@ -6,9 +6,10 @@ from pymongo import MongoClient
 from config import BRANCH_NAMES, BRANCH_CODENAMES
 
 
-def read_excel_data(year=4, branch_code=13, filename=None):
+def read_excel_data(year=1, branch_code=31, filename=None):
     if filename is None:
-        fname = os.getcwd() + '/Student_Reports/' + 'B_Tech' + BRANCH_CODENAMES[str(branch_code)] + str(year) + 'Yr.xlsx'
+        fname = os.getcwd() + '/Student_Reports/' + 'B_Tech' + BRANCH_CODENAMES[str(branch_code)] + str(
+            year) + 'Yr.xlsx'
     else:
         fname = os.getcwd() + '/Student_Reports/' + str(filename)
 
@@ -22,7 +23,7 @@ def read_excel_data(year=4, branch_code=13, filename=None):
 
     tot_rows = sheet.nrows
     tot_cols = sheet.ncols
-    sub_dict_tot = {}
+    sub_dict_tot = dict()
 
     # Indicates start of subject columns in excel;hardcoded; will need to be changed as per excel
     sub_start = 5
@@ -60,7 +61,7 @@ def read_excel_data(year=4, branch_code=13, filename=None):
             cell_value = unicode(sheet.cell(row, column).value)
             if column < sub_start:
 
-                if sheet.cell(0,column).value == 'Status':
+                if sheet.cell(0, column).value == 'Status':
                     index -= 1
 
                 else:
@@ -89,15 +90,23 @@ def read_excel_data(year=4, branch_code=13, filename=None):
             elif sheet.cell(0, column).value == 'MaxMarks':
                 student[u'max_marks'] = cell_value
                 student[u'max_marks'] = cell_value
+
             elif sheet.cell(0, column).value == 'COP':
-                carry_papers = cell_value[6:].split(',')
+
+                carry_papers = cell_value.split(':')
+                if len(carry_papers) > 1:
+                    carry_papers = carry_papers[1].split(',')
+                    carry_papers = [sub_code.strip() for sub_code in carry_papers]
+                else:
+                    carry_papers = list()
+
                 student[u'carry_papers'] = carry_papers
             elif sheet.cell(0, column).value == 'ReStatus':
                 carry_status = cell_value[3]
 
                 student[u'carry_status'] = carry_status
-            else:
-                student[u'section'] = cell_value
+
+            student[u'section'] = u''
             column += 1
 
         student[u'aggregate_marks'] = unicode(aggregate_marks)
@@ -106,5 +115,3 @@ def read_excel_data(year=4, branch_code=13, filename=None):
         collection.insert(student)
     # collection.insert(student)
     return True
-
-

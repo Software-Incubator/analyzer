@@ -58,6 +58,7 @@ class User(Document):
         # 'role': unicode,
 
     }
+
     validators = {
         'password': max_length(8),
 
