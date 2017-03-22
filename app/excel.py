@@ -155,7 +155,8 @@ def fail_excel(college_code='027', years=('1',), output=None, is_even_sem=False)
         for branch_code in branch_codes:
             students = collection.find({"college_code": college_code,
                                         "year": year,
-                                        "branch_code": branch_code})
+                                        "branch_code": branch_code,
+                                        "carry_status": {"$ne": "M"}})
             if students.count():
                 student = students.next()
                 student1 = students.next()
@@ -176,12 +177,12 @@ def fail_excel(college_code='027', years=('1',), output=None, is_even_sem=False)
             worksheet.set_column('P:P', 12)
             cell_list = string.ascii_uppercase[3:]
             i = 0
-            stud_marks = len(student['marks'][str(int(year) * 2 - 0 if is_even_sem else 1)]) - 1
-            stud_marks1 = len(student1['marks'][str(int(year) * 2 - 0 if is_even_sem else 1)]) - 1
+            stud_marks = len(student['marks'][str(int(year) * 2 - (0 if is_even_sem else 1))]) - 1
+            stud_marks1 = len(student1['marks'][str(int(year) * 2 - (0 if is_even_sem else 1))]) - 1
             if stud_marks < stud_marks1:
                 student = student1
-            num_subjects = len(student['marks'][str(int(year) * 2 - 0 if is_even_sem else 1)]) - 1
-            for sub_dict in student['marks'][str(int(year) * 2 - 0 if is_even_sem else 1)][:-1]:
+            num_subjects = len(student['marks'][str(int(year) * 2 - (0 if is_even_sem else 1))]) - 1
+            for sub_dict in student['marks'][str(int(year) * 2 - (0 if is_even_sem else 1))][:-1]:
                 sub_code = sub_dict['sub_code']
                 if sub_code[1:4] == 'OE0':
                     sub_code = 'OE0'
@@ -192,7 +193,7 @@ def fail_excel(college_code='027', years=('1',), output=None, is_even_sem=False)
                                            "year": year,
                                            "branch_code": branch_code,
                                            "carry_status": {
-                                               "$ne": "0"
+                                               "$nin": ["0", "M"]
                                            }
                                            })
             j = 2
@@ -213,7 +214,7 @@ def fail_excel(college_code='027', years=('1',), output=None, is_even_sem=False)
                     k += len(fail_student['marks'])
 
                 else:
-                    for mark_dict in fail_student['marks'][str(int(year) * 2 - 0 if is_even_sem else 1)][:-1]:
+                    for mark_dict in fail_student['marks'][str(int(year) * 2 - (0 if is_even_sem else 1))][:-1]:
                         if mark_dict['sub_code'] in carry_papers:
                             worksheet.write(j, k, "F")
                         else:

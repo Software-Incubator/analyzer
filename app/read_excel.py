@@ -6,7 +6,7 @@ from pymongo import MongoClient
 from config import BRANCH_NAMES, BRANCH_CODENAMES
 
 
-def read_excel_data(year=1, branch_code=31, filename=None):
+def read_excel_data(year=2, branch_code=31, even_sem=False, filename=None):
     if filename is None:
         fname = os.getcwd() + '/Student_Reports/' + 'B_Tech' + BRANCH_CODENAMES[str(branch_code)] + str(
             year) + 'Yr.xlsx'
@@ -31,7 +31,7 @@ def read_excel_data(year=1, branch_code=31, filename=None):
     keys = map(unicode, ['roll_no', 'name', 'father_name'])
     branch_name = unicode(BRANCH_NAMES[str(branch_code)])
     branch_code = unicode(branch_code)
-    semester = unicode(year)
+    semester = unicode(int(year) * 2 - (0 if even_sem else 1))
 
     sub_code_pattern = re.search(r'\w+\d{3}', sheet.cell(0, col).value)
 
@@ -102,7 +102,7 @@ def read_excel_data(year=1, branch_code=31, filename=None):
 
                 student[u'carry_papers'] = carry_papers
             elif sheet.cell(0, column).value == 'ReStatus':
-                carry_status = cell_value[3]
+                carry_status = cell_value[4]
 
                 student[u'carry_status'] = carry_status
 
