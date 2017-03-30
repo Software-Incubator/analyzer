@@ -227,7 +227,7 @@ def fail_excel(college_code='027', years=('1',), output=None, is_even_sem=False)
     return True
 
 
-def akgec_summary(years=('1',), output=None, is_even_sem=False):
+def akgec_summary(years=(3,), output=None, is_even_sem=False):
     college_code = '027'
     years = map(str, years)
     if output:
@@ -249,7 +249,7 @@ def akgec_summary(years=('1',), output=None, is_even_sem=False):
         r = 0
         # for heading
         heading = str(app.config['COLLEGE_CODENAMES'][
-                          college_code]) + '  YEAR: ' + year + '  2015-16'
+                          college_code]) + '  YEAR: ' + year + '  2016-17'
         worksheet.write(r, 0, heading, merge_format)
         worksheet.merge_range("A1:I1", heading, merge_format)
         r += 1
@@ -280,7 +280,7 @@ def akgec_summary(years=('1',), output=None, is_even_sem=False):
             incomp_stud = collection.find({'college_code': college_code,
                                            'branch_code': branch_code,
                                            'year': year,
-                                           'carry_status': 'INC'})
+                                           'carry_status': 'M'})
             total = year_max_dict.get(branch_code)
             if not total:
                 continue
@@ -290,7 +290,7 @@ def akgec_summary(years=('1',), output=None, is_even_sem=False):
             cp = collection.find({'college_code': college_code,
                                   'branch_code': branch_code,
                                   'year': year,
-                                  'carry_status': {'$ne': "0"}
+                                  'carry_status': {'$nin': ["0", "M"]}
                                   }).count()
 
             pass_count = rd - cp
@@ -360,7 +360,7 @@ def other_college_summary(college_code, year):
     # for heading
     heading = ('Inter-Branch Comparison\n' +
                str(app.config['COLLEGE_CODENAMES'][college_code]) +
-               '  YEAR: ' + year + '  2015-16')
+               '  YEAR: ' + year + '  2016-17')
     worksheet.merge_range("A1:F1", heading, merge_format)
     r += 1
     worksheet.write(r, c, 'S. No', merge_format)
@@ -413,10 +413,11 @@ def other_college_summary(college_code, year):
     return True
 
 
-def ext_avg(years=(1,), output=None, is_even_sem=False):
+def ext_avg(years=(3,), output=None, is_even_sem=False):
     years = map(str, years)
     collection = connection.test.students
     college_codes = app.config['COLLEGE_CODES']
+    branch_codes = app.config['BRANCH_CODES']
     # making a workbook
     if output:
         workbook = xlsxwriter.Workbook(output)
@@ -424,20 +425,24 @@ def ext_avg(years=(1,), output=None, is_even_sem=False):
         workbook = xlsxwriter.Workbook('ext_avg_year_' + '.xlsx')
 
     for year in years:
+        avg_list = list()
+        tot_marks = 0
 
-        max_mark = app.config['MAX_MARKS_YEARWISE'][year]  # max ext marks for year
-        avg_list = []
-        try:
-            for colg_code in college_codes:
-                students = collection.find({'year': year, 'college_code': colg_code,
+        for colg_code in college_codes:
+            branch_marks_info = list()
+            for branch_code in branch_codes:
+
+                students = collection.find({'year': year, 'college_code': colg_code, 'carry_status': {'$ne': 'M'},
+                                            'branch_code': branch_code
                                             })
-                if not students:
+                if not students.count():
                     continue
+                max_mark = app.config['MAX_MARKS_YEARWISE'][year][branch_code]  # max ext marks for branch
+
                 t_ext = 0
 
                 for student in students:
-                    print "Computing ext tot"
-                    t_ext += student["marks"][str(int(year) * 2 - 0 if is_even_sem else 1)][-1]["marks"][0]
+                    t_ext += student["marks"][str(int(year) * 2 - (0 if is_even_sem else 1))][-1]["marks"][0]
 
                     # ext = 0
                     # for mark in student['marks'][str(int(year)*2)]:
@@ -445,17 +450,26 @@ def ext_avg(years=(1,), output=None, is_even_sem=False):
                     # t_ext += ext
 
                 len_students = students.count()
+                try:
+                    branch_avg_marks = float(t_ext) / len_students
+                except ZeroDivisionError as e:
+                    print e
+                else:
+                    branch_avg_marks = round(branch_avg_marks, 2)
+                    branch_percent = branch_avg_marks / max_mark * 100
+                    branch_percent = round(branch_percent, 2)
+                    branch_marks_info.append((branch_percent, len_students))
+                    tot_marks += t_ext
 
-                colg_avg = float(t_ext) / len_students
-                colg_avg = round(colg_avg, 2)
-                percent = colg_avg / max_mark * 100
-                percent = round(percent, 2)
-                avg_dict = {colg_code: [colg_avg, percent]}
-                avg_list.append(avg_dict)
-                print avg_list
-
-        except ZeroDivisionError:
-            print "Zero Division Error"
+            colg_total = sum([x * y for x, y in branch_marks_info])
+            if not colg_total:
+                continue
+            colg_percent = colg_total / float(sum([x[1] for x in branch_marks_info]))
+            colg_percent = round(colg_percent, 2)
+            colg_avg = tot_marks / float(sum([x[1] for x in branch_marks_info]))
+            colg_avg = round(colg_avg, 2)
+            avg_dict = {colg_code: [colg_avg, colg_percent]}
+            avg_list.append(avg_dict)
         worksheet = workbook.add_worksheet()
         merge_format = workbook.add_format({
             'bold': True,
@@ -472,7 +486,7 @@ def ext_avg(years=(1,), output=None, is_even_sem=False):
                               ('Inter College Comparison of External Marks\n'
                                'Year: %s' % year), merge_format)
         worksheet.merge_range('A2:H2',
-                              'Maximum External Marks: ' + str(max_mark),
+                              'Maximum External Marks vary with branch',
                               merge_format)
         worksheet.write(2, 0, 'College', merge_format)
         worksheet.write(3, 0, 'Average Marks', merge_format)
@@ -497,7 +511,7 @@ def ext_avg(years=(1,), output=None, is_even_sem=False):
     return True
 
 
-def sec_wise_ext(years=(1,), output=None, is_even_sem=False):
+def sec_wise_ext(years=(3,), output=None, is_even_sem=False):
     college_code = "027"
     years = map(str, years)
     collection = connection.test.students
@@ -564,7 +578,7 @@ def sec_wise_ext(years=(1,), output=None, is_even_sem=False):
                                             })
 
                 for student in students:
-                    for mark_dict in student['marks'][str(int(year) * 2 - 0 if is_even_sem else 1)][:-1]:
+                    for mark_dict in student['marks'][str(int(year) * 2 - (0 if is_even_sem else 1))][:-1]:
                         sub_tup = (mark_dict['sub_code'], mark_dict['sub_name'])
                         if sub_tup not in subjects:
                             subjects.append(sub_tup)
@@ -581,7 +595,7 @@ def sec_wise_ext(years=(1,), output=None, is_even_sem=False):
                                                 })
                     number_of_students = 0
                     for student in students:
-                        marks = student['marks'][str(int(year) * 2 - 0 if is_even_sem else 1)]
+                        marks = student['marks'][str(int(year) * 2 - (0 if is_even_sem else 1))]
                         for m in marks:
                             if m['sub_code'] == sub_code:
                                 ext_total = ext_total + m['marks'][0]
@@ -616,7 +630,7 @@ def sec_wise_ext(years=(1,), output=None, is_even_sem=False):
     return True
 
 
-def faculty_performance(years=(1,), output=None, file=None, is_even_sem=False):
+def faculty_performance(years=(3,), output=None, file=None, is_even_sem=False):
     years = map(str, years)
     if output:
         workbook = xlsxwriter.Workbook(output)
@@ -669,7 +683,8 @@ def faculty_performance(years=(1,), output=None, file=None, is_even_sem=False):
         section_faculty_info = get_section_faculty_info(file=file)
 
         for student in students:
-            print("Student: {}, branch: {}".format(student['roll_no'], student['branch_code']))
+            # print("Student: {}, branch: {}".format(student['roll_no'], student['branch_code']))
+            section = student['section']
             carry_papers = student['carry_papers']
             for mark_dict in student['marks'][str(int(year) * 2 - (0 if is_even_sem else 1))][:-1]:
                 sub_code = mark_dict['sub_code']
@@ -686,9 +701,9 @@ def faculty_performance(years=(1,), output=None, file=None, is_even_sem=False):
                     if sub_code[1:3] == "OE":
                         for faculty, sections in sub_sec_fac.items():
                             section_str = ', '.join(sections)
-                            if student['section'] in sections:
+                            if section in sections:
                                 sub_details[(sub_code, sub_name)] = {
-                                    section_str: {
+                                    section: {
                                         'ext_tot': mark_dict['marks'][0],
                                         'int_tot': mark_dict['marks'][1],
                                         'num_tot': 1,
@@ -700,7 +715,7 @@ def faculty_performance(years=(1,), output=None, file=None, is_even_sem=False):
                                 break
                         else:
                             sub_details[(sub_code, sub_name)] = {
-                                section_str: {
+                                section: {
                                     'ext_tot': mark_dict['marks'][0],
                                     'int_tot': mark_dict['marks'][1],
                                     'num_tot': 1,
@@ -711,12 +726,12 @@ def faculty_performance(years=(1,), output=None, file=None, is_even_sem=False):
                             }
                     else:
                         for faculty, sections in sub_sec_fac.iteritems():
-                            print 'Faculty: ', faculty, '; Sections: ', sections
-                            print 'Student section: ', student['section']
-                            if student['section'] in sections:
-                                print("Student section found, faculty: {}".format(faculty))
+                            # print 'Faculty: ', faculty, '; Sections: ', sections
+                            # print 'Student section: ', student['section']
+                            if section in sections:
+                                # print("Student section found, faculty: {}".format(faculty))
                                 sub_details[(sub_code, sub_name)] = {
-                                    student['section']: {
+                                    section: {
                                         'ext_tot': mark_dict['marks'][0],
                                         'int_tot': mark_dict['marks'][1],
                                         'num_tot': 1,
@@ -727,9 +742,9 @@ def faculty_performance(years=(1,), output=None, file=None, is_even_sem=False):
                                 }
                                 break
                         else:
-                            print 'Faculty for the subject {} not found'.format(sub_code)
+                            # print 'Faculty for the subject {} not found'.format(sub_code)
                             sub_details[(sub_code, sub_name)] = {
-                                student['section']: {
+                                section: {
                                     'ext_tot': mark_dict['marks'][0],
                                     'int_tot': mark_dict['marks'][1],
                                     'num_tot': 1,
@@ -743,9 +758,9 @@ def faculty_performance(years=(1,), output=None, file=None, is_even_sem=False):
                     if sub_code[1:3] == "OE":
                         for faculty, sections in sub_sec_fac.iteritems():
                             section_str = ', '.join(sections)
-                            if student['section'] in sections:
-                                if section_str not in sub_dict:
-                                    sub_dict[section_str] = {
+                            if section in sections:
+                                if section not in sub_dict:
+                                    sub_dict[section] = {
                                         'ext_tot': mark_dict['marks'][0],
                                         'int_tot': mark_dict['marks'][1],
                                         'num_tot': 1,
@@ -754,20 +769,20 @@ def faculty_performance(years=(1,), output=None, file=None, is_even_sem=False):
                                         'faculty': faculty
                                     }
                                 else:
-                                    sub_dict[section_str][
+                                    sub_dict[section][
                                         'ext_tot'] += mark_dict['marks'][0]
-                                    sub_dict[section_str][
+                                    sub_dict[section][
                                         'int_tot'] += mark_dict['marks'][1]
-                                    sub_dict[section_str][
+                                    sub_dict[section][
                                         'num_tot'] += 1
-                                    sub_dict[section_str][
+                                    sub_dict[section][
                                         'marks_tot'] += sum(mark_dict['marks'])
-                                    sub_dict[section_str][
+                                    sub_dict[section][
                                         'num_carry'] += num_carry
                                 break
                         else:
-                            if not sub_dict.get(section_str):
-                                sub_dict[section_str] = {
+                            if not sub_dict.get(section):
+                                sub_dict[section] = {
                                     'ext_tot': mark_dict['marks'][0],
                                     'int_tot': mark_dict['marks'][1],
                                     'num_tot': 1,
@@ -776,18 +791,18 @@ def faculty_performance(years=(1,), output=None, file=None, is_even_sem=False):
                                     'faculty': 'not available'
                                 }
                             else:
-                                sub_dict[section_str]['ext_tot'] += mark_dict['marks'][0]
-                                sub_dict[section_str]['int_tot'] += mark_dict['marks'][1]
-                                sub_dict[section_str]['num_tot'] += 1
-                                sub_dict[section_str]['marks_tot'] += sum(mark_dict['marks'])
-                                sub_dict[section_str]['num_carry'] += num_carry
+                                sub_dict[section]['ext_tot'] += mark_dict['marks'][0]
+                                sub_dict[section]['int_tot'] += mark_dict['marks'][1]
+                                sub_dict[section]['num_tot'] += 1
+                                sub_dict[section]['marks_tot'] += sum(mark_dict['marks'])
+                                sub_dict[section]['num_carry'] += num_carry
 
                     else:
                         for faculty, sections in sub_sec_fac.iteritems():
-                            if student['section'] in sections:
-                                if not sub_dict.get(student['section']):
+                            if section in sections:
+                                if not sub_dict.get(section):
                                     sub_dict[
-                                        student['section']] = {
+                                        section] = {
                                         'ext_tot': mark_dict['marks'][0],
                                         'int_tot': mark_dict['marks'][1],
                                         'num_tot': 1,
@@ -797,38 +812,38 @@ def faculty_performance(years=(1,), output=None, file=None, is_even_sem=False):
                                     }
                                 else:
                                     sub_dict[
-                                        student['section']]['ext_tot'] += \
+                                        section]['ext_tot'] += \
                                         mark_dict['marks'][0]
                                     sub_dict[
-                                        student['section']]['int_tot'] += \
+                                        section]['int_tot'] += \
                                         mark_dict['marks'][1]
                                     sub_dict[
-                                        student['section']]['num_tot'] += 1
+                                        section]['num_tot'] += 1
                                     sub_dict[
-                                        student['section']]['marks_tot'] += sum(
+                                        section]['marks_tot'] += sum(
                                         mark_dict['marks'])
                                     sub_dict[
-                                        student['section']][
+                                        section][
                                         'num_carry'] += num_carry
                                 break
                         else:
-                            if sub_dict.get(student['section']):
-                                sub_dict[student['section']][
+                            if sub_dict.get(section):
+                                sub_dict[section][
                                     'ext_tot'] += mark_dict['marks'][0]
-                                sub_dict[student['section']][
+                                sub_dict[section][
                                     'int_tot'] += mark_dict['marks'][1]
                                 sub_dict[
-                                    student['section']][
+                                    section][
                                     'num_tot'] += 1
                                 sub_dict[
-                                    student['section']][
+                                    section][
                                     'marks_tot'] += sum(mark_dict['marks'])
                                 sub_dict[
-                                    student['section']][
+                                    section][
                                     'num_carry'] += num_carry
                             else:
                                 sub_dict[
-                                    student['section']] = {
+                                    section] = {
                                     'ext_tot': mark_dict['marks'][0],
                                     'int_tot': mark_dict['marks'][1],
                                     'num_tot': 1,
@@ -876,7 +891,7 @@ def faculty_performance(years=(1,), output=None, file=None, is_even_sem=False):
     workbook.close()
 
 
-def subject_wise(years=('1',), output=None):
+def subject_wise(years=(3,), output=None):
     """
     subject wise comparison of marks of all 4 colleges
     :param year: year for which the analysis is done
@@ -1041,7 +1056,7 @@ def pass_percentage(year_range=range(1, 5), output=None):
     return True
 
 
-def branch_wise_pass_percent(years=('1',), output=None, is_even_sem=False):
+def branch_wise_pass_percent(years=(3,), output=None, is_even_sem=False):
     """
     creates report with pass percetage of each college for each branch for
     given year
@@ -1148,7 +1163,7 @@ def branch_wise_pass_percent(years=('1',), output=None, is_even_sem=False):
     return True
 
 
-def branch_wise_ext_avg(years=('2',), output=None, is_even_sem=False):
+def branch_wise_ext_avg(years=(3,), output=None, is_even_sem=False):
     """
     generates report for branchwise comparison of external percentage of
     each college
@@ -1162,7 +1177,7 @@ def branch_wise_ext_avg(years=('2',), output=None, is_even_sem=False):
         workbook = xlsxwriter.Workbook(output)
     else:
         workbook = xlsxwriter.Workbook(
-            'inter_college_branch_wise_external_comparison_year-' + '.xlsx')
+            'branch_wise_external_comparison_year-' + '.xlsx')
     heading_format = workbook.add_format({
         "bold": True,
         "align": "center",
@@ -1185,6 +1200,7 @@ def branch_wise_ext_avg(years=('2',), output=None, is_even_sem=False):
         worksheet.set_row(r, 30)
         worksheet.write(r, c, 'Deptt. \\ College', heading_format)
         c += 1
+
         for college_code in college_codes:
             worksheet.write(r, c, college_codenames[college_code], heading_format)
             c += 1
@@ -1192,7 +1208,7 @@ def branch_wise_ext_avg(years=('2',), output=None, is_even_sem=False):
         # heading
         worksheet.set_row(0, 30)
         worksheet.merge_range(0, 0, 0, c - 1,
-                              ('Inter College Branch-wise External Percentage\n'
+                              ('Branch-wise External Percentage\n'
                                'Comparison - Year: {}'.format(year)),
                               heading_format)
         branch_codes = collection.find({'year': year}).distinct('branch_code')
@@ -1201,8 +1217,10 @@ def branch_wise_ext_avg(years=('2',), output=None, is_even_sem=False):
         if '14' in branch_codes:
             branch_codes.remove('14')
         branch_codenames = app.config['BRANCH_CODENAMES']
-        year_max_marks = app.config['MAX_MARKS_YEARWISE'][year]
         for branch_code in branch_codes:
+
+            year_branchwise_max_marks = app.config['MAX_MARKS_YEARWISE'][year][branch_code]
+
             c = 0
             worksheet.write(r, c, branch_codenames[branch_code], heading_format)
             c += 1
@@ -1211,30 +1229,47 @@ def branch_wise_ext_avg(years=('2',), output=None, is_even_sem=False):
                     'year': year,
                     'branch_code': branch_code,
                     'college_code': college_code,
-                    'carry_status': {'$ne': '1'}
+                    'carry_status': {'$ne': 'M'}
                 })
                 student_count = students.count()
+                if not student_count:
+                    continue
                 ext_total = 0
                 for student in students:
                     student_total = 0
-                    for marks_dict in student['marks'][str(int(year) * 2 - 0 if is_even_sem else 1)][:-1]:
+                    for marks_dict in student['marks'][str(int(year) * 2 - (0 if is_even_sem else 1))][:-1]:
                         marks = marks_dict['marks']
                         student_total += marks[0]
                     ext_total += student_total
-                if college_total_info.get(college_code):
-                    college_info = college_total_info[college_code]
-                    college_info['ext_total'] += ext_total
-                    college_info['student_count'] += student_count
-                else:
-                    college_info = dict()
-                    college_info['ext_total'] = ext_total
-                    college_info['student_count'] = student_count
-                    college_total_info[college_code] = college_info
+
+
+                    # if college_total_info.get(college_code):
+                    #     college_info = college_total_info[college_code]
+                    # college_info['ext_total'] += ext_total
+                    # college_info['student_count'] += student_count
+                    # college_total_info[college_code].append((ext_total, student_count, year_branchwise_max_marks))
+
+                    # else:
+                    # college_info = dict()
+                    # college_info['ext_total'] = ext_total
+                    # college_info['student_count'] = student_count
+                    # college_total_info[college_code] = college_info
+                    # college_total_info[college_code] = list()
+                    # college_total_info[college_code].append((ext_total, student_count, year_branchwise_max_marks))
+
                 try:
                     avg_ext = float(ext_total) / student_count
-                    avg_ext_percentage = round(avg_ext / year_max_marks * 100, 2)
+                    avg_ext_percentage = round(avg_ext / year_branchwise_max_marks * 100, 2)
+
                 except ZeroDivisionError:
                     avg_ext_percentage = '-'
+                if college_total_info.get(college_code):
+                    college_total_info[college_code].append(
+                        (avg_ext_percentage, student_count, year_branchwise_max_marks))
+                else:
+                    college_total_info[college_code] = list()
+                    college_total_info[college_code].append((avg_ext_percentage, student_count, year_branchwise_max_marks))
+
                 worksheet.write(r, c, avg_ext_percentage, cell_format)
                 c += 1
             r += 1
@@ -1244,11 +1279,17 @@ def branch_wise_ext_avg(years=('2',), output=None, is_even_sem=False):
         c += 1
         for college_code in college_total_info:
             college_info = college_total_info[college_code]
-            total_count = college_info['student_count']
-            ext_total = college_info['ext_total']
+
+            # total_count = college_info['student_count']
+            # ext_total = college_info['ext_total']
             try:
-                ext_avg_marks = float(ext_total) / total_count
-                ext_avg_p = round(ext_avg_marks / year_max_marks * 100, 2)
+                # ext_avg_marks = float(ext_total) / total_count
+                # ext_avg_p = round(ext_avg_marks / year_branchwise_max_marks * 100, 2)
+                ext_total = float(sum([x[0] * x[1] for x in college_info]))
+                total_count = sum([x[1] for x in college_info])
+                ext_avg_marks = ext_total / total_count
+                ext_avg_p = round(ext_avg_marks, 2)
+
             except ZeroDivisionError:
                 ext_avg_p = '-'
             worksheet.write(r, c, ext_avg_p, heading_format)

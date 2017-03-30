@@ -5,8 +5,10 @@ from app.models import connection
 from pymongo import MongoClient
 from config import BRANCH_NAMES, BRANCH_CODENAMES
 
+GP_EXT = 0
 
-def read_excel_data(year=2, branch_code=31, even_sem=False, filename=None):
+
+def read_excel(year=3, branch_code=31, even_sem=False, filename=None):
     if filename is None:
         fname = os.getcwd() + '/Student_Reports/' + 'B_Tech' + BRANCH_CODENAMES[str(branch_code)] + str(
             year) + 'Yr.xlsx'
@@ -37,14 +39,23 @@ def read_excel_data(year=2, branch_code=31, even_sem=False, filename=None):
 
     while sub_code_pattern:
         cell_value = sheet.cell(0, col).value
-        keys.append(cell_value[sub_code_pattern.start():sub_code_pattern.end()])
+
+        if 'AUC' in cell_value:
+            pass
+
+        elif 'NGP' in cell_value:
+
+            keys.append(cell_value[sub_code_pattern.start():sub_code_pattern.end()])
+            col -= 3
+
+        else:
+
+            keys.append(cell_value[sub_code_pattern.start():sub_code_pattern.end()])
         # Increment in col will need to be adjusted as per the excel
         col += 4
         sub_code_pattern = re.search(r'\w+\d{3}', sheet.cell(0, col).value)
 
-    col -= 4
-    print col
-    print keys
+    col -= 1
 
     for row in range(1, tot_rows):
 
@@ -69,7 +80,7 @@ def read_excel_data(year=2, branch_code=31, even_sem=False, filename=None):
                 index += 1
 
             # 'MarksObt2 needs to be changed as per the excel
-            elif sheet.cell(0, column).value == 'MarksObt1':
+            elif sheet.cell(0, column).value == 'MarksObt':
 
                 sub_dict_tot[u'sub_code'] = u'TOT'
                 sub_dict_tot[u'sub_name'] = u'total'
@@ -78,12 +89,33 @@ def read_excel_data(year=2, branch_code=31, even_sem=False, filename=None):
 
             elif column >= sub_start and column <= col:
 
-                sub_dict = {u'sub_code': keys[index], u'sub_name': u'',
-                            u'marks': [float(cell_value), float(sheet.cell(row, column + 1).value)]}
-                aggregate_marks += float(sheet.cell(row, column + 2).value)
-                ext_tot += float(cell_value)
-                int_tot += float(sheet.cell(row, column + 1).value)
-                student[u'marks'][semester].append(sub_dict)
+                if 'AUC' in sheet.cell(0, column).value:
+                    index -= 1
+
+                elif 'OE0' in sheet.cell(0, column).value and float(cell_value) == 0.0 and float(
+                        sheet.cell(row, column + 1).value) == 0.0:
+                    pass
+
+                elif 'NGP' in sheet.cell(0, column).value:
+
+                    gp_int = float(cell_value)
+                    sub_dict = {u'sub_code': keys[index], u'sub_name': u'',
+                                u'marks': [GP_EXT, float(gp_int)]}
+
+                    ext_tot += GP_EXT
+                    int_tot += gp_int
+                    aggregate_marks += gp_int
+                    student[u'marks'][semester].append(sub_dict)
+                    column -= 3
+
+                else:
+                    print cell_value, sheet.cell(0,column).value
+                    sub_dict = {u'sub_code': keys[index], u'sub_name': u'',
+                                u'marks': [float(cell_value), float(sheet.cell(row, column + 1).value)]}
+                    aggregate_marks += float(sheet.cell(row, column + 2).value)
+                    ext_tot += float(cell_value)
+                    int_tot += float(sheet.cell(row, column + 1).value)
+                    student[u'marks'][semester].append(sub_dict)
                 column += 3
                 index += 1
 
@@ -93,10 +125,15 @@ def read_excel_data(year=2, branch_code=31, even_sem=False, filename=None):
 
             elif sheet.cell(0, column).value == 'COP':
 
-                carry_papers = cell_value.split(':')
+                carry_papers = cell_value.strip().split(':')
+
                 if len(carry_papers) > 1:
                     carry_papers = carry_papers[1].split(',')
                     carry_papers = [sub_code.strip() for sub_code in carry_papers]
+                elif len(carry_papers) == 1:
+                    carry_papers = carry_papers[0].split(',')
+                    carry_papers = [sub_code.strip() for sub_code in carry_papers]
+
                 else:
                     carry_papers = list()
 
@@ -110,8 +147,8 @@ def read_excel_data(year=2, branch_code=31, even_sem=False, filename=None):
             column += 1
 
         student[u'aggregate_marks'] = unicode(aggregate_marks)
-        print student
 
+        print student
         collection.insert(student)
-    # collection.insert(student)
+
     return True
