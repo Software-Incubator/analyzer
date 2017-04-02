@@ -1,14 +1,14 @@
 import os
 import xlrd
 import re
-from app.models import connection
 from pymongo import MongoClient
 from config import BRANCH_NAMES, BRANCH_CODENAMES
 
 GP_EXT = 0
+del(BRANCH_CODENAMES['14'])
+del(BRANCH_CODENAMES['20'])
 
-
-def read_excel(year=3, branch_code=31, even_sem=False, filename=None):
+def read_excel(year=2, branch_code=31, even_sem=False, filename=None):
     if filename is None:
         fname = os.getcwd() + '/Student_Reports/' + 'B_Tech' + BRANCH_CODENAMES[str(branch_code)] + str(
             year) + 'Yr.xlsx'
@@ -40,10 +40,8 @@ def read_excel(year=3, branch_code=31, even_sem=False, filename=None):
     while sub_code_pattern:
         cell_value = sheet.cell(0, col).value
 
-        if 'AUC' in cell_value:
-            pass
 
-        elif 'NGP' in cell_value:
+        if 'NGP' in cell_value:
 
             keys.append(cell_value[sub_code_pattern.start():sub_code_pattern.end()])
             col -= 3
@@ -90,7 +88,9 @@ def read_excel(year=3, branch_code=31, even_sem=False, filename=None):
             elif column >= sub_start and column <= col:
 
                 if 'AUC' in sheet.cell(0, column).value:
-                    index -= 1
+                    sub_dict = {u'sub_code': keys[index], u'sub_name': u'',
+                                u'marks': [float(cell_value), float(sheet.cell(row, column + 1).value)]}
+                    student[u'marks'][semester].append(sub_dict)
 
                 elif 'OE0' in sheet.cell(0, column).value and float(cell_value) == 0.0 and float(
                         sheet.cell(row, column + 1).value) == 0.0:
@@ -109,7 +109,7 @@ def read_excel(year=3, branch_code=31, even_sem=False, filename=None):
                     column -= 3
 
                 else:
-                    print cell_value, sheet.cell(0,column).value
+
                     sub_dict = {u'sub_code': keys[index], u'sub_name': u'',
                                 u'marks': [float(cell_value), float(sheet.cell(row, column + 1).value)]}
                     aggregate_marks += float(sheet.cell(row, column + 2).value)
@@ -151,4 +151,10 @@ def read_excel(year=3, branch_code=31, even_sem=False, filename=None):
         print student
         collection.insert(student)
 
+    return True
+
+def read_all_branches(years=(2,)):
+    for year in years:
+        for branch in BRANCH_CODENAMES:
+            read_excel(year=year,branch_code=branch)
     return True

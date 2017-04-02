@@ -703,7 +703,7 @@ def faculty_performance(years=(3,), output=None, file=None, is_even_sem=False):
                             section_str = ', '.join(sections)
                             if section in sections:
                                 sub_details[(sub_code, sub_name)] = {
-                                    section: {
+                                    section_str: {
                                         'ext_tot': mark_dict['marks'][0],
                                         'int_tot': mark_dict['marks'][1],
                                         'num_tot': 1,
@@ -759,8 +759,8 @@ def faculty_performance(years=(3,), output=None, file=None, is_even_sem=False):
                         for faculty, sections in sub_sec_fac.iteritems():
                             section_str = ', '.join(sections)
                             if section in sections:
-                                if section not in sub_dict:
-                                    sub_dict[section] = {
+                                if section_str not in sub_dict:
+                                    sub_dict[section_str] = {
                                         'ext_tot': mark_dict['marks'][0],
                                         'int_tot': mark_dict['marks'][1],
                                         'num_tot': 1,
@@ -769,15 +769,15 @@ def faculty_performance(years=(3,), output=None, file=None, is_even_sem=False):
                                         'faculty': faculty
                                     }
                                 else:
-                                    sub_dict[section][
+                                    sub_dict[section_str][
                                         'ext_tot'] += mark_dict['marks'][0]
-                                    sub_dict[section][
+                                    sub_dict[section_str][
                                         'int_tot'] += mark_dict['marks'][1]
-                                    sub_dict[section][
+                                    sub_dict[section_str][
                                         'num_tot'] += 1
-                                    sub_dict[section][
+                                    sub_dict[section_str][
                                         'marks_tot'] += sum(mark_dict['marks'])
-                                    sub_dict[section][
+                                    sub_dict[section_str][
                                         'num_carry'] += num_carry
                                 break
                         else:

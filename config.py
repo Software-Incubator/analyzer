@@ -101,13 +101,13 @@ MAX_STUDENTS = {
 
     # 4th year
     '4': {
-        "00": 69,
-        "10": 151,
-        "13": 128,
-        "21": 136,
-        "31": 148,
-        "32": 47,
-        "40": 209
+        "00": 70,
+        "10": 209,
+        "13": 113,
+        "21": 131,
+        "31": 197,
+        "32": 35,
+        "40": 211
     }
 
 }
@@ -148,10 +148,9 @@ MAX_MARKS_YEARWISE = {
         "21": 620,
         "31": 620,
         "32": 620,
-        "40": 620
+        "40": 590
     },
 }
 
 WTF_CSRF_ENABLED = True
-# SECRET_KEY = 'GuessItIfUCan'
 UPLOAD_FOLDER = os.getcwd() + '/Section-Faculty Information'
