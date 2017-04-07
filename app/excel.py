@@ -666,11 +666,14 @@ def faculty_performance(years=(3,), output=None, file=None, is_even_sem=False):
         worksheet.write(r, c, 'Subject Name', heading_format)
         worksheet.write(r, c + 1, 'Name Of Faculty', heading_format)
         worksheet.write(r, c + 2, 'Internal Avg %s Marks' % sep, heading_format)
+        worksheet.write(r, c + 2, 'Internal Percentage %s Marks' % sep, heading_format)
         worksheet.write(r, c + 3, 'External Avg %s Marks' % sep, heading_format)
+        worksheet.write(r, c + 4, 'External Percentage %s Marks' % sep, heading_format)
         worksheet.write(r, c + 4, 'Total Avg %s Marks' % sep, heading_format)
         worksheet.write(r, c + 5, 'Pass %', heading_format)
         worksheet.write(r, c + 6, 'Section', heading_format)
         worksheet.write(r, c + 7, "Students in sec", heading_format)
+
         r += 1
         sub_details = dict()
         students = collection.find({'year': year, 'college_code': college_code,
@@ -852,6 +855,8 @@ def faculty_performance(years=(3,), output=None, file=None, is_even_sem=False):
                                     'faculty': 'not available'
                                 }
 
+        max_marks_subdict = get_max_marks(year=year)
+
         for sub_tup in sub_details:
             sub_dict = sub_details[sub_tup]
             num_sections = len(sub_dict)
@@ -870,15 +875,30 @@ def faculty_performance(years=(3,), output=None, file=None, is_even_sem=False):
                 section_dict = sub_od[section]
                 faculty = section_dict['faculty']
                 num_tot = section_dict['num_tot']
+                int_max = max_marks_subdict[sub_tup][0]
+                ext_max = max_marks_subdict[sub_tup][1]
                 int_avg = float(section_dict['int_tot']) / num_tot
                 int_avg = round(int_avg, 2)
+                if int_max in [0, 'NA', '-']:
+                    int_percent = '-'
+                else:
+                    int_percent = float(int_avg * 100 / int_max)
+                    int_percent = round(int_percent, 2)
+                print "internal percentage is {}".format(int_percent)
                 ext_avg = float(section_dict['ext_tot']) / num_tot
                 ext_avg = round(ext_avg, 2)
+                if ext_max in [0, 'NA', '-']:
+                    ext_percent = '-'
+                else:
+                    ext_percent = float(int_avg * 100 / ext_max)
+                    ext_percent = round(ext_percent, 2)
+                print "external percentage is {}".format(ext_percent)
                 tot_avg = float(section_dict['marks_tot']) / num_tot
                 tot_avg = round(tot_avg, 2)
                 num_carry = section_dict['num_carry']
                 num_pass = num_tot - num_carry
                 pass_percent = round(float(num_pass) / num_tot * 100, 2)
+
                 worksheet.write(r, c + 1, faculty, cell_format)
                 worksheet.write(r, c + 2, int_avg, cell_format)
                 worksheet.write(r, c + 3, ext_avg, cell_format)
@@ -1268,7 +1288,8 @@ def branch_wise_ext_avg(years=(3,), output=None, is_even_sem=False):
                         (avg_ext_percentage, student_count, year_branchwise_max_marks))
                 else:
                     college_total_info[college_code] = list()
-                    college_total_info[college_code].append((avg_ext_percentage, student_count, year_branchwise_max_marks))
+                    college_total_info[college_code].append(
+                        (avg_ext_percentage, student_count, year_branchwise_max_marks))
 
                 worksheet.write(r, c, avg_ext_percentage, cell_format)
                 c += 1
@@ -1358,6 +1379,29 @@ def get_section_faculty_info(file=None, is_even_sem=False):
 
     print section_faculty_info
     return section_faculty_info
+
+
+# Helper function
+def get_max_marks(year=4, is_even_sem=False):
+    year = str(year)
+    filename = os.getcwd() + "/Section-Faculty Information/max_marks_" + year + "_year.xlsx"
+    wb = open_workbook(filename)
+    sheet = wb.sheet_by_index(0)
+    subject_max_marks = dict()
+    col = 0
+    for row in range(1, sheet.nrows):
+        cell_value = sheet.cell(row, col).value
+        print cell_value
+        if cell_value == '':
+            pass
+        elif cell_value[3] in [' ', '-']:
+            cell_value = ''.join(cell_value.split(cell_value[3]))
+            print "subject code is {}".format(cell_value)
+
+
+        subject_max_marks[cell_value] = [sheet.cell(row, col + 1).value, sheet.cell(row, col + 2).value]
+
+    return subject_max_marks
 
 
 # Helper function
