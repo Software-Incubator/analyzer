@@ -10,10 +10,25 @@
 
 #byte-compiled files
 *.pyc
+app/*.pyc
+
+#Ignoring all excel and related files
+*.xlsx
+*.xlsx#
+*.xls
+*.ods
+
+#all the excel files
+*.xlsx
+*.xls
 
 #data files
+
 *.json
 *.bson
 
 #gif
 *.gif
+
+#ngrok file
+ngrok

@@ -1,19 +1,22 @@
 import os
 import xlsxwriter
+
 from app.models import connection
 from xlrd import open_workbook
 
 
-def open_excel(years=range(1, 4)):
+def open_excel(start_year=1, end_year=1):
     """
     this function collect all the students roll_no and section in a list of tuple
         student_data = [(roll_no,section)]
     this particular list is send to the update_section function will update
     the section detail of the student
-    :param years: iterable, years for which the sections are to be updated
+    :param start_year: iterable, years for which the sections are to be updated
+    :param end_year: last year till which the result has to be updated
     :return: True
     """
-    for year in years:
+    year_range = range(start_year, end_year + 1)
+    for year in year_range:
         year = str(year)
         col = 0
         wb = open_workbook(os.getcwd() + "/Roll Number lists/" +
@@ -41,6 +44,7 @@ def update_section(student_data):
     if collection:
         for roll_num, section in student_data:
             # unicode_roll = "u'{}".format(roll_num)
+            print type(roll_num), roll_num
             roll_num = int(roll_num)
             student = collection.find_one(
                 {'roll_no': str(roll_num).encode("utf-8").decode("utf-8")})
@@ -61,7 +65,7 @@ def update_section(student_data):
 
 
 def generate_list():
-    collection  = connection.test.students
+    collection = connection.test.students
     college_students = collection.find({"college_code": "027"})
     workbook = xlsxwriter.Workbook('roll_num_list.xlsx')
     worksheet = workbook.add_worksheet()
@@ -69,14 +73,13 @@ def generate_list():
     worksheet.set_column("A:A", 20)
     r, c = 0, 0
     worksheet.write(r, c, "Roll No.", heading_format)
-    worksheet.write(r, c+1, "Section", heading_format)
-    worksheet.write(r, c+2, "Year", heading_format)
+    worksheet.write(r, c + 1, "Section", heading_format)
+    worksheet.write(r, c + 2, "Year", heading_format)
     r += 1
     for student in college_students:
         worksheet.write(r, c, student['roll_no'])
-        worksheet.write(r, c+1, student.get('section', 'not provided'))
-        worksheet.write(r, c+2, student['year'])
+        worksheet.write(r, c + 1, student.get('section', 'not provided'))
+        worksheet.write(r, c + 2, student['year'])
         r += 1
     workbook.close()
     return True
-

@@ -1,4 +1,6 @@
-BRANCH_CODES = ['00', '10', '13', '20', '21', '31', '32', '40',]
+import os
+
+BRANCH_CODES = ['00', '10', '13', '21', '31', '32', '40', '20']
 
 MCA_BRANCH_CODES = ['14', ]
 
@@ -18,14 +20,13 @@ BRANCH_NAMES = {
     "00": "Civil Engineering",
     "10": "Computer Science and Engineering",
     "13": "Information Technology",
-    "21": "Electrical & Electronics Engineering",
     "20": "Electrical Engineering",
     "31": "Electronics and Communication Engineering",
     "32": "Electronics and Instrumentation Engineering",
     "40": "Mechanical Engineering",
     "14": "Master in Computer Applications",
+    "21": "Electrical & Electronics Engineering",
 }
-
 BRANCH_CODENAMES = {
     "00": "CE",
     "10": "CSE",
@@ -39,14 +40,14 @@ BRANCH_CODENAMES = {
 }
 
 URLS = {
-    1: ("http://results.aktu.ac.in/akturesult/Even2016Result"
-        "/frmbtech2semester_2016safrgh.aspx"),
-    2: ("http://results.aktu.ac.in/akturesult/Even2016Result"
-        "/frmbtech4semtrererb_2016nrqiop.aspx"),
-    3: ("http://results.aktu.ac.in/akturesult/Even2016Result"
-        "/frmbtech6semhjjh_2016fbnhvg.aspx"),
-    4: ("http://results.aktu.ac.in/akturesult/Even2016Result"
-        "/frmBtech78even2016.aspx"),
+    1: ("http://results.aktu.ac.in/akturesult/Even2016Resul"
+        "t/frmbtech2semester_2016safrgh.aspx"),
+    2: ("http://results.aktu.ac.in/akturesult/Even2016Resul"
+        "t/frmbtech4semtrererb_2016nrqiop.aspx"),
+    3: ("http://results.aktu.ac.in/akturesult/Even2016Resul"
+        "t/frmbtech6semhjjh_2016fbnhvg.aspx"),
+    4: ("http://results.aktu.ac.in/akturesult/Even2016Resul"
+        "t/frmBtech78even2016.aspx"),
 
 }
 
@@ -59,10 +60,8 @@ MCA_URLS = {
         'Semester2016/frmMCA5Semome.aspx'),
 }
 
-
 COLLEGE_CODES = ["027", "029", "032", "091", "143", "033", "161", "030",
                  "222", ]
-
 
 # total students of all branches of Ajay Kumar Garg Engineering College
 MAX_STUDENTS = {
@@ -70,55 +69,90 @@ MAX_STUDENTS = {
     '1': {
         "00": 119,
         "10": 186,
-        "13": 124,
-        "21": 113,
-        "31": 181,
-        "32": 39,
-        "40": 182,
-        "14": 38,
+        "13": 123,
+        "21": 112,
+        "31": 183,
+        "32": 31,
+        "40": 180,
+        "14": 118,
     },
 
     # 2nd year
     '2': {
-        "00": 134,
-        "10": 196,
-        "13": 123,
-        "21": 121,
-        "31": 194,
-        "32": 36,
-        "40": 190,
+        "00": 128,
+        "10": 204,
+        "13": 126,
+        "21": 116,
+        "31": 174,
+        "32": 32,
+        "40": 210,
         "14": 113,  # assumed data
     },
 
     # 3rd year
     '3': {
-        "00": 70,
-        "10": 208,
-        "13": 113,
-        "21": 132,
-        "31": 197,
-        "32": 35,
-        "40": 212,
+        "00": 133,
+        "10": 193,
+        "13": 122,
+        "21": 118,
+        "31": 187,
+        "32": 36,
+        "40": 185,
         "14": 135,
     },
 
     # 4th year
-    '4':  {
-        "00": 69,
-        "10": 151,
-        "13": 128,
-        "21": 136,
-        "31": 148,
-        "32": 47,
-        "40": 209
+    '4': {
+        "00": 70,
+        "10": 209,
+        "13": 113,
+        "21": 131,
+        "31": 197,
+        "32": 35,
+        "40": 211
     }
 
 }
 
 MAX_MARKS_YEARWISE = {
 
-    '1': 620,
-    '2': 670,
-    '3': 590,
-    '4': 650,
+    '1': {
+        "00": 630,
+        "10": 630,
+        "13": 630,
+        "21": 630,
+        "31": 630,
+        "32": 630,
+        "40": 630
+    },
+    '2': {
+        "00": 620,
+        "10": 620,
+        "13": 620,
+        "21": 620,
+        "31": 620,
+        "32": 620,
+        "40": 620
+    },
+    '3': {
+        "00": 620,
+        "10": 620,
+        "13": 620,
+        "21": 620,
+        "31": 620,
+        "32": 620,
+        "40": 590
+    }, #620 for all branches and 590 for ME
+    '4': {
+        "00": 650,
+        "10": 600,
+        "13": 600,
+        "21": 650,
+        "31": 650,
+        "32": 650,
+        "40": 600
+    },
 }
+
+WTF_CSRF_ENABLED = True
+UPLOAD_FOLDER = os.getcwd() + '/Section-Faculty Information'

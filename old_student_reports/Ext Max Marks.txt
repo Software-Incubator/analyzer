@@ -1,0 +1,8 @@
+Third Year: 
+IT: 620
+CS: 620
+CE: 620
+EN: 620
+EC: 620
+EI: 620
+ME: 590

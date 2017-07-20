@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block content %}
+
+    <div id="chosen-excel" class="container">
+        <form method="post" action="" enctype="multipart/form-data">
+            {{ form.csrf_token }}
+            {% for field in form %}
+                {% if field.id != "csrf_token" %}
+                    <div>
+                        <p>{{ field.label }}:</p>
+                        <p>{{ field }}</p>
+
+                    </div>
+
+                {% endif %}
+            {% endfor %}
+            <input type="submit" value="Generate Excel">
+        </form>
+    </div>
+
+{% endblock %}
