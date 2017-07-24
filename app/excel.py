@@ -529,7 +529,7 @@ def sec_wise_ext(years=(3,), output=None, is_even_sem=False):
     if output:
         workbook = xlsxwriter.Workbook(output)
     else:
-        workbook = xlsxwriter.Workbook('section_wise_year_' + '.xlsx')
+        workbook = xlsxwriter.Workbook('section_wise_year_' + year + '.xlsx')
 
     merge_format = workbook.add_format({
         "bold": True,
@@ -694,10 +694,10 @@ def faculty_performance(years=(3,), output=None, file=None, is_even_sem=False):
                                                 '31', '32', '40']}
                                     })
 
-        section_faculty_info = get_section_faculty_info(file=file)
+        section_faculty_info = get_section_faculty_info(file=file,is_even_sem=is_even_sem)
 
         for student in students:
-            # print("Student: {}, branch: {}".format(student['roll_no'], student['branch_code']))
+            
             section = student['section']
             carry_papers = student['carry_papers']
             for mark_dict in student['marks'][str(int(year) * 2 - (0 if is_even_sem else 1))][:-1]:
@@ -740,10 +740,9 @@ def faculty_performance(years=(3,), output=None, file=None, is_even_sem=False):
                             }
                     else:
                         for faculty, sections in sub_sec_fac.iteritems():
-                            # print 'Faculty: ', faculty, '; Sections: ', sections
-                            # print 'Student section: ', student['section']
+                           
                             if section in sections:
-                                # print("Student section found, faculty: {}".format(faculty))
+                                
                                 sub_details[(sub_code, sub_name)] = {
                                     section: {
                                         'ext_tot': mark_dict['marks'][0],
@@ -756,7 +755,7 @@ def faculty_performance(years=(3,), output=None, file=None, is_even_sem=False):
                                 }
                                 break
                         else:
-                            # print 'Faculty for the subject {} not found'.format(sub_code)
+                           
                             sub_details[(sub_code, sub_name)] = {
                                 section: {
                                     'ext_tot': mark_dict['marks'][0],
@@ -1346,7 +1345,7 @@ def get_section_faculty_info(file=None, is_even_sem=False):
         wb = open_workbook(filename)
     else:
         wb = open_workbook(
-            "/home/nishtha/Desktop/Result-analyser/analyzer/Section-Faculty Information/subject_section_faculty_" + sem + "_sem_2017.xlsx")
+            "/home/analyzer/Projects/analyzer/Section-Faculty Information/subject_section_faculty_" + sem + "_sem_2017.xlsx")
     sheet = wb.sheet_by_index(0)
     section_faculty_info = dict()
     row, col = 0, 0
@@ -1367,7 +1366,7 @@ def get_section_faculty_info(file=None, is_even_sem=False):
                 faculty_name = ''.join(faculty_name.split('(')[0])
 
             if faculty_name[-1] == '*':
-                faculty_name = faculty_name[:-1]
+                faculty_name = name_faculty[:-1]
 
             if sub_code[3] == '-' or sub_code[3] == ' ':
                 sub_code = sub_code[:3] + sub_code[4:]
