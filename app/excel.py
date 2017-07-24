@@ -280,7 +280,7 @@ def akgec_summary(years=(3,), output=None, is_even_sem=False):
             incomp_stud = collection.find({'college_code': college_code,
                                            'branch_code': branch_code,
                                            'year': year,
-                                           'carry_status': 'M'})
+                                           'carry_status': 'INC'})
             total = year_max_dict.get(branch_code)
             if not total:
                 continue
@@ -290,7 +290,7 @@ def akgec_summary(years=(3,), output=None, is_even_sem=False):
             cp = collection.find({'college_code': college_code,
                                   'branch_code': branch_code,
                                   'year': year,
-                                  'carry_status': {'$nin': ["0", "M"]}
+                                  'carry_status': {'$nin': ["PASS", "PWG","INC"]}
                                   }).count()
 
             pass_count = rd - cp
@@ -432,7 +432,7 @@ def ext_avg(years=(3,), output=None, is_even_sem=False):
             branch_marks_info = list()
             for branch_code in branch_codes:
 
-                students = collection.find({'year': year, 'college_code': colg_code, 'carry_status': {'$ne': 'M'},
+                students = collection.find({'year': year, 'college_code': colg_code, 'carry_status': {'$ne': 'INC'},
                                             'branch_code': branch_code
                                             })
                 if not students.count():
@@ -683,7 +683,7 @@ def faculty_performance(years=(3,), output=None, file=None, is_even_sem=False):
                                                 '31', '32', '40']}
                                     })
 
-        section_faculty_info = get_section_faculty_info(file=file)
+        section_faculty_info = get_section_faculty_info(file=file,is_even_sem=is_even_sem)
 
         for student in students:
             # print("Student: {}, branch: {}".format(student['roll_no'], student['branch_code']))
@@ -693,6 +693,7 @@ def faculty_performance(years=(3,), output=None, file=None, is_even_sem=False):
                 sub_code = mark_dict['sub_code']
                 sub_name = mark_dict['sub_name']
                 sub_sec_fac = section_faculty_info.get(sub_code, {})
+
                 if (sub_code[:2] == "GP" or sub_code[1:3] == "GP" or
                             sub_code[-2] == "5"):
                     continue
@@ -729,10 +730,9 @@ def faculty_performance(years=(3,), output=None, file=None, is_even_sem=False):
                             }
                     else:
                         for faculty, sections in sub_sec_fac.iteritems():
-                            # print 'Faculty: ', faculty, '; Sections: ', sections
-                            # print 'Student section: ', student['section']
+
                             if section in sections:
-                                # print("Student section found, faculty: {}".format(faculty))
+
                                 sub_details[(sub_code, sub_name)] = {
                                     section: {
                                         'ext_tot': mark_dict['marks'][0],
@@ -875,16 +875,16 @@ def faculty_performance(years=(3,), output=None, file=None, is_even_sem=False):
                 section_dict = sub_od[section]
                 faculty = section_dict['faculty']
                 num_tot = section_dict['num_tot']
-                int_max = max_marks_subdict[sub_tup][0]
-                ext_max = max_marks_subdict[sub_tup][1]
+                int_max = float(max_marks_subdict[sub_tup][0])
+                ext_max = float(max_marks_subdict[sub_tup][1])
                 int_avg = float(section_dict['int_tot']) / num_tot
+
                 int_avg = round(int_avg, 2)
                 if int_max in [0, 'NA', '-']:
                     int_percent = '-'
                 else:
                     int_percent = float(int_avg * 100 / int_max)
                     int_percent = round(int_percent, 2)
-                print "internal percentage is {}".format(int_percent)
                 ext_avg = float(section_dict['ext_tot']) / num_tot
                 ext_avg = round(ext_avg, 2)
                 if ext_max in [0, 'NA', '-']:
@@ -892,7 +892,6 @@ def faculty_performance(years=(3,), output=None, file=None, is_even_sem=False):
                 else:
                     ext_percent = float(int_avg * 100 / ext_max)
                     ext_percent = round(ext_percent, 2)
-                print "external percentage is {}".format(ext_percent)
                 tot_avg = float(section_dict['marks_tot']) / num_tot
                 tot_avg = round(tot_avg, 2)
                 num_carry = section_dict['num_carry']
@@ -1344,6 +1343,7 @@ def get_section_faculty_info(file=None, is_even_sem=False):
                                        sheet.cell_value(row, col + 1),
                                        sheet.cell_value(row, col + 2))
         if sub_code:
+            print "in if"
 
             sub_code, sec, faculty_name = (sub_code.strip(),
                                            sec.strip(),
@@ -1359,6 +1359,7 @@ def get_section_faculty_info(file=None, is_even_sem=False):
                 faculty_name = faculty_name[:-1]
 
             if sub_code[3] == '-' or sub_code[3] == ' ':
+                print "found -"
                 sub_code = sub_code[:3] + sub_code[4:]
 
             if len(sec) > 2:
@@ -1382,7 +1383,7 @@ def get_section_faculty_info(file=None, is_even_sem=False):
 
 
 # Helper function
-def get_max_marks(year=4, is_even_sem=False):
+def get_max_marks(year=4):
     year = str(year)
     filename = os.getcwd() + "/Section-Faculty Information/max_marks_" + year + "_year.xlsx"
     wb = open_workbook(filename)
@@ -1391,7 +1392,7 @@ def get_max_marks(year=4, is_even_sem=False):
     col = 0
     for row in range(1, sheet.nrows):
         cell_value = sheet.cell(row, col).value
-        print cell_value
+
         if cell_value == '':
             pass
         elif cell_value[3] in [' ', '-']:
@@ -1399,7 +1400,7 @@ def get_max_marks(year=4, is_even_sem=False):
             print "subject code is {}".format(cell_value)
 
 
-        subject_max_marks[cell_value] = [sheet.cell(row, col + 1).value, sheet.cell(row, col + 2).value]
+        subject_max_marks[(cell_value,u'')] = [sheet.cell(row, col + 1).value, sheet.cell(row, col + 2).value]
 
     return subject_max_marks
 
