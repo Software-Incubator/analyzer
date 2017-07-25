@@ -8,7 +8,7 @@ GP_EXT = 0
 del(BRANCH_CODENAMES['14'])
 del(BRANCH_CODENAMES['20'])
 
-def read_excel(year=2, branch_code=31, even_sem=False, filename=None):
+def read_excel(year=2, branch_code=31, is_even_sem=False, filename=None):
     if filename is None:
         fname = os.getcwd() + '/Student_Reports/' + 'B_Tech' + BRANCH_CODENAMES[str(branch_code)] + str(
             year) + 'Yr.xlsx'
@@ -33,7 +33,7 @@ def read_excel(year=2, branch_code=31, even_sem=False, filename=None):
     keys = map(unicode, ['roll_no', 'name', 'father_name'])
     branch_name = unicode(BRANCH_NAMES[str(branch_code)])
     branch_code = unicode(branch_code)
-    semester = unicode(int(year) * 2 - (0 if even_sem else 1))
+    semester = unicode(int(year) * 2 - (0 if is_even_sem else 1))
 
     sub_code_pattern = re.search(r'\w+\d{3}', sheet.cell(0, col).value)
 
@@ -138,11 +138,11 @@ def read_excel(year=2, branch_code=31, even_sem=False, filename=None):
                     carry_papers = list()
 
                 student[u'carry_papers'] = carry_papers
-            elif sheet.cell(0, column).value == 'ReStatus':
-                #carry_status = cell_value[4]
-		        carry_status = cell_value
-		        student[u'carry_status'] = carry_status
                 
+            elif sheet.cell(0, column).value == 'ReStatus':
+                carry_status = cell_value
+
+                student[u'carry_status'] = carry_status
 
             student[u'section'] = u''
             column += 1
@@ -154,8 +154,11 @@ def read_excel(year=2, branch_code=31, even_sem=False, filename=None):
 
     return True
 
-def read_all_branches(years=(2,),even_sem=False):
+
+
+def read_all_branches(years=(2,),is_even_sem=False):
     for year in years:
         for branch in BRANCH_CODENAMES:
-            read_excel(year=year,branch_code=branch,even_sem=even_sem)
+            read_excel(year=year,branch_code=branch,is_even_sem=is_even_sem)
     return True
+
