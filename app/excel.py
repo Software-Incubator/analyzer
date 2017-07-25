@@ -866,7 +866,6 @@ def faculty_performance(years=(3,), output=None, file=None, is_even_sem=False):
                                 }
 
         max_marks_subdict = get_max_marks(year=year)
-
         for sub_tup in sub_details:
             sub_dict = sub_details[sub_tup]
             num_sections = len(sub_dict)
@@ -885,6 +884,7 @@ def faculty_performance(years=(3,), output=None, file=None, is_even_sem=False):
                 section_dict = sub_od[section]
                 faculty = section_dict['faculty']
                 num_tot = section_dict['num_tot']
+                print "max_marks_subdict \n",max_marks_subdict
                 int_max = max_marks_subdict[sub_tup][0]
                 ext_max = max_marks_subdict[sub_tup][1]
                 int_avg = float(section_dict['int_tot']) / num_tot
