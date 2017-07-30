@@ -855,7 +855,7 @@ def faculty_performance(years=(3,), output=None, file=None, is_even_sem=False):
                                     'faculty': 'not available'
                                 }
 
-        max_marks_subdict = get_max_marks(year=year)
+        max_marks_subdict = get_max_marks()
 
         for sub_tup in sub_details:
             sub_dict = sub_details[sub_tup]
@@ -1383,9 +1383,8 @@ def get_section_faculty_info(file=None, is_even_sem=False):
 
 
 # Helper function
-def get_max_marks(year=4):
-    year = str(year)
-    filename = os.getcwd() + "/Section-Faculty Information/max_marks_" + year + "_year.xlsx"
+def get_max_marks():
+    filename = os.getcwd() + "/Section-Faculty Information/max_marks_year.xlsx"
     wb = open_workbook(filename)
     sheet = wb.sheet_by_index(0)
     subject_max_marks = dict()
