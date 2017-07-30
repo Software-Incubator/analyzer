@@ -227,7 +227,7 @@ def fail_excel(college_code='027', years=('1',), output=None, is_even_sem=False)
     return True
 
 
-def akgec_summary(years=(3,), output=None, is_even_sem=False):
+def akgec_summary(years=(3,), output=None):
     college_code = '027'
     years = map(str, years)
     if output:
@@ -290,7 +290,7 @@ def akgec_summary(years=(3,), output=None, is_even_sem=False):
             cp = collection.find({'college_code': college_code,
                                   'branch_code': branch_code,
                                   'year': year,
-                                  'carry_status': {'$nin': ["PASS", "PWG","INC"]}
+                                  'carry_status': {'$nin': ["PASS", "PWG", "INC","PCP-A"]}
                                   }).count()
 
             pass_count = rd - cp
@@ -683,10 +683,10 @@ def faculty_performance(years=(3,), output=None, file=None, is_even_sem=False):
                                                 '31', '32', '40']}
                                     })
 
-        section_faculty_info = get_section_faculty_info(file=file,is_even_sem=is_even_sem)
+        section_faculty_info = get_section_faculty_info(file=file, is_even_sem=is_even_sem)
 
         for student in students:
-            # print("Student: {}, branch: {}".format(student['roll_no'], student['branch_code']))
+
             section = student['section']
             carry_papers = student['carry_papers']
             for mark_dict in student['marks'][str(int(year) * 2 - (0 if is_even_sem else 1))][:-1]:
@@ -732,7 +732,6 @@ def faculty_performance(years=(3,), output=None, file=None, is_even_sem=False):
                         for faculty, sections in sub_sec_fac.iteritems():
 
                             if section in sections:
-
                                 sub_details[(sub_code, sub_name)] = {
                                     section: {
                                         'ext_tot': mark_dict['marks'][0],
@@ -1075,7 +1074,7 @@ def pass_percentage(year_range=range(1, 5), output=None):
     return True
 
 
-def branch_wise_pass_percent(years=(3,), output=None, is_even_sem=False):
+def branch_wise_pass_percent(years=(3,), output=None):
     """
     creates report with pass percetage of each college for each branch for
     given year
@@ -1342,8 +1341,9 @@ def get_section_faculty_info(file=None, is_even_sem=False):
         sub_code, sec, faculty_name = (sheet.cell_value(row, col),
                                        sheet.cell_value(row, col + 1),
                                        sheet.cell_value(row, col + 2))
+        print faculty_name
         if sub_code:
-            print "in if"
+
 
             sub_code, sec, faculty_name = (sub_code.strip(),
                                            sec.strip(),
@@ -1352,6 +1352,8 @@ def get_section_faculty_info(file=None, is_even_sem=False):
             if faculty_name[-3:] == 'S/I':
                 faculty_name = ' '.join(faculty_name.split(' ')[:-1]).strip()
 
+
+
             if faculty_name[-1] == ')':
                 faculty_name = ''.join(faculty_name.split('(')[0])
 
@@ -1359,7 +1361,7 @@ def get_section_faculty_info(file=None, is_even_sem=False):
                 faculty_name = faculty_name[:-1]
 
             if sub_code[3] == '-' or sub_code[3] == ' ':
-                print "found -"
+
                 sub_code = sub_code[:3] + sub_code[4:]
 
             if len(sec) > 2:
@@ -1384,7 +1386,7 @@ def get_section_faculty_info(file=None, is_even_sem=False):
 
 # Helper function
 def get_max_marks():
-    filename = os.getcwd() + "/Section-Faculty Information/max_marks_year.xlsx"
+    filename = os.getcwd() + "/Section-Faculty Information/max_marks.xlsx"
     wb = open_workbook(filename)
     sheet = wb.sheet_by_index(0)
     subject_max_marks = dict()
@@ -1398,8 +1400,7 @@ def get_max_marks():
             cell_value = ''.join(cell_value.split(cell_value[3]))
             print "subject code is {}".format(cell_value)
 
-
-        subject_max_marks[(cell_value,u'')] = [sheet.cell(row, col + 1).value, sheet.cell(row, col + 2).value]
+        subject_max_marks[(cell_value, u'')] = [sheet.cell(row, col + 1).value, sheet.cell(row, col + 2).value]
 
     return subject_max_marks
 

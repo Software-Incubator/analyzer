@@ -140,8 +140,8 @@ def read_excel(year=2, branch_code=31, is_even_sem=False, filename=None):
                 student[u'carry_papers'] = carry_papers
             elif sheet.cell(0, column).value == 'ReStatus':
                 carry_status = cell_value
-
-                student[u'carry_status'] = carry_status
+                carry_status_list = carry_status.split(' ')
+                student[u'carry_status'] = carry_status_list[0]
 
             student[u'section'] = u''
             column += 1

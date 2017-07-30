@@ -22,7 +22,7 @@ def open_excel(start_year=1, end_year=1):
         wb = open_workbook(os.getcwd() + "/Roll Number lists/" +
                            year + "_year.xlsx")
         student_data = []
-        # for s in wb.sheets()[: -1]:
+
         for s in wb.sheets():
             print 'updating sections for ', s.name
             for row in range(s.nrows):
