@@ -35,7 +35,7 @@ def read_excel(year=2, branch_code=31, is_even_sem=False, filename=None):
     branch_code = unicode(branch_code)
     semester = unicode(int(year) * 2 - (0 if is_even_sem else 1))
 
-    sub_code_pattern = re.search(r'\w+\d{3}', sheet.cell(0, col).value)
+    sub_code_pattern = re.search(r'\w+\d{3}.*', sheet.cell(0, col).value)
 
     while sub_code_pattern:
         cell_value = sheet.cell(0, col).value
@@ -43,15 +43,13 @@ def read_excel(year=2, branch_code=31, is_even_sem=False, filename=None):
 
         if 'NGP' in cell_value:
 
-            keys.append(cell_value[sub_code_pattern.start():sub_code_pattern.end()])
+            # keys.append(cell_value[sub_code_pattern.start():sub_code_pattern.end()-3])
             col -= 3
 
-        else:
-
-            keys.append(cell_value[sub_code_pattern.start():sub_code_pattern.end()])
+        keys.append(cell_value[sub_code_pattern.start():sub_code_pattern.end()-3])
         # Increment in col will need to be adjusted as per the excel
         col += 4
-        sub_code_pattern = re.search(r'\w+\d{3}', sheet.cell(0, col).value)
+        sub_code_pattern = re.search(r'\w+\d{3}.*', sheet.cell(0, col).value)
 
     col -= 1
 
@@ -142,7 +140,7 @@ def read_excel(year=2, branch_code=31, is_even_sem=False, filename=None):
             elif sheet.cell(0, column).value == 'ReStatus':
                 carry_status = cell_value
 
-                student[u'carry_status'] = carry_status
+                student[u'carry_status'] = carry_status.split(' ')[0]
 
             student[u'section'] = u''
             column += 1

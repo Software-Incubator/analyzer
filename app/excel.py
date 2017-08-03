@@ -301,11 +301,7 @@ def akgec_summary(years=(3,), output=None, is_even_sem=False):
             cp = collection.find({'college_code': college_code,
                                   'branch_code': branch_code,
                                   'year': year,
-<<<<<<< HEAD
-                                  'carry_status': {'$nin': ["PASS", "INC","PWG"]}
-=======
-                                  'carry_status': {'$nin': ["PASS", "PWG","INC"]}
->>>>>>> c522e6b4a018bea84541e4e031cc3c49c33a69b6
+                                  'carry_status': {'$nin': ["PASS", "PWG","INC","PCP-A"]}
                                   }).count()
                                   
             pass_count = rd - cp
