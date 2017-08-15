@@ -677,13 +677,13 @@ def faculty_performance(years=(3,), output=None, file=None, is_even_sem=False):
         worksheet.write(r, c, 'Subject Name', heading_format)
         worksheet.write(r, c + 1, 'Name Of Faculty', heading_format)
         worksheet.write(r, c + 2, 'Internal Avg %s Marks' % sep, heading_format)
-        worksheet.write(r, c + 2, 'Internal Percentage %s Marks' % sep, heading_format)
-        worksheet.write(r, c + 3, 'External Avg %s Marks' % sep, heading_format)
-        worksheet.write(r, c + 4, 'External Percentage %s Marks' % sep, heading_format)
-        worksheet.write(r, c + 4, 'Total Avg %s Marks' % sep, heading_format)
-        worksheet.write(r, c + 5, 'Pass %', heading_format)
-        worksheet.write(r, c + 6, 'Section', heading_format)
-        worksheet.write(r, c + 7, "Students in sec", heading_format)
+        worksheet.write(r, c + 3, 'Internal Percentage %s Marks' % sep, heading_format)
+        worksheet.write(r, c + 4, 'External Avg %s Marks' % sep, heading_format)
+        worksheet.write(r, c + 5, 'External Percentage %s Marks' % sep, heading_format)
+        worksheet.write(r, c + 6, 'Total Avg %s Marks' % sep, heading_format)
+        worksheet.write(r, c + 7, 'Pass %', heading_format)
+        worksheet.write(r, c + 8, 'Section', heading_format)
+        worksheet.write(r, c + 9, "Students in sec", heading_format)
 
         r += 1
         sub_details = dict()
@@ -910,11 +910,13 @@ def faculty_performance(years=(3,), output=None, file=None, is_even_sem=False):
 
                 worksheet.write(r, c + 1, faculty, cell_format)
                 worksheet.write(r, c + 2, int_avg, cell_format)
-                worksheet.write(r, c + 3, ext_avg, cell_format)
-                worksheet.write(r, c + 4, tot_avg, cell_format)
-                worksheet.write(r, c + 5, pass_percent, cell_format)
-                worksheet.write(r, c + 6, section, cell_format)
-                worksheet.write(r, c + 7, num_tot, cell_format)
+                worksheet.write(r, c + 3, int_percent, cell_format)
+                worksheet.write(r, c + 4, ext_avg, cell_format)
+                worksheet.write(r, c + 5, ext_percent, cell_format)
+                worksheet.write(r, c + 6, tot_avg, cell_format)
+                worksheet.write(r, c + 7, pass_percent, cell_format)
+                worksheet.write(r, c + 8, section, cell_format)
+                worksheet.write(r, c + 9, num_tot, cell_format)
                 r += 1
 
     workbook.close()
@@ -1344,7 +1346,7 @@ def get_section_faculty_info(file=None, is_even_sem=False):
         wb = open_workbook(filename)
     else:
         wb = open_workbook(
-            "/home/analyzer/Projects/analyzer/Section-Faculty Information/subject_section_faculty_" + sem + "_sem_2017.xlsx")
+            "/home/apoorva/Desktop/analyzer/Section-Faculty Information/subject_section_faculty_" + sem + "_sem_2017.xlsx")
     sheet = wb.sheet_by_index(0)
     section_faculty_info = dict()
     row, col = 0, 0
