@@ -298,18 +298,23 @@ def akgec_summary(years=(3,), output=None, is_even_sem=False):
 
             
             
-            cp = collection.find({'college_code': college_code,
+            failed_students =collection.find({'college_code': college_code,
                                   'branch_code': branch_code,
                                   'year': year,
-                                  'carry_status': {'$nin': ["PASS", "PWG","INC","PCP-A"]}
+                                  'carry_status': {'$nin': ["PASS", "PWG","INC","PCP-A","PCP"]}
                                   }).count()
                                   
-            pass_count = rd - cp
+            pass_count = rd - failed_students
             if rd != 0:
                 pass_percent = (float(pass_count) / rd) * 100
                 pass_percent = round(pass_percent, 2)
             else:
                 pass_percent = '-'
+            student_with_cp=collection.find({'college_code': college_code,
+                                  'branch_code': branch_code,
+                                  'year': year,
+                                  'carry_status': {'$nin': ["PASS", "PWG","INC"]}
+                                  }).count()
 
             # computing not declared percent
             rnd_percent = float(rnd) / total * 100
@@ -323,7 +328,7 @@ def akgec_summary(years=(3,), output=None, is_even_sem=False):
             worksheet.write(r, 4, rnd_percent, excel_format)
             worksheet.write(r, 5, incomp_count, excel_format)
             worksheet.write(r, 6, rd, excel_format)
-            worksheet.write(r, 7, cp, excel_format)
+            worksheet.write(r, 7, student_with_cp, excel_format)
             worksheet.write(r, 8, pass_count, excel_format)
             worksheet.write(r, 9, pass_percent, excel_format)
             r += 1
@@ -332,7 +337,7 @@ def akgec_summary(years=(3,), output=None, is_even_sem=False):
             t_rnd += rnd
             t_incomp += incomp_count
             t_rd = rd + t_rd
-            t_cp = cp + t_cp
+            t_cp = student_with_cp + t_cp
             t_pass_count += pass_count
         # computing not declared percentage
         t_rnd_percent = float(t_rnd) / t_total * 100
@@ -1346,7 +1351,7 @@ def get_section_faculty_info(file=None, is_even_sem=False):
         wb = open_workbook(filename)
     else:
         wb = open_workbook(
-            "/home/apoorva/Desktop/analyzer/Section-Faculty Information/subject_section_faculty_" + sem + "_sem_2017.xlsx")
+            os.getcwd()+"/Section-Faculty Information/subject_section_faculty_" + sem + "_sem_2017.xlsx")
     sheet = wb.sheet_by_index(0)
     section_faculty_info = dict()
     row, col = 0, 0
@@ -1355,7 +1360,6 @@ def get_section_faculty_info(file=None, is_even_sem=False):
                                        sheet.cell_value(row, col + 1),
                                        sheet.cell_value(row, col + 2))
         if sub_code:
-            print "in if"
 
             sub_code, sec, faculty_name = (sub_code.strip(),
                                            sec.strip(),
